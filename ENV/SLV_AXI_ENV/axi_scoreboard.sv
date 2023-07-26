@@ -18,8 +18,8 @@ class axi_scoreboard extends uvm_scoreboard;
    `uvm_analysis_imp_decl(_slave)
 
  //2 analysis port 1 from master and 1 from slave monitor  
- uvm_analysis_imp_master #(axi_trans#(32,32),axi_scoreboard) mas_mon2sb_imp;
-   uvm_analysis_imp_slave #(axi_trans#(32,32),axi_scoreboard) slv_mon2sb_imp;
+ uvm_analysis_imp_master #(axi_trans,axi_scoreboard) mas_mon2sb_imp;
+   uvm_analysis_imp_slave #(axi_trans,axi_scoreboard) slv_mon2sb_imp;
 
 
 ////////////////////////////////////////////////////////////////////////
