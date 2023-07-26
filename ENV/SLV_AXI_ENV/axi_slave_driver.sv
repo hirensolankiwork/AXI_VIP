@@ -51,9 +51,10 @@ endfunction
 task  run_phase(uvm_phase phase);
 
 super.run_phase(phase); 
+  
     `uvm_info("", " DRIVER Run Phase...", UVM_DEBUG);
     forever begin
-        
+        Ready_drive();
         seq_item_port.get_next_item(req);
             drive(req);
         seq_item_port.item_done();
@@ -61,11 +62,7 @@ end
 endtask
 
 task  drive(axi_trans tr_h);
-          
-          axi_inf.slv_drv_cb.AWREADY <= 1'b1;
-          axi_inf.slv_drv_cb.WREADY <= 1'b1;
-          axi_inf.slv_drv_cb.ARREADY <= 1'b1;
-
+         
           @(posedge axi_inf.slv_drv_cb)
           axi_inf.slv_drv_cb.BRESP <= tr_h.BRESP;
           axi_inf.slv_drv_cb.BVALID <= 1'b1;
@@ -73,7 +70,11 @@ task  drive(axi_trans tr_h);
           axi_inf.slv_drv_cb.BVALID <= 1'b0;
 endtask    
 
-
+task Ready_drive();
+          axi_inf.slv_drv_cb.AWREADY <= 1'b1;
+          axi_inf.slv_drv_cb.WREADY <= 1'b1;
+          axi_inf.slv_drv_cb.ARREADY <= 1'b1;
+endtask
 
 endclass
 
