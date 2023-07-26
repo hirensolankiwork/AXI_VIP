@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 26-07-2023 12:38:51
+// Last Modifiey  : 26-07-2023 15:13:30
 // File Name   	  : axi_mas_seq_item.sv
 // Class Name 	  : axi_mas_seq_item
 // Project Name	  : AXI_3 VIP
@@ -21,24 +21,24 @@ typedef enum bit[1:0]{FIX,INCR,WRAP,RESERVE} brust_kind_e;
 typedef enum bit[1:0]{OKAY,EXOKAY,SLVERR,DECERR} resp_kind_e;
 class axi_mas_seq_item extends uvm_sequence_item;
 
-  rand bit [(`WR_ID_WIDTH-1):0]    awr_id;
-  rand bit [(`WR_ID_WIDTH-1):0]    wr_id;
-  rand brust_kind_e                wr_brust_e;
-  rand bit [(`WR_ADDR_WIDTH-1):0]  wr_addr;
-  rand bit [(`WR_ADDR_SIZE-1):0]   wr_size;
-  rand bit [(`WR_ADDR_LEN-1):0]    wr_len;
-  rand bit [(`WR_DATA_WIDTH-1):0]  wr_data[];
-  rand bit [(`WR_STROBE-1):0]      wr_strob;
-       bit [(`WR_ID_WIDTH-1):0]    b_id;
-       resp_kind_e                 b_resp_e;
-  rand bit [(`RD_ID_WIDTH-1):0]    ard_id;
-  rand brust_kind_e                rd_brust_e;
-  rand bit [(`RD_ADDR_WIDTH-1):0]  rd_addr;
-  rand bit [(`RD_ADDR_SIZE-1):0]   rd_size;
-  rand bit [(`RD_ADDR_LEN-1):0]    rd_len;
-       bit [(`RD_DATA_WIDTH-1):0]  rd_data[$];
-       bit [(`RD_ID_WIDTH-1):0]    r_id;
-       resp_kind_e                 r_resp_e;
+  randc bit [(`WR_ID_WIDTH-1):0]    awr_id;
+  randc bit [(`WR_ID_WIDTH-1):0]    wr_id;
+  rand  brust_kind_e                wr_brust_e;
+  rand  bit [(`WR_ADDR_WIDTH-1):0]  wr_addr;
+  rand  bit [(`WR_ADDR_SIZE-1):0]   wr_size;
+  rand  bit [(`WR_ADDR_LEN-1):0]    wr_len;
+  rand  bit [(`WR_DATA_WIDTH-1):0]  wr_data[];
+  rand  bit [(`WR_STROBE-1):0]      wr_strob;
+        bit [(`WR_ID_WIDTH-1):0]    b_id;
+        resp_kind_e                 b_resp_e;
+  randc bit [(`RD_ID_WIDTH-1):0]    ard_id;
+  rand  brust_kind_e                rd_brust_e;
+  rand  bit [(`RD_ADDR_WIDTH-1):0]  rd_addr;
+  rand  bit [(`RD_ADDR_SIZE-1):0]   rd_size;
+  rand  bit [(`RD_ADDR_LEN-1):0]    rd_len;
+        bit [(`RD_DATA_WIDTH-1):0]  rd_data[$];
+        bit [(`RD_ID_WIDTH-1):0]    r_id;
+        resp_kind_e                 r_resp_e;
 
 //UVM Fectory registretion.
 //uvm_sequence_item is object that's why we are using `uvm_object_utils macro.

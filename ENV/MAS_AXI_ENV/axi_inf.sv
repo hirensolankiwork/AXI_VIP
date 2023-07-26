@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 25-07-2023 14:08:43
+// Last Modifiey  : 26-07-2023 15:59:31
 // File Name   	  : axi_mas_inf.sv
 // Interface Name : axi_mas_inf
 // Project Name	  : AXI_3 VIP
@@ -149,6 +149,47 @@ interface axi_inf(input logic aclk,
     output rdata,rlast;
     input  rready;
   endclocking
+
+  modport async_reset( output awid,
+                       output awaddr,
+                       output awbrust,
+                       output awsize,
+                       output awlen,
+                       output awlock,
+                       output awprot,
+                       output awcache,
+                       output awvalid,
+                       input  awready,
+                       //Write data
+                       output wid,
+                       output wdata,
+                       output wstrob,
+                       output wlast,
+                       output wvalid,
+                       input  wready,
+                       //Write response
+                       input  bid,
+                       input  bresp,
+                       input  bvalid,
+                       output bready,
+                       //Read addr.
+                       output arid,
+                       output araddr,
+                       output arbrust,
+                       output arsize,
+                       output arlen,
+                       output arlock,
+                       output arprot,
+                       output arcache,
+                       output arvalid,
+                       input  arready,
+                       //Read data and response.
+                       input  rid,
+                       input  rresp,
+                       input  rvalid,
+                       input  rdata,
+                       input  rlast,
+                       output rready);
 
 endinterface
 

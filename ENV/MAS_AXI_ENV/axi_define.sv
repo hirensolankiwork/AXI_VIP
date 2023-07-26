@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 25-07-2023 14:01:49
+// Last Modifiey  : 26-07-2023 16:04:22
 // File Name   	  : axi_define.sv
 // Class Name 	  : 
 // Project Name	  : 
@@ -28,5 +28,7 @@
 //Macro
 `define DRV m_vif.mas_drv_cb
 `define MON m_vif.mas_mon_cb
+`define ASYC_MP m_vif.async_reset
+
 
 `endif 
