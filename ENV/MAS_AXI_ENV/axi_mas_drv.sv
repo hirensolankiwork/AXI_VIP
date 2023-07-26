@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 26-07-2023 10:26:06
+// Last Modifiey  : 26-07-2023 12:40:41
 // File Name   	  : axi_mas_drv.sv
 // Class Name 	  : axi_mas_drv 
 // Project Name	  : AXI_3 VIP
@@ -95,14 +95,14 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
           `DRV.wvalid <= 1'b1;
           `DRV.wdata  <= req.wr_data[i];
           `DRV.wstrob <= req.wr_strob;
+           if(i==req.wr_len)
+            `DRV.wlast <= 1'b1;
+           else
+            `DRV.wlast <= 1'b0;
           wait(`DRV.wready == 1'b1);
           @(posedge m_vif.aclk);
           `DRV.wvalid <= 1'b0;
-          if(i==req.wr_len)
-            `DRV.wlast <= 1'b1;
-          else
-            `DRV.wlast <= 1'b0;
-        end
+         end
       end
       //Write Response chennal transfer.
       begin

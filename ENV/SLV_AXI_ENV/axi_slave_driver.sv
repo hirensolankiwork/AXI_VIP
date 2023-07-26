@@ -56,6 +56,7 @@ super.run_phase(phase);
     forever begin
         Ready_drive();
         seq_item_port.get_next_item(req);
+        `uvm_info(get_name(),"After get next",UVM_DEBUG)
             drive(req);
         seq_item_port.item_done();
 end

@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 26-07-2023 10:49:19
+// Last Modifiey  : 26-07-2023 13:23:20
 // File Name   	  : axi_tb_top.sv
 // Module Name 	  : axi_tb_top
 // Project Name	  : AXI_3 VIP
@@ -34,6 +34,7 @@ module axi_tb_top();
   always @(*) m_inf.rid      = s_inf.RID;  
   always @(*) m_inf.rdata    = s_inf.RDATA;  
   always @(*) m_inf.rresp    = s_inf.RRESP;  
+  always @(*) m_inf.rlast    = s_inf.RLAST;  
   always @(*) m_inf.rvalid   = s_inf.RVALID;  
   always @(*) s_inf.RREADY   = m_inf.rready;  
    
@@ -54,6 +55,7 @@ module axi_tb_top();
   always @(*) s_inf.WDATA    = m_inf.wdata;  
   always @(*) s_inf.WSTRB    = m_inf.wstrob;  
   always @(*) s_inf.WVALID   = m_inf.wvalid;  
+  always @(*) s_inf.WLAST    = m_inf.wlast;  
   always @(*) m_inf.wready   = s_inf.WREADY;  
 
 

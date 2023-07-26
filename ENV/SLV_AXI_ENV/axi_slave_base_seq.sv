@@ -38,7 +38,7 @@ endfunction
 task body();
 
 
-   
+  `uvm_info(get_name(),"Inside slave seq body",UVM_DEBUG) 
 
    if(! $cast(p_sequencer,m_sequencer))
       `uvm_fatal(get_type_name(),"sequencer casting faills")

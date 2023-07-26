@@ -118,8 +118,9 @@ endtask
 task write_rsp_monitor();
 forever begin
     @(posedge axi_inf.mon_cb);
-    if(axi_inf.WLAST)begin
+    wait(axi_inf.WLAST == 1'b1)begin
     
+  `uvm_info(get_name(),"Inside slave MObitor BVALID",UVM_DEBUG) 
     mon2seqr.write(tr_h);
 
 

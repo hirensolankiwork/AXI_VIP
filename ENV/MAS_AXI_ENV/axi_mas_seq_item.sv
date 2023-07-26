@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 26-07-2023 10:04:33
+// Last Modifiey  : 26-07-2023 12:38:51
 // File Name   	  : axi_mas_seq_item.sv
 // Class Name 	  : axi_mas_seq_item
 // Project Name	  : AXI_3 VIP
@@ -76,7 +76,9 @@ class axi_mas_seq_item extends uvm_sequence_item;
   constraint WR_BRUST {soft wr_brust_e == INCR;
                        soft rd_brust_e == INCR;}
 
-  constraint WR_DATA_SIZE { wr_data.size() == wr_len; }
+  constraint WR_DATA_SIZE { wr_data.size() == wr_len+1; }
+  constraint BRUST_SIZE   { wr_size < 3;
+                            rd_size < 3; }
 
 //This willcalculate the boundry for one transfer  
   int wcontainer_size = wsize * (wr_len+1);
