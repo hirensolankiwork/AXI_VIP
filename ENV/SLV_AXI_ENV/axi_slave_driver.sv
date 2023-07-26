@@ -61,6 +61,11 @@ end
 endtask
 
 task  drive(axi_trans tr_h);
+          
+          axi_inf.slv_drv_cb.AWREADY <= 1'b1;
+          axi_inf.slv_drv_cb.WREADY <= 1'b1;
+          axi_inf.slv_drv_cb.ARREADY <= 1'b1;
+
           @(posedge axi_inf.slv_drv_cb)
           axi_inf.slv_drv_cb.BRESP <= tr_h.BRESP;
           axi_inf.slv_drv_cb.BVALID <= 1'b1;

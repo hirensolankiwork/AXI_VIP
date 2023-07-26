@@ -55,7 +55,7 @@ task body();
      size_que.push_front(2**temp_size);
      awid.push_front(tr_h.AWID);
     `uvm_info(get_type_name(),$sformatf("transaction sucessfully get addr is %p len is %p size is %p ",waddr_que,len_que,size_que),UVM_MEDIUM);
-    
+     //`uvm_send(tr_h);
    end
 
    if(tr_h.WVALID)begin
@@ -64,7 +64,7 @@ task body();
      `uvm_info(get_type_name(),$sformatf(" Address que %d",rd_addr),UVM_MEDIUM);
       mem[rd_addr] = tr_h.WDATA ;
       `uvm_info(get_type_name(),$sformatf(" memory data is %d",mem[rd_addr]),UVM_MEDIUM);
-     
+      //`uvm_send(tr_h);
      end
   
    if(tr_h.WLAST)begin
