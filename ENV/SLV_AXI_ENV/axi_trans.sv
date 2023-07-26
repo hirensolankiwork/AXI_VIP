@@ -19,6 +19,14 @@ typedef enum bit [1:0] { FIXED , INCR ,WRAP , RES} burst_type;
         super.new(name);
     endfunction: new
 
+
+int rlen_que[$];
+int rsize_que[$];
+bit [3:0]raid[$];
+
+
+
+
 // write address channel signal
 bit [ADDR_WIDTH-1:0]AWADDR;                       //   $urandom_range(1,10);
 bit [3:0]AWLEN;
@@ -42,7 +50,7 @@ bit AWVALID;
     bit [3:0]BID;
     bit BREADY;
     bit [1:0] BRESP; 
- 
+    bit BVALID;
 
 //read address channel signal
    bit [31:0]     ARADDR ;                      
@@ -51,10 +59,11 @@ bit AWVALID;
    bit [1:0]      ARBURST;
    bit [3:0]      ARID;   
    bit            ARVALID;
+   bit            ARREADY;
 
 
 //read data channel signals
-
+  bit             RREADY;
   bit             RVALID;
   bit [31:0]      RDATA;
   bit [3:0]       RID;

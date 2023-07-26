@@ -20,9 +20,12 @@ uvm_sequencer b_seqr;
 int mem [int];
 int waddr_que[$];
 int raddr_que[$];
-int len_que[$];
-int size_que[$];
-bit [3:0]awid[$];
+int wlen_que[$];
+int rlen_que[$];
+int wsize_que[$];
+int rsize_que[$];
+bit [3:0]wawid[$];
+bit [3:0]raid[$];
 bit [3:0]wid;
 
 int rd_addr;
@@ -50,12 +53,22 @@ task body();
    if(tr_h.AWVALID)begin
      int temp_size;
      waddr_que.push_front(tr_h.AWADDR);
-     len_que.push_front(tr_h.AWLEN);
+     wlen_que.push_front(tr_h.AWLEN);
      temp_size = tr_h.AWSIZE;
-     size_que.push_front(2**temp_size);
-     awid.push_front(tr_h.AWID);
-    `uvm_info(get_type_name(),$sformatf("transaction sucessfully get addr is %p len is %p size is %p ",waddr_que,len_que,size_que),UVM_MEDIUM);
+     wsize_que.push_front(2**temp_size);
+     wawid.push_front(tr_h.AWID);
+    `uvm_info(get_type_name(),$sformatf("transaction sucessfully get addr is %p len is %p size is %p ",waddr_que,wlen_que,wsize_que),UVM_MEDIUM);
      //`uvm_send(tr_h);
+   end
+
+
+   if(tr_h.ARVALID)begin
+   int temp_size;
+   raddr_que.push_front(tr_h.ARADDR);
+   rlen_que.push_front(tr_h.ARLEN);
+   temp_size = tr_h.ARSIZE;
+   rsize_que.push_front(2**temp_size);
+   raid.push_front(tr_h.ARID);
    end
 
    if(tr_h.WVALID)begin
@@ -69,25 +82,27 @@ task body();
   
    if(tr_h.WLAST)begin
       int temp_awid;
-      temp_awid = awid.pop_back();
+      temp_awid = wawid.pop_back();
       if(tr_h.WID == temp_awid)begin
         tr_h.BRESP = 2'b00;
-       //TODO:
-        //tr_h.BVALID = 1'b1;
+        tr_h.BVALID = 1'b1;
+        tr_h.BID   = tr_h.WID;
         `uvm_send(tr_h);
       end
-   end 
+    end  
+
+    if(tr_h.RREADY)begin
+        tr_h.RLAST = 1'b0;
+        tr_h.RRESP = 2'b00;
+        tr_h.RID   = raid.pop_back();
+        tr_h.rlen_que = rlen_que;
+        tr_h.rsize_que = rsize_que;
+        tr_h.raid  = raid;
+        `uvm_send(tr_h);
+     end        
 end
 
 endtask
-
-
-
-
-
-
-
-
 
 endclass
 

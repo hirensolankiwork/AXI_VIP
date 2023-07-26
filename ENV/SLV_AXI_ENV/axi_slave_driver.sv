@@ -9,8 +9,9 @@
 class axi_slave_driver extends uvm_driver#(axi_trans);
 
 `uvm_component_utils(axi_slave_driver)
-axi_trans tr_h;
 virtual axi_interface axi_inf;
+axi_trans tr_h;
+
 ////////////////////////////////////////////////////////////////////////
 //Method name : Constructor new
 //Arguments   :  str,parent
@@ -57,24 +58,48 @@ super.run_phase(phase);
         Ready_drive();
         seq_item_port.get_next_item(req);
         `uvm_info(get_name(),"After get next",UVM_DEBUG)
-            drive(req);
+          if(req.WLAST)
+            resp_drive(req);
+          if(req.RVALID)
+            read_data(req); 
         seq_item_port.item_done();
 end
 endtask
 
-task  drive(axi_trans tr_h);
-         
-          @(posedge axi_inf.slv_drv_cb)
+task  resp_drive(axi_trans tr_h);
           axi_inf.slv_drv_cb.BRESP <= tr_h.BRESP;
-          axi_inf.slv_drv_cb.BVALID <= 1'b1;
-          wait(axi_inf.slv_drv_cb.BREADY == 1'b1)
+          axi_inf.slv_drv_cb.BVALID <= tr_h.BVALID;
+          axi_inf.slv_drv_cb.BID    <= tr_h.BID;
+          @(axi_inf.slv_drv_cb);
+          wait(axi_inf.slv_drv_cb.BREADY == 1'b1);
           axi_inf.slv_drv_cb.BVALID <= 1'b0;
 endtask    
+
+task read_data(axi_trans tr_h);
+    int len;
+       int size;
+       len = tr_h.rlen_que.pop_back();
+       size = tr_h.rsize_que.pop_back();
+       axi_inf.SDRV.slv_drv_cb.RID <= tr_h.raid.pop_back();
+       axi_inf.SDRV.slv_drv_cb.RLAST <= 1'b0;
+       axi_inf.SDRV.slv_drv_cb.RRESP <= 2'b00;
+       axi_inf.SDRV.slv_drv_cb.RID   <= tr_h.RID; 
+         for(int i = len*size; i>0 ; i--)
+           begin
+                 axi_inf.SDRV.slv_drv_cb.RDATA = $urandom_range(50,100);
+                 if(i==1)begin
+                        axi_inf.SDRV.slv_drv_cb.RLAST = 1'b1;
+                 end
+                 @(axi_inf.slv_drv_cb);
+           end
+endtask
+
 
 task Ready_drive();
           axi_inf.slv_drv_cb.AWREADY <= 1'b1;
           axi_inf.slv_drv_cb.WREADY <= 1'b1;
           axi_inf.slv_drv_cb.ARREADY <= 1'b1;
+          axi_inf.slv_drv_cb.RVALID <= 1'b1;
 endtask
 
 endclass

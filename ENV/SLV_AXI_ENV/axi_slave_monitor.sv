@@ -152,6 +152,7 @@ forever begin
     @(posedge axi_inf.mon_cb);
     if(axi_inf.RREADY && axi_inf.RVALID)begin
     tr_h.RVALID = axi_inf.RVALID;
+    mon2seqr.write(tr_h);
     end
 end
 endtask
