@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 26-07-2023 10:17:02
+// Last Modifiey  : 26-07-2023 17:03:12
 // File Name   	  : axi_mas_mon.sv
 // Class Name 	  : 
 // Project Name	  : 
@@ -34,30 +34,30 @@ class axi_mas_mon extends uvm_sequencer;
 // Function  : Build Phase  
 //--------------------------------------------------------------------------
   function void build_phase(uvm_phase phase);
-    `uvm_info(get_full_name(),"Starting of Build Phase",UVM_DEBUG)
+    `uvm_info(get_name(),"Starting of Build Phase",UVM_DEBUG)
     super.build_phase(phase);
     mas_ap = new("mas_ap",this);
-    `uvm_info(get_full_name(),"Ending of Build Phase",UVM_DEBUG)
+    `uvm_info(get_name(),"Ending of Build Phase",UVM_DEBUG)
   endfunction
 
 //--------------------------------------------------------------------------
 // Task  : Run Phase  
 //--------------------------------------------------------------------------
   task run_phase(uvm_phase phase);
-    `uvm_info(get_full_name(),"Starting of Run Phase",UVM_DEBUG)
-    `uvm_info(get_full_name(),"Before Forever loop start",UVM_DEBUG)
+    `uvm_info(get_name(),"Starting of Run Phase",UVM_DEBUG)
+    `uvm_info(get_name(),"Before Forever loop start",UVM_DEBUG)
     forever begin
-    `uvm_info(get_full_name(),"Starting of Forever loop",UVM_DEBUG)
+    `uvm_info(get_name(),"Starting of Forever loop",UVM_DEBUG)
       trans_h = axi_mas_seq_item::type_id::create("trans_h");
       monitore(trans_h);
     end
-    `uvm_info(get_full_name(),"End of Forever loop",UVM_DEBUG)
+    `uvm_info(get_name(),"End of Forever loop",UVM_DEBUG)
   endtask 
 //--------------------------------------------------------------------------
 // Task  : Moniter 
 //--------------------------------------------------------------------------
   task monitore(axi_mas_seq_item trans_h);
-    `uvm_info(get_full_name(),"Starting of Monitore",UVM_DEBUG)
+    `uvm_info(get_name(),"Starting of Monitore",UVM_DEBUG)
     @(posedge m_vif.aclk);
     trans_h.awr_id     = `MON.awid;
     trans_h.wr_addr    = `MON.awaddr;

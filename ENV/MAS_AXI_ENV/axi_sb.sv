@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 25-07-2023 14:36:16
+// Last Modifiey  : 26-07-2023 17:01:29
 // File Name   	  : axi_sb.sv
 // Class Name 	  : 
 // Project Name	  : 
@@ -71,17 +71,17 @@ class axi_sb extends uvm_scoreboard;
 //--------------------------------------------------------------------------
 
   task run_phase(uvm_phase phase);
-    `uvm_info(get_full_name(),"Starting of Run Phase",UVM_DEBUG)
-    `uvm_info(get_full_name(),"Before Forever loop start",UVM_DEBUG)
+    `uvm_info(get_name(),"Starting of Run Phase",UVM_DEBUG)
+    `uvm_info(get_name(),"Before Forever loop start",UVM_DEBUG)
     forever begin
-    `uvm_info(get_full_name(),"Starting of Forever loop",UVM_DEBUG)
+    `uvm_info(get_name(),"Starting of Forever loop",UVM_DEBUG)
       wait( mexp_q.size != 0 && mact_q.size !=0);
       mexp_h = mexp_q.pop_front();
       mact_h = mact_q.pop_front();
       pridict_data();
       check_data();
     end
-    `uvm_info(get_full_name(),"End of Forever loop",UVM_DEBUG)
+    `uvm_info(get_name(),"End of Forever loop",UVM_DEBUG)
   endtask
 //--------------------------------------------------------------------------
 // Task : Pridict_data

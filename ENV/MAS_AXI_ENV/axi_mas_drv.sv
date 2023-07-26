@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 26-07-2023 16:17:16
+// Last Modifiey  : 26-07-2023 17:00:56
 // File Name   	  : axi_mas_drv.sv
 // Class Name 	  : axi_mas_drv 
 // Project Name	  : AXI_3 VIP
@@ -33,28 +33,28 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
 // Function  : Build Phase  
 //--------------------------------------------------------------------------
   function void build_phase(uvm_phase phase);
-    `uvm_info(get_full_name(),"Starting of Build Phase",UVM_DEBUG)
+    `uvm_info(get_name(),"Starting of Build Phase",UVM_DEBUG)
     super.build_phase(phase);
-    `uvm_info(get_full_name(),"Ending of Build Phase",UVM_DEBUG)
+    `uvm_info(get_name(),"Ending of Build Phase",UVM_DEBUG)
   endfunction
 
 //--------------------------------------------------------------------------
 // Task  : Run Phase  
 //--------------------------------------------------------------------------
   task run_phase(uvm_phase phase);
-    `uvm_info(get_full_name(),"Starting of Run Phase",UVM_DEBUG)
-   // `uvm_info(get_full_name(),"Before Forever loop start",UVM_DEBUG)
+    `uvm_info(get_name(),"Starting of Run Phase",UVM_DEBUG)
+   // `uvm_info(get_name(),"Before Forever loop start",UVM_DEBUG)
    forever begin 
-    `uvm_info(get_full_name(),"Starting of Forever loop",UVM_DEBUG)
+    `uvm_info(get_name(),"Starting of Forever loop",UVM_DEBUG)
       fork  : F1
         begin
-          `uvm_info(get_full_name(),"Before Get Next Item ",UVM_DEBUG)
+          `uvm_info(get_name(),"Before Get Next Item ",UVM_DEBUG)
           seq_item_port.get_next_item(req);
-          `uvm_info(get_full_name(),"After Get Next Item and Before Send to DUT ",UVM_DEBUG)
+          `uvm_info(get_name(),"After Get Next Item and Before Send to DUT ",UVM_DEBUG)
           send_to_dut(req);
-          `uvm_info(get_full_name(),"After Send to DUT and Before Finish Item",UVM_DEBUG)
+          `uvm_info(get_name(),"After Send to DUT and Before Finish Item",UVM_DEBUG)
           seq_item_port.item_done();
-          `uvm_info(get_full_name(),"After Finish Item",UVM_DEBUG)
+          `uvm_info(get_name(),"After Finish Item",UVM_DEBUG)
         end
         begin
           @(negedge m_vif.arstn);
@@ -71,16 +71,11 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
         `ASYC_MP.awprot   <= 'b0;
         `ASYC_MP.awcache   <= 'b0;
         `ASYC_MP.awvalid   <= 'b0;
-        `ASYC_MP.awready   <= 'b0;
         `ASYC_MP.wid   <= 'b0;
         `ASYC_MP.wdata   <= 'b0;
         `ASYC_MP.wstrob   <= 'b0;
         `ASYC_MP.wlast   <= 'b0;
         `ASYC_MP.wvalid   <= 'b0;
-        `ASYC_MP.wready   <= 'b0;
-        `ASYC_MP.bid   <= 'b0;
-        `ASYC_MP.bresp   <= 'b0;
-        `ASYC_MP.bvalid   <= 'b0;
         `ASYC_MP.bready   <= 'b0;
         `ASYC_MP.arid   <= 'b0;
         `ASYC_MP.araddr   <= 'b0;
@@ -91,18 +86,12 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
         `ASYC_MP.arprot   <= 'b0;
         `ASYC_MP.arcache   <= 'b0;
         `ASYC_MP.arvalid   <= 'b0;
-        `ASYC_MP.arready   <= 'b0;
-        `ASYC_MP.rid   <= 'b0;
-        `ASYC_MP.rresp   <= 'b0;
-        `ASYC_MP.rvalid   <= 'b0;
-        `ASYC_MP.rdata   <= 'b0;
-        `ASYC_MP.rlast   <= 'b0;
         `ASYC_MP.rready  <= 'b0;
        //Wait for reset deassert.
        @(posedge m_vif.arstn);
      end
    end
-   `uvm_info(get_full_name(),"End of Forever loop",UVM_DEBUG) 
+   `uvm_info(get_name(),"End of Forever loop",UVM_DEBUG) 
   endtask 
   task send_to_dut(axi_mas_seq_item req); 
     @(posedge m_vif.aclk);

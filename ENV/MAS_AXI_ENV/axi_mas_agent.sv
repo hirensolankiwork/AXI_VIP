@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 26-07-2023 09:38:08
+// Last Modifiey  : 26-07-2023 17:02:18
 // File Name   	  : axi_mas_agent.sv
 // Class Name 	  : axi_mas_agent 
 // Project Name	  : AXI_3 VIP
@@ -38,7 +38,7 @@ class axi_mas_agent extends uvm_agent;
 // Function  : Build Phase  
 //------------------------------------------------------------------------
   function void build_phase(uvm_phase phase);
-    `uvm_info(get_full_name(),"Starting of Build Phase",UVM_DEBUG)
+    `uvm_info(get_name(),"Starting of Build Phase",UVM_DEBUG)
     super.build_phase(phase);
     mmon_h = axi_mas_mon::type_id::create("mmon_h",this);
     if(mcfg_h.is_active==UVM_ACTIVE)begin
@@ -46,21 +46,21 @@ class axi_mas_agent extends uvm_agent;
       mseqr_h= axi_mas_seqr::type_id::create("mseqr_h",this);
     end
     if(!uvm_config_db #(virtual axi_inf)::get(this,"*","m_vif",m_vif))
-      `uvm_fatal(get_full_name(),"Interface Configuration is Faild !!!!")
-    `uvm_info(get_full_name(),"Ending of Build Phase",UVM_DEBUG)
+      `uvm_fatal(get_name(),"Interface Configuration is Faild !!!!")
+    `uvm_info(get_name(),"Ending of Build Phase",UVM_DEBUG)
   endfunction
 //------------------------------------------------------------------------
 // Function  : Connect Phase  
 //------------------------------------------------------------------------
   function void connect_phase(uvm_phase phase);
-    `uvm_info(get_full_name(),"Starting of Connect Phase",UVM_DEBUG)
+    `uvm_info(get_name(),"Starting of Connect Phase",UVM_DEBUG)
     super.connect_phase(phase);
     if(mcfg_h.is_active==UVM_ACTIVE) begin
       mdrv_h.seq_item_port.connect(mseqr_h.seq_item_export);
       mdrv_h.m_vif = m_vif;
     end
     mmon_h.m_vif = m_vif;
-    `uvm_info(get_full_name(),"Ending of connect Phase",UVM_DEBUG)
+    `uvm_info(get_name(),"Ending of connect Phase",UVM_DEBUG)
   endfunction 
 
 

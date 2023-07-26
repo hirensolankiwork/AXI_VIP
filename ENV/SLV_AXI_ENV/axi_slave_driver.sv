@@ -73,6 +73,11 @@ task  resp_drive(axi_trans tr_h);
           @(axi_inf.slv_drv_cb);
           wait(axi_inf.slv_drv_cb.BREADY == 1'b1);
           axi_inf.slv_drv_cb.BVALID <= 1'b0;
+          axi_inf.slv_drv_cb.RRESP <= tr_h.BRESP;
+          axi_inf.slv_drv_cb.RVALID <= 1'b1;
+          wait(axi_inf.slv_drv_cb.RREADY == 1'b1)
+          axi_inf.slv_drv_cb.RVALID <= 1'b0;
+
 endtask    
 
 task read_data(axi_trans tr_h);
