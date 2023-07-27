@@ -133,9 +133,9 @@ task read_addr_monitor();
 forever begin
     @(posedge axi_inf.mon_cb);
     if(axi_inf.ARVALID && axi_inf.ARREADY)begin
-   tr_h.ARADDR  =  axi_inf.AWADDR;                      
-   tr_h.ARLEN   =  axi_inf.AWLEN;
-   tr_h.ARSIZE  =  axi_inf.AWSIZE;
+   tr_h.ARADDR  =  axi_inf.ARADDR;                      
+   tr_h.ARLEN   =  axi_inf.ARLEN;
+   tr_h.ARSIZE  =  axi_inf.ARSIZE;
    tr_h.ARBURST = axi_inf.ARBURST;
    tr_h.ARID    =  axi_inf.ARID;
    tr_h.ARVALID = axi_inf.ARVALID;

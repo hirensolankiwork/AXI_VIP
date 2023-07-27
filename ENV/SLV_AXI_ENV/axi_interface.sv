@@ -93,6 +93,41 @@ logic RREADY;
     modport SDRV(clocking slv_drv_cb, input rst);
     modport SMON(clocking mon_cb,   input rst);
 
+     modport async_reset(input AWID,
+                       input AWADDR,
+                       input AWBURST,
+                       input AWSIZE,
+                       input AWLEN,
+                       input AWVALID,
+                       output  AWREADY,
+                       //Write data
+                       input WID,
+                       input WDATA,
+                       input WSTRB,
+                       input WLAST,
+                       input WVALID,
+                       output  WREADY,
+                       //Write response
+                       output  BID,
+                       output  BRESP,
+                       output  BVALID,
+                       input   BREADY,
+                       //Read addr.
+                       input ARID,
+                       input ARADDR,
+                       input ARBURST,
+                       input ARSIZE,
+                       input ARLEN,
+                       input ARVALID,
+                       output  ARREADY,
+                       //Read data and response.
+                       output  RID,
+                       output  RRESP,
+                       output  RVALID,
+                       output  RDATA,
+                       output  RLAST,
+                       input   RREADY);
+
 
 
 

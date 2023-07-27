@@ -36,33 +36,36 @@ task body();
       `uvm_fatal(get_type_name(),"sequencer casting faills")
  
   
-   forever begin
+  forever begin
     p_sequencer.item_collected.get(tr_h);
    
   
 
   if(tr_h.AWVALID)begin
-        
+       tr_h.AWSIZE = 2** tr_h.AWSIZE;
       tr_h.aw_que.push_front(tr_h);
 
    end
 
 
    if(tr_h.ARVALID)begin
+           tr_h.ARSIZE = 2** tr_h.ARSIZE;
           tr_h.ar_que.push_back(tr_h);
    end
 
 
 if(tr_h.WLAST)begin
    int awid;
+     if(tr_h.aw_que.size != 0)begin
      temp = tr_h.aw_que.pop_back();
-     awid = temp.AWID;;
+     awid = temp.AWID;
       if(tr_h.WID == awid)begin
         tr_h.BRESP = 2'b00;
         tr_h.BVALID = 1'b1;
         tr_h.BID   = tr_h.WID;
        `uvm_send(tr_h);
       end
+    end  
     end  
 
     if(tr_h.RVALID)begin
