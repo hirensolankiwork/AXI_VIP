@@ -119,7 +119,6 @@ task write_rsp_monitor();
 forever begin
     @(posedge axi_inf.mon_cb);
     wait(axi_inf.WLAST == 1'b1)begin
-    
   `uvm_info(get_name(),"Inside slave MObitor BVALID",UVM_DEBUG) 
     mon2seqr.write(tr_h);
 
@@ -149,9 +148,10 @@ endtask
 
 task read_data_monitor();
 forever begin
-    @(posedge axi_inf.mon_cb);
-    if(axi_inf.RREADY && axi_inf.RVALID)begin
-    tr_h.RVALID = axi_inf.RVALID;
+    @(axi_inf.mon_cb);
+    if(axi_inf.ARREADY && axi_inf.ARVALID)begin
+    @(axi_inf.mon_cb);
+    tr_h.RVALID = 1'b1;
     mon2seqr.write(tr_h);
     end
 end

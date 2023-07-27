@@ -65,7 +65,7 @@ bit AWVALID;
 //read data channel signals
   bit             RREADY;
   bit             RVALID;
-  bit [31:0]      RDATA;
+  rand bit [31:0]      RDATA;
   bit [3:0]       RID;
   bit [1:0]       RRESP;
   bit             RLAST; 

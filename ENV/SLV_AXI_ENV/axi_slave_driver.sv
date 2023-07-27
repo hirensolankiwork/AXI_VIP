@@ -70,6 +70,8 @@ task  resp_drive(axi_trans tr_h);
           axi_inf.slv_drv_cb.BRESP <= tr_h.BRESP;
           axi_inf.slv_drv_cb.BVALID <= tr_h.BVALID;
           axi_inf.slv_drv_cb.BID    <= tr_h.BID;
+             `uvm_info(get_type_name(),$sformatf(" BID id getting driver is %0d and orignal data is %0d", axi_inf.slv_drv_cb.BID,tr_h.BID),UVM_MEDIUM);
+
           @(axi_inf.slv_drv_cb);
           wait(axi_inf.slv_drv_cb.BREADY == 1'b1);
           axi_inf.slv_drv_cb.BVALID <= 1'b0;
@@ -85,15 +87,23 @@ task read_data(axi_trans tr_h);
        int size;
        len = tr_h.rlen_que.pop_back();
        size = tr_h.rsize_que.pop_back();
-       axi_inf.SDRV.slv_drv_cb.RID <= tr_h.raid.pop_back();
-       axi_inf.SDRV.slv_drv_cb.RLAST <= 1'b0;
-       axi_inf.SDRV.slv_drv_cb.RRESP <= 2'b00;
-       axi_inf.SDRV.slv_drv_cb.RID   <= tr_h.RID; 
-         for(int i = len*size; i>0 ; i--)
+       axi_inf.slv_drv_cb.RID <= tr_h.raid.pop_front();
+   `uvm_info(get_type_name(),$sformatf(" read id getting driver is %0d que array is  %p",axi_inf.slv_drv_cb.RID,tr_h.raid),UVM_MEDIUM);
+       axi_inf.slv_drv_cb.RLAST <= 1'b0;
+       axi_inf.slv_drv_cb.RRESP <= 2'b00;
+       axi_inf.slv_drv_cb.RVALID <= 1'b1;
+         for(int i = len*size; i>=0 ; i--)
            begin
-                 axi_inf.SDRV.slv_drv_cb.RDATA = $urandom_range(50,100);
-                 if(i==1)begin
-                        axi_inf.SDRV.slv_drv_cb.RLAST = 1'b1;
+                 tr_h.randomize();
+                 axi_inf.slv_drv_cb.RDATA <= tr_h.RDATA;
+             `uvm_info(get_type_name(),$sformatf(" data burst is %0d and value of i is %0d",len*size,i),UVM_MEDIUM);
+
+                 if(i==0)begin
+                        axi_inf.slv_drv_cb.RLAST <= 1'b1;
+                        axi_inf.slv_drv_cb.RVALID <= 1'b0;
+                        @(axi_inf.slv_drv_cb)
+                        axi_inf.slv_drv_cb.RLAST <= 1'b0;
+
                  end
                  @(axi_inf.slv_drv_cb);
            end
@@ -104,7 +114,7 @@ task Ready_drive();
           axi_inf.slv_drv_cb.AWREADY <= 1'b1;
           axi_inf.slv_drv_cb.WREADY <= 1'b1;
           axi_inf.slv_drv_cb.ARREADY <= 1'b1;
-          axi_inf.slv_drv_cb.RVALID <= 1'b1;
+          
 endtask
 
 endclass
