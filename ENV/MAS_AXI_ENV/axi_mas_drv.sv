@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 27-07-2023 14:47:24
+// Last Modifiey  : 27-07-2023 17:03:11
 // File Name   	  : axi_mas_drv.sv
 // Class Name 	  : axi_mas_drv 
 // Project Name	  : AXI_3 VIP
@@ -29,6 +29,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
   endfunction 
 
   virtual axi_inf m_vif;      //Tacking interface to convey my packet level info to pin level.
+  bit get_item_flag;          //
 //--------------------------------------------------------------------------
 // Function  : Build Phase  
 //--------------------------------------------------------------------------
@@ -46,21 +47,23 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
    // `uvm_info(get_name(),"Before Forever loop start",UVM_DEBUG)
    forever begin 
     `uvm_info(get_name(),"Starting of Forever loop",UVM_DEBUG)
-      fork  : F1
+      fork
         begin
           `uvm_info(get_name(),"Before Get Next Item ",UVM_DEBUG)
           seq_item_port.get_next_item(req);
+          get_item_flag = 1;
           `uvm_info(get_name(),"After Get Next Item and Before Send to DUT ",UVM_DEBUG)
           send_to_dut(req);
           `uvm_info(get_name(),"After Send to DUT and Before Finish Item",UVM_DEBUG)
           seq_item_port.item_done();
+          get_item_flag = 0;
           `uvm_info(get_name(),"After Finish Item",UVM_DEBUG)
         end
         begin
           @(negedge m_vif.arstn);
         end
       join_any
-      disable F1;
+      disable fork;
       if(!m_vif.arstn)begin
         `ASYC_MP.awid   <= 'b0;
         `ASYC_MP.awaddr   <= 'b0;
@@ -88,8 +91,13 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
         `ASYC_MP.arvalid   <= 'b0;
         `ASYC_MP.rready  <= 'b0;
        //Wait for reset deassert.
+       if(get_item_flag)begin
+         `uvm_info(get_name(),"After Get Next Item Inside reset ",UVM_DEBUG)
+          seq_item_port.item_done();
+          `uvm_info(get_name(),"After Finish Item",UVM_DEBUG)
+       end
        @(posedge m_vif.arstn);
-       seq_item_port.item_done();
+
      end
    end
    `uvm_info(get_name(),"End of Forever loop",UVM_DEBUG) 
@@ -149,10 +157,10 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       //Read data and Respose Chennal
         begin
           `DRV.rready <= 1'b1;  
-          wait(`DRV.rvalid== 1'b1 || `DRV.rlast == 1'b1);
+        /*  wait(`DRV.rvalid== 1'b1  `DRV.rlast == 1'b1);
           @(posedge m_vif.aclk);
           `DRV.rready <= 1'b0;
-        end
+       */ end
     //join_any
     join
   endtask 

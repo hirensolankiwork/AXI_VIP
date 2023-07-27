@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 26-07-2023 17:48:08
+// Last Modifiey  : 27-07-2023 16:42:19
 // File Name   	  : axi_mas_base_seqs.sv
 // Class Name 	  : axi_mas_base_seqs 
 // Project Name	  : AXI_3 VIP
@@ -36,7 +36,7 @@ class axi_mas_base_seqs extends uvm_sequence #(axi_mas_seq_item);
   task body();
   
     req = axi_mas_seq_item::type_id::create("req"); //Create the sequence item.
-    repeat(5) begin
+    repeat(10) begin
       start_item(req);      //wait the request grant from the sequencer.
       assert(req.randomize());      //Randomize the sequence item.
       finish_item(req);     //Send the randomize sequence item and wait for
