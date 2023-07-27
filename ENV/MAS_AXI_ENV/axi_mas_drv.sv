@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 26-07-2023 17:00:56
+// Last Modifiey  : 27-07-2023 14:47:24
 // File Name   	  : axi_mas_drv.sv
 // Class Name 	  : axi_mas_drv 
 // Project Name	  : AXI_3 VIP
@@ -89,6 +89,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
         `ASYC_MP.rready  <= 'b0;
        //Wait for reset deassert.
        @(posedge m_vif.arstn);
+       seq_item_port.item_done();
      end
    end
    `uvm_info(get_name(),"End of Forever loop",UVM_DEBUG) 

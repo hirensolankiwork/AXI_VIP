@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 26-07-2023 16:40:23
+// Last Modifiey  : 27-07-2023 15:32:29
 // File Name   	  : axi_tb_top.sv
 // Module Name 	  : axi_tb_top
 // Project Name	  : AXI_3 VIP
@@ -83,6 +83,8 @@ module axi_tb_top();
 
    initial begin
      rstn = 1'b1;
+     reset();
+     repeat(10)@(negedge clk);
      reset();
    end
 //--------------------------------------------------------------------------------------------

@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 26-07-2023 12:57:34
+// Last Modifiey  : 27-07-2023 14:05:08
 // File Name   	  : axi_base_test.sv
 // Class Name 	  : axi_base_test 
 // Project Name	  : AXI_3 VIP
@@ -46,7 +46,7 @@ class axi_base_test extends uvm_test;
 		      sseqs_h = axi_slave_base_seq::type_id::create("sseqs_h");
           sseqs_h.start(env_h.sagent_h.slv_seqr);
 		    end 
-      join
+      join_any
    // phase.phase_done.set_drain_time(this, 50) ;
 	  phase.drop_objection(this);
   endtask
