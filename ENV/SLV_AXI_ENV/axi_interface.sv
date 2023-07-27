@@ -49,11 +49,10 @@ logic ARREADY;
 //Read Data channel signal;
 logic [3:0] RID;
 logic [DATA_WIDTH-1:0] RDATA;
-logic [1:0] RRSEP;
+logic [1:0] RRESP;
 logic RLAST;
 logic RVALID;
 logic RREADY;
-logic RRESP;
 
 
 

@@ -10,9 +10,6 @@ class axi_trans #(parameter ADDR_WIDTH = 32 , DATA_WIDTH = 32) extends  uvm_sequ
 
 `uvm_object_param_utils(axi_trans #(ADDR_WIDTH , DATA_WIDTH))
 
-typedef enum bit [1:0] { FIXED , INCR ,WRAP , RES} burst_type;
-
-
 
 //  Constructor: new
     function new(string name = "axi_transaction");
@@ -20,12 +17,8 @@ typedef enum bit [1:0] { FIXED , INCR ,WRAP , RES} burst_type;
     endfunction: new
 
 
-int rlen_que[$];
-int rsize_que[$];
-bit [3:0]raid[$];
-
-
-
+axi_trans aw_que[$];
+axi_trans ar_que[$];
 
 // write address channel signal
 bit [ADDR_WIDTH-1:0]AWADDR;                       //   $urandom_range(1,10);

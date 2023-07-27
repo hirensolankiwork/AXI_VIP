@@ -13,27 +13,12 @@ class axi_slave_base_seq  extends uvm_sequence #(axi_trans);
 
 `uvm_object_utils(axi_slave_base_seq)
 //`uvm_declare_p_sequencer(slave_sequencer)
-axi_trans tr_h;
+axi_trans tr_h,temp;
 
 slave_sequencer p_sequencer;
 uvm_sequencer b_seqr;
+
 int mem [int];
-int waddr_que[$];
-int raddr_que[$];
-int wlen_que[$];
-int rlen_que[$];
-int wsize_que[$];
-int rsize_que[$];
-bit [3:0]wawid[$];
-bit [3:0]raid[$];
-bit [3:0]wid;
-int temp_awid;
-int temp_arid;
-
-
-
-int rd_addr;
-//b_seqr = 
 
 function new(string str = "axi_slave_base_seq");
 
@@ -54,64 +39,35 @@ task body();
    forever begin
     p_sequencer.item_collected.get(tr_h);
    
-   if(tr_h.AWVALID)begin
-     int temp_size;
-     waddr_que.push_front(tr_h.AWADDR);
-     wlen_que.push_front(tr_h.AWLEN);
-     temp_size = tr_h.AWSIZE;
-     wsize_que.push_front(2**temp_size);
-     if(temp_awid != tr_h.AWID)begin
-             wawid.push_front(tr_h.AWID);
-              temp_awid = tr_h.AWID;
-             `uvm_info(get_type_name(),$sformatf("write id in seq is %p ",wawid),UVM_MEDIUM);
+  
 
-      end        
-        //`uvm_send(tr_h);
+  if(tr_h.AWVALID)begin
+        
+      tr_h.aw_que.push_front(tr_h);
+
    end
 
 
    if(tr_h.ARVALID)begin
-   int temp_size;
-   raddr_que.push_front(tr_h.ARADDR);
-   rlen_que.push_front(tr_h.ARLEN);
-   temp_size = tr_h.ARSIZE;
-   rsize_que.push_front(2**temp_size);
-   
-   if(temp_arid != tr_h.ARID)begin
-             raid.push_front(tr_h.ARID);
-              temp_arid = tr_h.ARID;
-            `uvm_info(get_type_name(),$sformatf(" read id in que in seq %p",raid),UVM_MEDIUM);
-      end     
-
+          tr_h.ar_que.push_back(tr_h);
    end
 
-   if(tr_h.WVALID)begin
-      rd_addr = waddr_que.pop_back();
-     //`uvm_info(get_type_name(),$sformatf(" Address que %d",rd_addr),UVM_MEDIUM);
-      mem[rd_addr] = tr_h.WDATA ;
 
-      //`uvm_info(get_type_name(),$sformatf(" memory data is %d",mem[rd_addr]),UVM_MEDIUM);
-      //`uvm_send(tr_h);
-     end
-  
-   if(tr_h.WLAST)begin
-      int awid;
-     awid = wawid.pop_front();
-      if(tr_h.WID == temp_awid)begin
+if(tr_h.WLAST)begin
+   int awid;
+     temp = tr_h.aw_que.pop_back();
+     awid = temp.AWID;;
+      if(tr_h.WID == awid)begin
         tr_h.BRESP = 2'b00;
         tr_h.BVALID = 1'b1;
         tr_h.BID   = tr_h.WID;
-       // temp_awid  = 1'b0;
-        `uvm_send(tr_h);
+       `uvm_send(tr_h);
       end
     end  
 
     if(tr_h.RVALID)begin
         tr_h.RLAST = 1'b0;
         tr_h.RRESP = 2'b00;
-        tr_h.rlen_que = rlen_que;
-        tr_h.rsize_que = rsize_que;
-        tr_h.raid  = raid;
         `uvm_send(tr_h);
      end        
 end
@@ -147,5 +103,17 @@ endclass
 
 
 
+/*
+int waddr_que[$];
+int raddr_que[$];
+int wlen_que[$];
+int rlen_que[$];
+int wsize_que[$];
+int rsize_que[$];
+bit [3:0]wawid[$];
+bit [3:0]raid[$];
+bit [3:0]wid;
+int temp_awid;
+int temp_arid;
 
-
+*/

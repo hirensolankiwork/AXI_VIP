@@ -75,7 +75,6 @@ task  resp_drive(axi_trans tr_h);
           @(axi_inf.slv_drv_cb);
           wait(axi_inf.slv_drv_cb.BREADY == 1'b1);
           axi_inf.slv_drv_cb.BVALID <= 1'b0;
-          axi_inf.slv_drv_cb.RRESP <= tr_h.BRESP;
           axi_inf.slv_drv_cb.RVALID <= 1'b1;
           wait(axi_inf.slv_drv_cb.RREADY == 1'b1)
           axi_inf.slv_drv_cb.RVALID <= 1'b0;
@@ -84,11 +83,12 @@ endtask
 
 task read_data(axi_trans tr_h);
     int len;
-       int size;
-       len = tr_h.rlen_que.pop_back();
-       size = tr_h.rsize_que.pop_back();
-       axi_inf.slv_drv_cb.RID <= tr_h.raid.pop_front();
-   `uvm_info(get_type_name(),$sformatf(" read id getting driver is %0d que array is  %p",axi_inf.slv_drv_cb.RID,tr_h.raid),UVM_MEDIUM);
+    int size;
+       len = tr_h.ar_que[0].ARLEN;
+       size = tr_h.ar_que[0].ARSIZE;
+       axi_inf.slv_drv_cb.RID <= tr_h.ar_que[0].ARID;
+       tr_h.ar_que.delete(0);
+   `uvm_info(get_type_name(),$sformatf(" read id getting driver is %0d que array is  %p",axi_inf.slv_drv_cb.RID,tr_h.ar_que),UVM_MEDIUM);
        axi_inf.slv_drv_cb.RLAST <= 1'b0;
        axi_inf.slv_drv_cb.RRESP <= 2'b00;
        axi_inf.slv_drv_cb.RVALID <= 1'b1;
