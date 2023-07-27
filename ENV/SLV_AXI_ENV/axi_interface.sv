@@ -6,13 +6,13 @@
 //////////////////////////////////////////////////////////////////////
 
 
-interface axi_interface #(parameter ADDR_WIDTH = 32 , DATA_WIDTH =32) (input bit clk,rst);
+interface axi_interface (input bit clk,rst);
 
 
 //write address channel signals
 
 logic [3:0] AWID;
-logic [ADDR_WIDTH-1:0] AWADDR;
+logic [31:0] AWADDR;
 logic [3:0] AWLEN;
 logic [2:0] AWSIZE;
 logic [1:0] AWBURST;
@@ -22,7 +22,7 @@ logic AWREADY;
 
 //write Data channel signal
 logic [3:0] WID;
-logic [DATA_WIDTH-1:0] WDATA;
+logic [31:0] WDATA;
 logic [3:0] WSTRB;
 logic WLAST;
 logic WREADY;
@@ -38,7 +38,7 @@ logic [1:0] BRESP;
 
 //Read address channel signals
 logic [3:0] ARID;
-logic [ADDR_WIDTH-1:0] ARADDR;
+logic [31:0] ARADDR;
 logic [3:0] ARLEN;
 logic [2:0] ARSIZE;
 logic [3:0] ARBURST;
@@ -48,7 +48,7 @@ logic ARREADY;
 
 //Read Data channel signal;
 logic [3:0] RID;
-logic [DATA_WIDTH-1:0] RDATA;
+logic [31:0] RDATA;
 logic [1:0] RRESP;
 logic RLAST;
 logic RVALID;

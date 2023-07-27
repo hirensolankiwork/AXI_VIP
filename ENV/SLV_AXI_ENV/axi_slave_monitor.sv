@@ -137,7 +137,7 @@ forever begin
    tr_h.ARLEN   =  axi_inf.AWLEN;
    tr_h.ARSIZE  =  axi_inf.AWSIZE;
    tr_h.ARBURST = axi_inf.ARBURST;
-   tr_h.ARID    =  axi_inf.AWID;
+   tr_h.ARID    =  axi_inf.ARID;
    tr_h.ARVALID = axi_inf.ARVALID;
    mon2seqr.write(tr_h);
 

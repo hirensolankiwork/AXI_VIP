@@ -6,9 +6,9 @@
 //Description : transaction 
 //////////////////////////////////////////////////////////////////////
 
-class axi_trans #(parameter ADDR_WIDTH = 32 , DATA_WIDTH = 32) extends  uvm_sequence_item;
+class axi_trans extends  uvm_sequence_item;
 
-`uvm_object_param_utils(axi_trans #(ADDR_WIDTH , DATA_WIDTH))
+`uvm_object_utils(axi_trans)
 
 
 //  Constructor: new
@@ -21,7 +21,7 @@ axi_trans aw_que[$];
 axi_trans ar_que[$];
 
 // write address channel signal
-bit [ADDR_WIDTH-1:0]AWADDR;                       //   $urandom_range(1,10);
+bit [31:0]AWADDR;                       //   $urandom_range(1,10);
 bit [3:0]AWLEN;
 bit [2:0]AWSIZE;
 bit [1:0]AWBURST;
