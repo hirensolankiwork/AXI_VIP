@@ -84,7 +84,11 @@ module axi_tb_top();
    initial begin
      rstn = 1'b1;
      reset();
-     repeat(10)@(negedge clk);
+     repeat(20)@(negedge clk);
+     reset();
+     repeat(30)@(negedge clk);
+     reset();
+     repeat(50)@(negedge clk);
      reset();
    end
 //--------------------------------------------------------------------------------------------
