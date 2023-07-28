@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 26-07-2023 17:03:12
+// Last Modifiey  : 28-07-2023 12:42:15
 // File Name   	  : axi_mas_mon.sv
 // Class Name 	  : 
 // Project Name	  : 
@@ -59,25 +59,33 @@ class axi_mas_mon extends uvm_sequencer;
   task monitore(axi_mas_seq_item trans_h);
     `uvm_info(get_name(),"Starting of Monitore",UVM_DEBUG)
     @(posedge m_vif.aclk);
-    trans_h.awr_id     = `MON.awid;
-    trans_h.wr_addr    = `MON.awaddr;
-    trans_h.wr_size    = `MON.awsize;
-    trans_h.wr_len     = `MON.awlen;
-    trans_h.wr_brust_e = brust_kind_e'(`MON.awbrust);
-    trans_h.wr_id      = `MON.wid;
-    foreach(trans_h.wr_data[i])
-      trans_h.wr_data[i]    = `MON.wdata;
-    trans_h.wr_strob   = `MON.wstrob;
-    trans_h.b_id       = `MON.bid;
-    trans_h.b_resp_e   = resp_kind_e'(`MON.bresp);
-    trans_h.ard_id     = `MON.arid;
-    trans_h.rd_addr    = `MON.araddr;
-    trans_h.rd_size    = `MON.arsize;
-    trans_h.rd_len     = `MON.arlen;
-    trans_h.rd_brust_e = brust_kind_e'(`MON.arbrust);
-    trans_h.r_id       = `MON.rid;
-    trans_h.rd_data.push_back(`MON.rdata);
-    trans_h.r_resp_e   = resp_kind_e'(`MON.rresp);
+    fork
+      trans_h.awr_id     = `MON.awid;
+      trans_h.wr_addr    = `MON.awaddr;
+      trans_h.wr_size    = `MON.awsize;
+      trans_h.wr_len     = `MON.awlen;
+      trans_h.wr_brust_e = brust_kind_e'(`MON.awbrust);
+      trans_h.wr_id      = `MON.wid;
+      trans_h.wr_data = new[trans_h.wr_len +1];
+      foreach(trans_h.wr_data[i])begin
+        @(posedge m_vif.aclk);
+        trans_h.wr_data[i]    = `MON.wdata;
+      end
+      trans_h.wr_strob   = `MON.wstrob;
+      trans_h.b_id       = `MON.bid;
+      trans_h.b_resp_e   = resp_kind_e'(`MON.bresp);
+      trans_h.ard_id     = `MON.arid;
+      trans_h.rd_addr    = `MON.araddr;
+      trans_h.rd_size    = `MON.arsize;
+      trans_h.rd_len     = `MON.arlen;
+      trans_h.rd_brust_e = brust_kind_e'(`MON.arbrust);
+      trans_h.r_id       = `MON.rid;
+      for(int i=0; i<trans_h.rd_len+1 ;i++)begin
+        @(posedge m_vif.aclk);
+        trans_h.rd_data.push_back(`MON.rdata);
+      end
+      trans_h.r_resp_e   = resp_kind_e'(`MON.rresp);
+    join
     mas_ap.write(trans_h);
   endtask 
 

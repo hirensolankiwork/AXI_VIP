@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 27-07-2023 17:03:11
+// Last Modifiey  : 28-07-2023 14:01:46
 // File Name   	  : axi_mas_drv.sv
 // Class Name 	  : axi_mas_drv 
 // Project Name	  : AXI_3 VIP
@@ -66,30 +66,30 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       disable fork;
       if(!m_vif.arstn)begin
         `ASYC_MP.awid   <= 'b0;
-        `ASYC_MP.awaddr   <= 'b0;
-        `ASYC_MP.awbrust   <= 'b0;
-        `ASYC_MP.awsize   <= 'b0;
-        `ASYC_MP.awlen   <= 'b0;
-        `ASYC_MP.awlock   <= 'b0;
-        `ASYC_MP.awprot   <= 'b0;
-        `ASYC_MP.awcache   <= 'b0;
-        `ASYC_MP.awvalid   <= 'b0;
-        `ASYC_MP.wid   <= 'b0;
-        `ASYC_MP.wdata   <= 'b0;
-        `ASYC_MP.wstrob   <= 'b0;
-        `ASYC_MP.wlast   <= 'b0;
-        `ASYC_MP.wvalid   <= 'b0;
-        `ASYC_MP.bready   <= 'b0;
+        `ASYC_MP.awaddr <= 'b0;
+        `ASYC_MP.awbrust<= 'b0;
+        `ASYC_MP.awsize <= 'b0;
+        `ASYC_MP.awlen  <= 'b0;
+        `ASYC_MP.awlock <= 'b0;
+        `ASYC_MP.awprot <= 'b0;
+        `ASYC_MP.awcache<= 'b0;
+        `ASYC_MP.awvalid<= 'b0;
+        `ASYC_MP.wid    <= 'b0;
+        `ASYC_MP.wdata  <= 'b0;
+        `ASYC_MP.wstrob <= 'b0;
+        `ASYC_MP.wlast  <= 'b0;
+        `ASYC_MP.wvalid <= 'b0;
+        `ASYC_MP.bready <= 'b0;
         `ASYC_MP.arid   <= 'b0;
-        `ASYC_MP.araddr   <= 'b0;
-        `ASYC_MP.arbrust   <= 'b0;
-        `ASYC_MP.arsize   <= 'b0;
-        `ASYC_MP.arlen   <= 'b0;
-        `ASYC_MP.arlock   <= 'b0;
-        `ASYC_MP.arprot   <= 'b0;
-        `ASYC_MP.arcache   <= 'b0;
-        `ASYC_MP.arvalid   <= 'b0;
-        `ASYC_MP.rready  <= 'b0;
+        `ASYC_MP.araddr <= 'b0;
+        `ASYC_MP.arbrust<= 'b0;
+        `ASYC_MP.arsize <= 'b0;
+        `ASYC_MP.arlen  <= 'b0;
+        `ASYC_MP.arlock <= 'b0;
+        `ASYC_MP.arprot <= 'b0;
+        `ASYC_MP.arcache<= 'b0;
+        `ASYC_MP.arvalid<= 'b0;
+        `ASYC_MP.rready <= 'b0;
        //Wait for reset deassert.
        if(get_item_flag)begin
          `uvm_info(get_name(),"After Get Next Item Inside reset ",UVM_DEBUG)
@@ -105,63 +105,75 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
   task send_to_dut(axi_mas_seq_item req); 
     @(posedge m_vif.aclk);
     fork
-      //Wrire Addres chennal transfer
-    //fork
-        begin
-          `DRV.awvalid  <= 1'b1;
-          `DRV.awid     <= req.awr_id;
-          `DRV.awaddr   <= req.wr_addr;
-          `DRV.awsize   <= req.wr_size;
-          `DRV.awlen    <= req.wr_len;
-          `DRV.awbrust  <= req.wr_brust_e;
-          wait(`DRV.awready == 1'b1);
-          @(posedge m_vif.aclk);
-          `DRV.awvalid  <= 1'b0;
+    //Wrire Addres chennal transfer
+      begin
+        `DRV.awvalid  <= 1'b1;
+        `DRV.awid     <= req.awr_id;
+        `DRV.awaddr   <= req.wr_addr;
+        `DRV.awsize   <= req.wr_size;
+        `DRV.awlen    <= req.wr_len;
+        `DRV.awbrust  <= req.wr_brust_e;
+        wait(`DRV.awready == 1'b1);
+        @(posedge m_vif.aclk);
+        `DRV.awvalid  <= 1'b0;
+      end
+    //Write data chennal transfer.
+      begin
+        `DRV.wid    <= req.wr_id;
+        foreach(req.wr_data[i]) begin
+          `DRV.wvalid <= 1'b1;
+          `DRV.wdata  <= req.wr_data[i];
+          `DRV.wstrob <= req.wr_strob;
+          if(i==req.wr_len)
+          `DRV.wlast <= 1'b1;
+          wait(`DRV.wready == 1'b1);
+        @(posedge m_vif.aclk);
+        `DRV.wvalid <= 1'b0;
+        `DRV.wlast  <= 1'b0;
         end
-      //Write data chennal transfer.
-        begin
-          `DRV.wid    <= req.wr_id;
-          foreach(req.wr_data[i]) begin
-            `DRV.wvalid <= 1'b1;
-            `DRV.wdata  <= req.wr_data[i];
-            `DRV.wstrob <= req.wr_strob;
-            if(i==req.wr_len)
-            `DRV.wlast <= 1'b1;
-            wait(`DRV.wready == 1'b1);
-          @(posedge m_vif.aclk);
-          `DRV.wvalid <= 1'b0;
-          `DRV.wlast  <= 1'b0;
-          end
-        end
+      end
+    //Read address chennal transfer.
+      begin
+        `DRV.arvalid  <= 1'b1;
+        `DRV.arid     <= req.ard_id;
+        `DRV.araddr   <= req.rd_addr;
+        `DRV.arsize   <= req.rd_size;
+        `DRV.arlen    <= req.rd_len;
+        `DRV.arbrust  <= req.rd_brust_e;
+        wait(`DRV.arready == 1'b1);
+        @(posedge m_vif.aclk);
+        `DRV.arvalid  <= 1'b0;
+      end
+      fork  
       //Write Response chennal transfer.
-        begin
-          `DRV.bready <= 1'b1;  
-          wait(`DRV.bvalid== 1'b1);
-          @(posedge m_vif.aclk);
-          `DRV.bready <= 1'b0;
-        end
-    //join_any
-      //Read address chennal transfer.
-    //fork
-        begin
-          `DRV.arvalid  <= 1'b1;
-          `DRV.arid     <= req.ard_id;
-          `DRV.araddr   <= req.rd_addr;
-          `DRV.arsize   <= req.rd_size;
-          `DRV.arlen    <= req.rd_len;
-          `DRV.arbrust  <= req.rd_brust_e;
-          wait(`DRV.arready == 1'b1);
-          @(posedge m_vif.aclk);
-          `DRV.arvalid  <= 1'b0;
+        forever begin
+          fork : BREADY_RSP
+            begin
+              @(posedge `DRV.bvalid)
+              `ASYC_MP.bready <= 1'b1;
+            end
+            begin
+              @(negedge `DRV.bvalid)
+              `ASYC_MP.bready <= 1'b0;
+            end
+          join_any
+          disable BREADY_RSP;
         end
       //Read data and Respose Chennal
-        begin
-          `DRV.rready <= 1'b1;  
-        /*  wait(`DRV.rvalid== 1'b1  `DRV.rlast == 1'b1);
-          @(posedge m_vif.aclk);
-          `DRV.rready <= 1'b0;
-       */ end
-    //join_any
+        forever begin
+          fork : RREADY_RSP
+            begin
+              @(posedge `DRV.rvalid)
+              `ASYC_MP.rready <= 1'b1;
+            end
+            begin
+              @(negedge `DRV.rvalid)
+              `ASYC_MP.rready <= 1'b0;
+            end
+          join_any
+          disable RREADY_RSP;
+        end
+      join_none
     join
   endtask 
 endclass  : axi_mas_drv 

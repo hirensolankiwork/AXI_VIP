@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 27-07-2023 14:05:08
+// Last Modifiey  : 28-07-2023 12:02:14
 // File Name   	  : axi_base_test.sv
 // Class Name 	  : axi_base_test 
 // Project Name	  : AXI_3 VIP
@@ -34,6 +34,11 @@ class axi_base_test extends uvm_test;
 	  env_h = axi_env::type_id::create("env_h",this);
   endfunction
   
+  function void end_of_elaboration_phase(uvm_phase phase);
+    super.end_of_elaboration_phase(phase);
+    uvm_top.print_topology();
+  endfunction 
+
   task run_phase (uvm_phase phase);
     phase.raise_objection(this);
       fork
