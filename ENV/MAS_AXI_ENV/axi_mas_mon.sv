@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 28-07-2023 12:42:15
+// Last Modifiey  : 28-07-2023 17:19:05
 // File Name   	  : axi_mas_mon.sv
 // Class Name 	  : 
 // Project Name	  : 
@@ -60,33 +60,80 @@ class axi_mas_mon extends uvm_sequencer;
     `uvm_info(get_name(),"Starting of Monitore",UVM_DEBUG)
     @(posedge m_vif.aclk);
     fork
-      trans_h.awr_id     = `MON.awid;
-      trans_h.wr_addr    = `MON.awaddr;
-      trans_h.wr_size    = `MON.awsize;
-      trans_h.wr_len     = `MON.awlen;
-      trans_h.wr_brust_e = brust_kind_e'(`MON.awbrust);
-      trans_h.wr_id      = `MON.wid;
-      trans_h.wr_data = new[trans_h.wr_len +1];
-      foreach(trans_h.wr_data[i])begin
+      forever begin
         @(posedge m_vif.aclk);
-        trans_h.wr_data[i]    = `MON.wdata;
+        if (`ASYC_MP.awvalid && `ASYC_MP.awready)begin
+          `uvm_info(get_name(),"Write Addr Chennal Handshak",UVM_DEBUG)
+          trans_h.awr_id     = `MON.awid;
+          trans_h.wr_addr    = `MON.awaddr;
+          trans_h.wr_size    = `MON.awsize;
+          trans_h.wr_len     = `MON.awlen;
+          trans_h.wr_brust_e = brust_kind_e'(`MON.awbrust);
+        end
+        mas_ap.write(trans_h);
+        `uvm_info(get_name(),"After Write Addr Chennal Handshak Write call",UVM_DEBUG)
       end
-      trans_h.wr_strob   = `MON.wstrob;
-      trans_h.b_id       = `MON.bid;
-      trans_h.b_resp_e   = resp_kind_e'(`MON.bresp);
-      trans_h.ard_id     = `MON.arid;
-      trans_h.rd_addr    = `MON.araddr;
-      trans_h.rd_size    = `MON.arsize;
-      trans_h.rd_len     = `MON.arlen;
-      trans_h.rd_brust_e = brust_kind_e'(`MON.arbrust);
-      trans_h.r_id       = `MON.rid;
-      for(int i=0; i<trans_h.rd_len+1 ;i++)begin
+      forever begin
         @(posedge m_vif.aclk);
-        trans_h.rd_data.push_back(`MON.rdata);
+        if(`ASYC_MP.wvalid && `ASYC_MP.wready)begin
+          `uvm_info(get_name(),"Wrire Data Channel Handshak",UVM_DEBUG)
+          trans_h.wr_id      = `MON.wid;
+          trans_h.wr_data    = new[trans_h.wr_len +1];
+          foreach(trans_h.wr_data[i])begin
+            trans_h.wr_data[i]= `MON.wdata;
+            trans_h.wr_strob  = `MON.wstrob;
+            @(posedge m_vif.aclk);
+            if(i != trans_h.wr_len)
+              wait(`ASYC_MP.wvalid && `ASYC_MP.wready);            
+          end
+          trans_h.print();
+        end
+         mas_ap.write(trans_h);
+        `uvm_info(get_name(),"After  Write Data Channel Handshak Write call",UVM_DEBUG)
       end
-      trans_h.r_resp_e   = resp_kind_e'(`MON.rresp);
+      forever begin
+        @(posedge m_vif.aclk);
+        if(`ASYC_MP.bready && `ASYC_MP.bvalid)begin
+          `uvm_info(get_name(),"Wrire response Channel Handshake",UVM_DEBUG)
+          trans_h.b_id       = `MON.bid;
+          trans_h.b_resp_e   = resp_kind_e'(`MON.bresp);
+        end
+        mas_ap.write(trans_h);
+        `uvm_info(get_name(),"After  Write Response Channel Handshak Write call",UVM_DEBUG)
+      end
+      forever begin
+        @(posedge m_vif.aclk);
+        if(`ASYC_MP.arready && `ASYC_MP.rvalid)begin
+          `uvm_info(get_name(),"Read Addr Channel Handshake",UVM_DEBUG)
+          trans_h.ard_id     = `MON.arid;
+          trans_h.rd_addr    = `MON.araddr;
+          trans_h.rd_size    = `MON.arsize;
+          trans_h.rd_len     = `MON.arlen;
+          trans_h.rd_brust_e = brust_kind_e'(`MON.arbrust);
+          trans_h.print();
+        end
+        mas_ap.write(trans_h);
+        `uvm_info(get_name(),"After Read Addr Channel Handshake Write call",UVM_DEBUG)
+      end
+      forever begin
+        @(posedge m_vif.aclk);
+        if(`ASYC_MP.rready && `ASYC_MP.rvalid)begin
+          `uvm_info(get_name(),"Read data Channel Handshake",UVM_DEBUG)
+          trans_h.r_id       = `MON.rid;
+          for(int i=0; i<=trans_h.rd_len ;i++)begin
+            trans_h.rd_data.push_back(`MON.rdata);
+            @(posedge m_vif.aclk );
+            if(i != trans_h.rd_len)
+              wait(`ASYC_MP.rready && `ASYC_MP.rvalid);
+            trans_h.print();
+          end
+          trans_h.r_resp_e   = resp_kind_e'(`MON.rresp);
+        end
+        mas_ap.write(trans_h);
+        `uvm_info(get_name(),"After Read data & Response Write call",UVM_DEBUG)
+      end
     join
-    mas_ap.write(trans_h);
+    `uvm_info(get_name(),"After Fork Join ",UVM_DEBUG)
   endtask 
 
 endclass  : axi_mas_mon 
