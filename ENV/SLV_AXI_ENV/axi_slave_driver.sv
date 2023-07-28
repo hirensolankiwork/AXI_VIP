@@ -62,16 +62,18 @@ super.run_phase(phase);
         begin
         if(axi_inf.rst) begin
         Ready_drive();
+        
         seq_item_port.get_next_item(req);
         item_done_flag = 1'b1;
         `uvm_info(get_name(),"After get next",UVM_DEBUG)
-          if(req.WLAST)
+      
+         if(req.WLAST)
             resp_drive(req);
           if(req.RVALID)
             read_data(req); 
         seq_item_port.item_done();
         item_done_flag = 1'b0;
-      end  
+           end  
       end
      join_any
      disable fork;
@@ -89,6 +91,24 @@ super.run_phase(phase);
             axi_inf.async_reset.RVALID <=  1'b0;
             axi_inf.async_reset.RDATA  <=  1'b0;
             axi_inf.async_reset.RLAST <=  1'b0;
+            tr_h.ar_que.delete();
+            tr_h.aw_que.delete();
+            tr_h.RVALID = 1'b0;
+            tr_h.WLAST = 1'b0;
+            tr_h.ARVALID = 1'b0;
+            tr_h.AWVALID = 1'b0;
+            $display("arque sie and aw_que size is %0d %0d",tr_h.ar_que.size(),tr_h.aw_que.size());
+             `uvm_info(get_name(),$sformatf("Inside slave Driver inside the reset ARID %0d",tr_h.ARID),UVM_DEBUG) 
+
+
+             seq_item_port.try_next_item(req);
+             while(req != null)begin
+                 seq_item_port.try_next_item(req);
+            continue;
+            end
+           
+            
+
             if(item_done_flag) begin
                seq_item_port.item_done();
                item_done_flag = 1'b0;
@@ -104,7 +124,7 @@ task  resp_drive(axi_trans tr_h);
           axi_inf.slv_drv_cb.BRESP <= tr_h.BRESP;
           axi_inf.slv_drv_cb.BVALID <= tr_h.BVALID;
           axi_inf.slv_drv_cb.BID    <= tr_h.BID;
-             `uvm_info(get_type_name(),$sformatf(" BID id getting driver is %0d and orignal data is %0d", axi_inf.slv_drv_cb.BID,tr_h.BID),UVM_MEDIUM);
+             `uvm_info(get_type_name(),$sformatf(" in reset ARID id getting driver is %0d and orignal data is %0d", axi_inf.slv_drv_cb.BID,tr_h.BID),UVM_MEDIUM);
 
           @(axi_inf.slv_drv_cb);
           wait(axi_inf.slv_drv_cb.BREADY == 1'b1);
@@ -112,6 +132,8 @@ task  resp_drive(axi_trans tr_h);
           axi_inf.slv_drv_cb.RVALID <= 1'b1;
           wait(axi_inf.slv_drv_cb.RREADY == 1'b1)
           axi_inf.slv_drv_cb.RVALID <= 1'b0;
+          tr_h.RVALID = 1'b0;
+          
 
 endtask    
 
@@ -121,9 +143,15 @@ task read_data(axi_trans tr_h);
        len = tr_h.ar_que[0].ARLEN;
        size = tr_h.ar_que[0].ARSIZE;
        axi_inf.slv_drv_cb.RID <= tr_h.ar_que[0].ARID;
+       
+       `uvm_info(get_name(),$sformatf("Inside slave read data ARID %0d",tr_h.ar_que[0].ARID),UVM_DEBUG) 
        if(tr_h.ar_que.size !=0)
               tr_h.ar_que.delete(0);
-   `uvm_info(get_type_name(),$sformatf(" read id getting driver is %0d que array is  %p",axi_inf.slv_drv_cb.RID,tr_h.ar_que),UVM_MEDIUM);
+      
+
+      `uvm_info(get_name(),$sformatf("Inside slave after que delete size  %0d and size of que is %0d",tr_h.ar_que[0].ARID,tr_h.ar_que.size),UVM_DEBUG) 
+       `uvm_info(get_type_name(),$sformatf(" read id getting driver is %0d que array is  %p",axi_inf.slv_drv_cb.RID,tr_h.ar_que),UVM_MEDIUM);
+
        axi_inf.slv_drv_cb.RLAST <= 1'b0;
        axi_inf.slv_drv_cb.RRESP <= 2'b00;
        axi_inf.slv_drv_cb.RVALID <= 1'b1;
@@ -139,7 +167,10 @@ task read_data(axi_trans tr_h);
                         @(axi_inf.slv_drv_cb)
                         axi_inf.slv_drv_cb.RLAST <= 1'b0;
                         axi_inf.slv_drv_cb.RVALID <= 1'b0;
-
+                        tr_h.RVALID = 1'b0;
+                        tr_h.ARVALID = 1'b0;
+                        tr_h.RLAST = 1'b0;
+                
 
                  end
                  @(axi_inf.slv_drv_cb);

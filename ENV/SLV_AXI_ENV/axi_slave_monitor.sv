@@ -138,6 +138,7 @@ forever begin
    tr_h.ARSIZE  =  axi_inf.ARSIZE;
    tr_h.ARBURST = axi_inf.ARBURST;
    tr_h.ARID    =  axi_inf.ARID;
+   `uvm_info(get_name(),$sformatf("Inside slave Monitor ARID %0d the actual data is %0d",tr_h.ARID,axi_inf.ARID),UVM_DEBUG) 
    tr_h.ARVALID = axi_inf.ARVALID;
    mon2seqr.write(tr_h);
 

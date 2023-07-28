@@ -44,13 +44,16 @@ task body();
   if(tr_h.AWVALID)begin
        tr_h.AWSIZE = 2** tr_h.AWSIZE;
       tr_h.aw_que.push_front(tr_h);
+      
 
    end
 
 
    if(tr_h.ARVALID)begin
            tr_h.ARSIZE = 2** tr_h.ARSIZE;
+           `uvm_info(get_name(),$sformatf("Inside slave base sequance ARID  %0d",tr_h.ARID),UVM_DEBUG) 
           tr_h.ar_que.push_back(tr_h);
+           `uvm_info(get_name(),$sformatf("@time tr_h.ARVALID is zero"),UVM_DEBUG) 
    end
 
 
@@ -69,9 +72,11 @@ if(tr_h.WLAST)begin
     end  
 
     if(tr_h.RVALID)begin
+
+      `uvm_info(get_name(),$sformatf("Inside RVALID  %0d",tr_h.ARID),UVM_DEBUG) 
         tr_h.RLAST = 1'b0;
         tr_h.RRESP = 2'b00;
-        `uvm_send(tr_h);
+       `uvm_send(tr_h);
      end        
 end
 
