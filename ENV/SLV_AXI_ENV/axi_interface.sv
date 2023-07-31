@@ -69,9 +69,36 @@ logic RREADY;
     //Description : 
     //////////////////////////////////////////////////////////////////////
     clocking mon_cb @(posedge clk);
-        input AWID, AWADDR, AWLEN, AWSIZE, AWBURST,AWVALID, WID, WDATA, WSTRB,  WLAST, WVALID, 
-                BREADY, ARID, ARADDR, ARLEN, ARSIZE, ARBURST, ARVALID, RREADY;
-        input AWREADY, WREADY, BID, BRESP, BVALID, ARREADY, RID, RDATA, RRESP,  RLAST, RVALID;
+        input AWID,
+              AWADDR,
+              AWLEN,
+              AWSIZE,
+              AWBURST,
+              AWVALID,
+              WID,
+              WDATA,
+              WSTRB,
+              WLAST,
+              WVALID, 
+              BREADY,
+              ARID,
+              ARADDR,
+              ARLEN,
+              ARSIZE,
+              ARBURST,
+              ARVALID,
+              RREADY;
+        input AWREADY,
+              WREADY,
+              BID,
+              BRESP,
+              BVALID,
+              ARREADY,
+              RID,
+              RDATA,
+              RRESP,
+              RLAST,
+              RVALID;
     endclocking
 
 
@@ -84,9 +111,36 @@ logic RREADY;
     //////////////////////////////////////////////////////////////////////
     clocking slv_drv_cb @(posedge clk);
       default input #1 output #1;
-        input AWID, AWADDR, AWLEN, AWSIZE, AWBURST,AWVALID, WID, WDATA, WSTRB,  WLAST, WVALID, 
-                BREADY, ARID, ARADDR, ARLEN, ARSIZE, ARBURST, ARVALID, RREADY;
-        output AWREADY, WREADY, BID, BRESP, BVALID, ARREADY, RID, RDATA, RRESP, RLAST, RVALID;
+        input AWID,
+              AWADDR,
+              AWLEN,
+              AWSIZE,
+              AWBURST,
+              AWVALID,
+              WID,
+              WDATA,
+              WSTRB,
+              WLAST,
+              WVALID, 
+              BREADY,
+              ARID,
+              ARADDR,
+              ARLEN,
+              ARSIZE,
+              ARBURST,
+              ARVALID,
+              RREADY;
+        output AWREADY,
+               WREADY,
+               BID,
+               BRESP,
+               BVALID,
+               ARREADY,
+               RID,
+               RDATA,
+               RRESP,
+               RLAST,
+               RVALID;
     endclocking
 
 

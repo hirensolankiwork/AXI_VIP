@@ -147,17 +147,18 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       fork  
       //Write Response chennal transfer.
         forever begin
-          fork : BREADY_RSP
-            begin
-              @(posedge `DRV.bvalid)
+          //fork : BREADY_RSP
+            //begin
+              //@(posedge `DRV.bvalid)
               `ASYC_MP.bready <= 1'b1;
-            end
-            begin
+           // end
+           // begin
               @(negedge `DRV.bvalid)
               `ASYC_MP.bready <= 1'b0;
-            end
-          join_any
-          disable BREADY_RSP;
+            //end
+          //join
+          //join_any
+          //disable BREADY_RSP;
         end
       //Read data and Respose Chennal
         forever begin
