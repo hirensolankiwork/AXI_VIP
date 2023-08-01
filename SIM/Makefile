@@ -26,7 +26,7 @@ qsim :
 	vsim -novopt $(TOP_M) -l axi_run_log.log
 
 sim :
-	vsim -novopt $(TOP_M) -l axi_run_log.log -c -do "run -all; exit"
+	vsim -novopt $(TOP_M) -l axi_run_log.log -c -do "run -all; exit" +UVM_VERBOSITY=UVM_DEBUG
 
 # for coverage report compilation	
 
@@ -37,15 +37,15 @@ comp_cov :
 
 regression :
 	vsim -vopt -coverage $(TOP_M) -l axi_run_idel_log.log -c -do "coverage save -onexit -directive -cvg -codeAll test_idel_con.ucdb; run -all; exit;" +UVM_TESTNAME=mux_base_test
-	vsim -vopt -coverage $(TOP_M) -l mux_run_rng_log.log -c -do "coverage save -onexit -directive -cvg -codeAll test_rng_con.ucdb; run -all; exit;" +UVM_TESTNAME=mux_rng_test
-	vcover merge main_cov.ucdb test_idel_con.ucdb test_rng_con.ucdb
+	vsim -vopt -coverage $(TOP_M) -l axi_reset_test_log.log -c -do "coverage save -onexit -directive -cvg -codeAll test_reset_con.ucdb; run -all; exit;" +UVM_TESTNAME=axi_reset_test
+	vcover merge main_cov.ucdb test_idel_con.ucdb test_reset_con.ucdb
 	vcover report -html -htmldir Coverage main_cov.ucdb 
 
 
 # for every single test
 
 TEST_CASE_1 :
-	vsim -vopt -coverage $(TOP_M) -c -do "coverage save -onexit -directive -cvg -codeAll test_idel_con.ucdb; run -all; exit;" +UVM_TESTNAME=mux_base_test
+	vsim -vopt -coverage $(TOP_M) -l axi_run_idel_log.log -c -do "coverage save -onexit -directive -cvg -codeAll test_idel_con.ucdb; run -all; exit;" +UVM_TESTNAME=mux_base_test
 
 TEST_CASE_2:
-	vsim -vopt -coverage $(TOP_M) -c -do "coverage save -onexit -directive -cvg -codeAll test_rng_con.ucdb; run -all; exit;" +UVM_TESTNAME=mux_rng_test
+	vsim -vopt -coverage $(TOP_M) -l axi_reset_test_log.log -c -do "coverage save -onexit -directive -cvg -codeAll test_reset_con.ucdb; run -all; exit;" +UVM_TESTNAME=axi_reset_test	
