@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 01-08-2023 06:24:20
+// Last Modifiey  : 01-08-2023 14:10:16
 // File Name   	  : axi_tb_top.sv
 // Module Name 	  : axi_tb_top
 // Project Name	  : AXI_3 VIP
@@ -64,7 +64,7 @@ module axi_tb_top();
 //--------------------------------------------------------------------------------------------
   task reset(int i);
     repeat(i)begin
-      repeat($urandom_range(5,15))@(negedge clk);
+      repeat($urandom_range(5,35))@(negedge clk);
         rstn = 1'b0;
       @(posedge clk)
       rstn = 1'b1;
@@ -89,13 +89,15 @@ module axi_tb_top();
      rstn = 1'b0;
      @(posedge clk)
      rstn = 1'b1;
+     if($test$plusargs("UVM_TESTNAME=axi_reset_test"))
+       reset(6);
    end
 //--------------------------------------------------------------------------------------------
 //           Calling test
 //--------------------------------------------------------------------------------------------
 
    initial begin
-      run_test("axi_base_test");
+      run_test();
    end
 
 endmodule

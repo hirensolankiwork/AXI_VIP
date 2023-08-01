@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 01-08-2023 06:11:33
+// Last Modifiey  : 01-08-2023 15:10:40
 // File Name   	  : axi_mas_drv.sv
 // Class Name 	  : axi_mas_drv 
 // Project Name	  : AXI_3 VIP
@@ -108,7 +108,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       forever begin
         fork : BREADY_RSP
           begin
-            @(posedge `DRV.wlast)
+            @(posedge m_vif.aclk)
             `DRV.bready <= 1'b1;
           end
           begin

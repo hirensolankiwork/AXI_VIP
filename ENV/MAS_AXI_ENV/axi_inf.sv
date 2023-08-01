@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 26-07-2023 15:59:31
+// Last Modifiey  : 01-08-2023 13:01:19
 // File Name   	  : axi_mas_inf.sv
 // Interface Name : axi_mas_inf
 // Project Name	  : AXI_3 VIP
@@ -15,7 +15,6 @@
 `include "axi_define.sv"
 interface axi_inf(input logic aclk,
                   input logic arstn);
-
 //-------------------------------------------------------------------------
 // Write Address Chennal
 //-------------------------------------------------------------------------
@@ -68,6 +67,9 @@ interface axi_inf(input logic aclk,
   logic                          rlast;
   logic                          rready;
   logic                          rvalid;
+
+  
+
 
   clocking mas_drv_cb@(posedge aclk);
     default input #1 output #1;
