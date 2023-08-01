@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 27-07-2023 15:32:29
+// Last Modifiey  : 01-08-2023 06:24:20
 // File Name   	  : axi_tb_top.sv
 // Module Name 	  : axi_tb_top
 // Project Name	  : AXI_3 VIP
@@ -62,11 +62,13 @@ module axi_tb_top();
 //--------------------------------------------------------------------------------------------
 //           DUT instantiation
 //--------------------------------------------------------------------------------------------
-  task reset();
-    repeat(2)@(negedge clk)
-    rstn = 1'b0;
-    @(posedge clk)
-    rstn = 1'b1;
+  task reset(int i);
+    repeat(i)begin
+      repeat($urandom_range(5,15))@(negedge clk);
+        rstn = 1'b0;
+      @(posedge clk)
+      rstn = 1'b1;
+    end
   endtask : reset 
 
   initial forever #2 clk = ~clk;
@@ -83,13 +85,10 @@ module axi_tb_top();
 
    initial begin
      rstn = 1'b1;
-     reset();
-     repeat(20)@(negedge clk);
-     reset();
-     repeat(30)@(negedge clk);
-     reset();
-     repeat(50)@(negedge clk);
-     reset();
+     @(negedge clk);
+     rstn = 1'b0;
+     @(posedge clk)
+     rstn = 1'b1;
    end
 //--------------------------------------------------------------------------------------------
 //           Calling test

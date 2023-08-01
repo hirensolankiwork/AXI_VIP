@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 28-07-2023 14:01:46
+// Last Modifiey  : 01-08-2023 06:11:33
 // File Name   	  : axi_mas_drv.sv
 // Class Name 	  : axi_mas_drv 
 // Project Name	  : AXI_3 VIP
@@ -103,8 +103,55 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
    `uvm_info(get_name(),"End of Forever loop",UVM_DEBUG) 
   endtask 
   task send_to_dut(axi_mas_seq_item req); 
-    @(posedge m_vif.aclk);
     fork
+   //Write Response chennal transfer.
+      forever begin
+        fork : BREADY_RSP
+          begin
+            @(posedge `DRV.wlast)
+            `DRV.bready <= 1'b1;
+          end
+          begin
+            @(negedge `DRV.bvalid)
+            `DRV.bready <= 1'b0;
+          end
+        join_any
+        disable BREADY_RSP;
+      end
+    //Read data and Respose Chennal
+      forever begin
+        fork : RREADY_RSP
+          begin
+            @(posedge m_vif.aclk)
+            `DRV.rready <= 1'b1;
+          end
+          begin
+            @(negedge `DRV.rvalid)
+            `DRV.rready <= 1'b0;
+          end
+        join_any
+        disable RREADY_RSP;
+      end
+    join_none
+
+      @(posedge m_vif.aclk);
+      fork
+        if(req.req_e==WRITE_REQ)fork
+          write_trns();
+        join
+        if(req.req_e==READ_REQ)fork
+          read_trns();
+        join
+        if(req.req_e==FULL_REQ)fork
+          write_trns();
+          read_trns();
+        join
+      join
+  endtask 
+
+  task write_trns(); 
+    fork
+    `uvm_info(get_type_name(), "Inside write trns()", UVM_DEBUG)
     //Wrire Addres chennal transfer
       begin
         `DRV.awvalid  <= 1'b1;
@@ -123,7 +170,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
         foreach(req.wr_data[i]) begin
           `DRV.wvalid <= 1'b1;
           `DRV.wdata  <= req.wr_data[i];
-          `DRV.wstrob <= req.wr_strob;
+          `DRV.wstrob <= req.wr_strob[i];
           if(i==req.wr_len)
           `DRV.wlast <= 1'b1;
           wait(`DRV.wready == 1'b1);
@@ -132,6 +179,12 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
         `DRV.wlast  <= 1'b0;
         end
       end
+      wait(`DRV.bvalid);
+    join
+  endtask
+
+  task read_trns();
+    `uvm_info(get_type_name(), "Inside read_trns()", UVM_DEBUG)
     //Read address chennal transfer.
       begin
         `DRV.arvalid  <= 1'b1;
@@ -144,38 +197,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
         @(posedge m_vif.aclk);
         `DRV.arvalid  <= 1'b0;
       end
-      fork  
-      //Write Response chennal transfer.
-        forever begin
-          //fork : BREADY_RSP
-            //begin
-              //@(posedge `DRV.bvalid)
-              `ASYC_MP.bready <= 1'b1;
-           // end
-           // begin
-              @(negedge `DRV.bvalid)
-              `ASYC_MP.bready <= 1'b0;
-            //end
-          //join
-          //join_any
-          //disable BREADY_RSP;
-        end
-      //Read data and Respose Chennal
-        forever begin
-          fork : RREADY_RSP
-            begin
-              @(posedge `DRV.rvalid)
-              `ASYC_MP.rready <= 1'b1;
-            end
-            begin
-              @(negedge `DRV.rvalid)
-              `ASYC_MP.rready <= 1'b0;
-            end
-          join_any
-          disable RREADY_RSP;
-        end
-      join_none
-    join
+      wait(`DRV.rvalid);
   endtask 
 endclass  : axi_mas_drv 
 

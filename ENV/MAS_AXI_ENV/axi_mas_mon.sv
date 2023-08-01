@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 28-07-2023 17:19:05
+// Last Modifiey  : 01-08-2023 06:15:30
 // File Name   	  : axi_mas_mon.sv
 // Class Name 	  : 
 // Project Name	  : 
@@ -81,7 +81,7 @@ class axi_mas_mon extends uvm_sequencer;
           trans_h.wr_data    = new[trans_h.wr_len +1];
           foreach(trans_h.wr_data[i])begin
             trans_h.wr_data[i]= `MON.wdata;
-            trans_h.wr_strob  = `MON.wstrob;
+            trans_h.wr_strob[i]  = `MON.wstrob;
             @(posedge m_vif.aclk);
             if(i != trans_h.wr_len)
               wait(`ASYC_MP.wvalid && `ASYC_MP.wready);            

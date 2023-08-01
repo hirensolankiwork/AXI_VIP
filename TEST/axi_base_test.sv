@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 28-07-2023 12:02:14
+// Last Modifiey  : 31-07-2023 18:19:41
 // File Name   	  : axi_base_test.sv
 // Class Name 	  : axi_base_test 
 // Project Name	  : AXI_3 VIP
@@ -39,20 +39,19 @@ class axi_base_test extends uvm_test;
     uvm_top.print_topology();
   endfunction 
 
-  task run_phase (uvm_phase phase);
+  virtual task run_phase (uvm_phase phase);
     phase.raise_objection(this);
       fork
         begin
-		      mseqs_h = axi_mas_base_seqs::type_id::create("mseqs_h");
-		      void'(mseqs_h.randomize());
+		      mseqs_h = axi_mas_base_seqs::type_id::create("MSEQS_H");
 		      mseqs_h.start(env_h.magent_h.mseqr_h);
 		    end
 		    begin
-		      sseqs_h = axi_slave_base_seq::type_id::create("sseqs_h");
+		      sseqs_h = axi_slave_base_seq::type_id::create("SSEQS_H");
           sseqs_h.start(env_h.sagent_h.slv_seqr);
 		    end 
       join_any
-   // phase.phase_done.set_drain_time(this, 50) ;
+    phase.phase_done.set_drain_time(this,100) ;
 	  phase.drop_objection(this);
   endtask
 
