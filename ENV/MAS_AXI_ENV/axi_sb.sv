@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 26-07-2023 17:01:29
+// Last Modifiey  : 03-08-2023 14:03:38
 // File Name   	  : axi_sb.sv
 // Class Name 	  : 
 // Project Name	  : 
@@ -36,7 +36,7 @@ class axi_sb extends uvm_scoreboard;
 
 // Add necessary TLM exports to receive transactions from other
 // components and instantiat them in build_phase
-  uvm_analysis_imp_mas #(axi_mas_seq_item,axi_sb) mas_ap_imp;  
+  uvm_analysis_imp_mas #(axi_mas_seq_item,axi_sb) m_sb_imp;  
 //  uvm_analysis_imp_slv #(axi_slv_seq_item,axi_sb) slv_ap_imp;  
 //new counstructore declaration.
   function new(string name="axi_sb",uvm_component parent=null);
@@ -45,7 +45,7 @@ class axi_sb extends uvm_scoreboard;
 
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
-    mas_ap_imp = new("ms_ap_imp",this);
+    m_sb_imp = new("m_sb_imp",this);
   //  slv_ap_imp = new("ms_ap_imp",this);
   endfunction 
 

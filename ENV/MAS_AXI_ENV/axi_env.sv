@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 26-07-2023 17:03:01
+// Last Modifiey  : 03-08-2023 12:53:52
 // File Name   	  : axi_env.sv
 // Class Name 	  : 
 // Project Name	  : 
@@ -36,11 +36,11 @@ class axi_env extends uvm_env;
   function void build_phase(uvm_phase phase);
     `uvm_info(get_name(),"Starting of Build Phase",UVM_DEBUG)
     super.build_phase(phase);
-    magent_h = axi_mas_agent::type_id::create("magent_h",this);
-    sagent_h = axi_slave_agent::type_id::create("sagent_h",this);
+    magent_h = axi_mas_agent::type_id::create("MAGENT_H",this);
+    sagent_h = axi_slave_agent::type_id::create("SAGENT_H",this);
  //Set slave config.
-    s_cfg = axi_agent_config::type_id::create("s_cfg");
-    sb_h     = axi_sb::type_id::create("sb_h",this);
+    s_cfg = axi_agent_config::type_id::create("S_CFG");
+    sb_h     = axi_sb::type_id::create("SB_H",this);
     s_cfg.active=UVM_ACTIVE;
     uvm_config_db #(axi_agent_config)::set(this,"*","slv_cfg",s_cfg);
     
@@ -52,7 +52,9 @@ class axi_env extends uvm_env;
   function void connect_phase(uvm_phase phase);
     `uvm_info(get_name(),"Starting of Connect Phase",UVM_DEBUG)
     super.connect_phase(phase);
-    magent_h.mmon_h.mas_ap.connect(sb_h.mas_ap_imp);
+//TODO: config for score board.
+    
+    magent_h.m_agent_ap.connect(sb_h.m_sb_imp);
     `uvm_info(get_name(),"Ending of connect Phase",UVM_DEBUG)
   endfunction 
 

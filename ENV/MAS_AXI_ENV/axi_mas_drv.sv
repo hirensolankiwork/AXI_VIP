@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 01-08-2023 15:10:40
+// Last Modifiey  : 03-08-2023 12:09:00
 // File Name   	  : axi_mas_drv.sv
 // Class Name 	  : axi_mas_drv 
 // Project Name	  : AXI_3 VIP
@@ -30,81 +30,95 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
 
   virtual axi_inf m_vif;      //Tacking interface to convey my packet level info to pin level.
   bit get_item_flag;          //
+  REQ write_req[$];
+  REQ read_req[$];
+  RSP write_rsp;
+  RSP read_rsp;
 //--------------------------------------------------------------------------
 // Function  : Build Phase  
 //--------------------------------------------------------------------------
   function void build_phase(uvm_phase phase);
-    `uvm_info(get_name(),"Starting of Build Phase",UVM_DEBUG)
+    `uvm_info(get_full_name(),"Starting of Build Phase",UVM_DEBUG)
     super.build_phase(phase);
-    `uvm_info(get_name(),"Ending of Build Phase",UVM_DEBUG)
+    `uvm_info(get_full_name(),"Ending of Build Phase",UVM_DEBUG)
   endfunction
-
+//--------------------------------------------------------------------------
+// Task : clear
+//--------------------------------------------------------------------------
+  task clear();
+    `uvm_info(get_full_name(),"Start of clear task",UVM_DEBUG)
+    if(!m_vif.arstn)begin
+      `uvm_info(get_full_name(),"[clear task]: reset aserted",UVM_DEBUG)
+      `ASYC_MP.awid   <= 'b0;
+      `ASYC_MP.awaddr <= 'b0;
+      `ASYC_MP.awbrust<= 'b0;
+      `ASYC_MP.awsize <= 'b0;
+      `ASYC_MP.awlen  <= 'b0;
+      `ASYC_MP.awlock <= 'b0;
+      `ASYC_MP.awprot <= 'b0;
+      `ASYC_MP.awcache<= 'b0;
+      `ASYC_MP.awvalid<= 'b0;
+      `ASYC_MP.wid    <= 'b0;
+      `ASYC_MP.wdata  <= 'b0;
+      `ASYC_MP.wstrob <= 'b0;
+      `ASYC_MP.wlast  <= 'b0;
+      `ASYC_MP.wvalid <= 'b0;
+      `ASYC_MP.bready <= 'b0;
+      `ASYC_MP.arid   <= 'b0;
+      `ASYC_MP.araddr <= 'b0;
+      `ASYC_MP.arbrust<= 'b0;
+      `ASYC_MP.arsize <= 'b0;
+      `ASYC_MP.arlen  <= 'b0;
+      `ASYC_MP.arlock <= 'b0;
+      `ASYC_MP.arprot <= 'b0;
+      `ASYC_MP.arcache<= 'b0;
+      `ASYC_MP.arvalid<= 'b0;
+      `ASYC_MP.rready <= 'b0;
+      write_req.delete();
+      read_req.delete();
+      //Wait for reset deassert.
+      if(get_item_flag)begin
+        `uvm_info(get_full_name(),"[clear task]: After Get Next Item Inside reset",UVM_DEBUG)
+        seq_item_port.item_done();
+        `uvm_info(get_full_name(),"[clear task]: After Item done",UVM_DEBUG)
+      end
+      @(posedge m_vif.arstn);
+      `uvm_info(get_full_name(),"[clear task]: reset deasserted",UVM_DEBUG)
+    end
+    `uvm_info(get_full_name(),"Start of clear task",UVM_DEBUG)
+  endtask 
 //--------------------------------------------------------------------------
 // Task  : Run Phase  
 //--------------------------------------------------------------------------
   task run_phase(uvm_phase phase);
-    `uvm_info(get_name(),"Starting of Run Phase",UVM_DEBUG)
+    `uvm_info(get_full_name(),"Starting of Run Phase",UVM_DEBUG)
    // `uvm_info(get_name(),"Before Forever loop start",UVM_DEBUG)
+   @(negedge m_vif.arstn);
+   clear(); 
    forever begin 
-    `uvm_info(get_name(),"Starting of Forever loop",UVM_DEBUG)
-      fork
-        begin
-          `uvm_info(get_name(),"Before Get Next Item ",UVM_DEBUG)
-          seq_item_port.get_next_item(req);
-          get_item_flag = 1;
-          `uvm_info(get_name(),"After Get Next Item and Before Send to DUT ",UVM_DEBUG)
-          send_to_dut(req);
-          `uvm_info(get_name(),"After Send to DUT and Before Finish Item",UVM_DEBUG)
-          seq_item_port.item_done();
-          get_item_flag = 0;
-          `uvm_info(get_name(),"After Finish Item",UVM_DEBUG)
-        end
-        begin
-          @(negedge m_vif.arstn);
-        end
-      join_any
-      disable fork;
-      if(!m_vif.arstn)begin
-        `ASYC_MP.awid   <= 'b0;
-        `ASYC_MP.awaddr <= 'b0;
-        `ASYC_MP.awbrust<= 'b0;
-        `ASYC_MP.awsize <= 'b0;
-        `ASYC_MP.awlen  <= 'b0;
-        `ASYC_MP.awlock <= 'b0;
-        `ASYC_MP.awprot <= 'b0;
-        `ASYC_MP.awcache<= 'b0;
-        `ASYC_MP.awvalid<= 'b0;
-        `ASYC_MP.wid    <= 'b0;
-        `ASYC_MP.wdata  <= 'b0;
-        `ASYC_MP.wstrob <= 'b0;
-        `ASYC_MP.wlast  <= 'b0;
-        `ASYC_MP.wvalid <= 'b0;
-        `ASYC_MP.bready <= 'b0;
-        `ASYC_MP.arid   <= 'b0;
-        `ASYC_MP.araddr <= 'b0;
-        `ASYC_MP.arbrust<= 'b0;
-        `ASYC_MP.arsize <= 'b0;
-        `ASYC_MP.arlen  <= 'b0;
-        `ASYC_MP.arlock <= 'b0;
-        `ASYC_MP.arprot <= 'b0;
-        `ASYC_MP.arcache<= 'b0;
-        `ASYC_MP.arvalid<= 'b0;
-        `ASYC_MP.rready <= 'b0;
-       //Wait for reset deassert.
-       if(get_item_flag)begin
-         `uvm_info(get_name(),"After Get Next Item Inside reset ",UVM_DEBUG)
-          seq_item_port.item_done();
-          `uvm_info(get_name(),"After Finish Item",UVM_DEBUG)
+     `uvm_info(get_full_name(),"Starting of Forever loop",UVM_DEBUG)
+     fork
+       begin
+         `uvm_info(get_full_name(),"Before Get Call ",UVM_DEBUG)
+         seq_item_port.get(req);
+         get_item_flag = 1;
+         `uvm_info(get_full_name(),"After Get() Call and Before driver() call ",UVM_DEBUG)
+         driver(req);
+         `uvm_info(get_full_name(),"After driver()",UVM_DEBUG)
+         get_item_flag = 0;
        end
-       @(posedge m_vif.arstn);
-
-     end
+       begin
+         @(negedge m_vif.arstn);
+       end
+     join_any
+     disable fork;
+     clear();
    end
-   `uvm_info(get_name(),"End of Forever loop",UVM_DEBUG) 
+   `uvm_info(get_full_name(),"End of Forever loop",UVM_DEBUG) 
   endtask 
-  task send_to_dut(axi_mas_seq_item req); 
+  task driver(REQ req);
     fork
-   //Write Response chennal transfer.
+    //Write Response chennal transfer.
       forever begin
         fork : BREADY_RSP
           begin
@@ -136,47 +150,46 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
 
       @(posedge m_vif.aclk);
       fork
-        if(req.req_e==WRITE_REQ)fork
+        if(req.req_e==WRITE_REQ)begin
+          write_req.push_back(req);
           write_trns();
-        join
-        if(req.req_e==READ_REQ)fork
+        end
+        if(req.req_e==READ_REQ)begin
+          read_req.push_back(req);
           read_trns();
-        join
-        if(req.req_e==FULL_REQ)fork
-          write_trns();
-          read_trns();
-        join
+        end
       join
   endtask 
 
   task write_trns(); 
+    wait(write_req.size() != 0);
+    req = write_req.pop_front();
     fork
-    `uvm_info(get_type_name(), "Inside write trns()", UVM_DEBUG)
+    `uvm_info(get_full_name(), "Inside write trns()", UVM_DEBUG)
     //Wrire Addres chennal transfer
       begin
-        `DRV.awvalid  <= 1'b1;
         `DRV.awid     <= req.awr_id;
         `DRV.awaddr   <= req.wr_addr;
         `DRV.awsize   <= req.wr_size;
         `DRV.awlen    <= req.wr_len;
         `DRV.awbrust  <= req.wr_brust_e;
+        `DRV.awvalid  <= 1'b1;
         wait(`DRV.awready == 1'b1);
         @(posedge m_vif.aclk);
         `DRV.awvalid  <= 1'b0;
       end
     //Write data chennal transfer.
       begin
-        `DRV.wid    <= req.wr_id;
         foreach(req.wr_data[i]) begin
+          `DRV.wid    <= req.wr_id;
           `DRV.wvalid <= 1'b1;
           `DRV.wdata  <= req.wr_data[i];
           `DRV.wstrob <= req.wr_strob[i];
-          if(i==req.wr_len)
-          `DRV.wlast <= 1'b1;
+          `DRV.wlast <= (i == req.wr_len) ? 1'b1 : 1'b0;
           wait(`DRV.wready == 1'b1);
-        @(posedge m_vif.aclk);
-        `DRV.wvalid <= 1'b0;
-        `DRV.wlast  <= 1'b0;
+          @(posedge m_vif.aclk);
+          `DRV.wvalid <= 1'b0;
+          `DRV.wlast  <= 1'b0;
         end
       end
       wait(`DRV.bvalid);
@@ -184,20 +197,24 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
   endtask
 
   task read_trns();
-    `uvm_info(get_type_name(), "Inside read_trns()", UVM_DEBUG)
+    wait(read_req.size() != 0);
+    req = read_req.pop_front();
+    `uvm_info(get_full_name(), "Inside read_trns()", UVM_DEBUG)
+    fork
     //Read address chennal transfer.
       begin
-        `DRV.arvalid  <= 1'b1;
         `DRV.arid     <= req.ard_id;
         `DRV.araddr   <= req.rd_addr;
         `DRV.arsize   <= req.rd_size;
         `DRV.arlen    <= req.rd_len;
         `DRV.arbrust  <= req.rd_brust_e;
+        `DRV.arvalid  <= 1'b1;
         wait(`DRV.arready == 1'b1);
         @(posedge m_vif.aclk);
         `DRV.arvalid  <= 1'b0;
       end
-      wait(`DRV.rvalid);
+      wait(`DRV.rvalid && `DRV.rlast);
+    join
   endtask 
 endclass  : axi_mas_drv 
 

@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 01-08-2023 06:15:30
+// Last Modifiey  : 03-08-2023 12:34:20
 // File Name   	  : axi_mas_mon.sv
 // Class Name 	  : 
 // Project Name	  : 
@@ -28,7 +28,7 @@ class axi_mas_mon extends uvm_sequencer;
 
   axi_mas_seq_item trans_h;                       //Taking the tarantection packet to send it to the score board.
   virtual axi_inf m_vif;                          //Tacking interface to convey my packet level info to pin level.
-  uvm_analysis_port #(axi_mas_seq_item) mas_ap;   //Taking the analysis port.
+  uvm_analysis_port #(axi_mas_seq_item) m_mon_ap;   //Taking the analysis port.
 
 //--------------------------------------------------------------------------
 // Function  : Build Phase  
@@ -36,7 +36,7 @@ class axi_mas_mon extends uvm_sequencer;
   function void build_phase(uvm_phase phase);
     `uvm_info(get_name(),"Starting of Build Phase",UVM_DEBUG)
     super.build_phase(phase);
-    mas_ap = new("mas_ap",this);
+    m_mon_ap = new("mon_ap",this);
     `uvm_info(get_name(),"Ending of Build Phase",UVM_DEBUG)
   endfunction
 
@@ -46,15 +46,27 @@ class axi_mas_mon extends uvm_sequencer;
   task run_phase(uvm_phase phase);
     `uvm_info(get_name(),"Starting of Run Phase",UVM_DEBUG)
     `uvm_info(get_name(),"Before Forever loop start",UVM_DEBUG)
+    @(negedge m_vif.arstn);
     forever begin
     `uvm_info(get_name(),"Starting of Forever loop",UVM_DEBUG)
-      trans_h = axi_mas_seq_item::type_id::create("trans_h");
-      monitore(trans_h);
+      fork
+        begin
+          trans_h = axi_mas_seq_item::type_id::create("trans_h");
+          monitore(trans_h);
+        end
+//TODO: RESET 
+        begin
+          @(negedge m_vif.arstn);
+        end
+      join_any
+      disable fork;
+      if(!m_vif.arstn)
+        @(posedge m_vif.arstn);
     end
     `uvm_info(get_name(),"End of Forever loop",UVM_DEBUG)
   endtask 
 //--------------------------------------------------------------------------
-// Task  : Moniter 
+// Task  : Monitore 
 //--------------------------------------------------------------------------
   task monitore(axi_mas_seq_item trans_h);
     `uvm_info(get_name(),"Starting of Monitore",UVM_DEBUG)
@@ -70,7 +82,7 @@ class axi_mas_mon extends uvm_sequencer;
           trans_h.wr_len     = `MON.awlen;
           trans_h.wr_brust_e = brust_kind_e'(`MON.awbrust);
         end
-        mas_ap.write(trans_h);
+        m_mon_ap.write(trans_h);
         `uvm_info(get_name(),"After Write Addr Chennal Handshak Write call",UVM_DEBUG)
       end
       forever begin
@@ -79,6 +91,7 @@ class axi_mas_mon extends uvm_sequencer;
           `uvm_info(get_name(),"Wrire Data Channel Handshak",UVM_DEBUG)
           trans_h.wr_id      = `MON.wid;
           trans_h.wr_data    = new[trans_h.wr_len +1];
+          trans_h.wr_strob   = new[trans_h.wr_len +1];
           foreach(trans_h.wr_data[i])begin
             trans_h.wr_data[i]= `MON.wdata;
             trans_h.wr_strob[i]  = `MON.wstrob;
@@ -88,7 +101,7 @@ class axi_mas_mon extends uvm_sequencer;
           end
           trans_h.print();
         end
-         mas_ap.write(trans_h);
+         m_mon_ap.write(trans_h);
         `uvm_info(get_name(),"After  Write Data Channel Handshak Write call",UVM_DEBUG)
       end
       forever begin
@@ -98,7 +111,7 @@ class axi_mas_mon extends uvm_sequencer;
           trans_h.b_id       = `MON.bid;
           trans_h.b_resp_e   = resp_kind_e'(`MON.bresp);
         end
-        mas_ap.write(trans_h);
+        m_mon_ap.write(trans_h);
         `uvm_info(get_name(),"After  Write Response Channel Handshak Write call",UVM_DEBUG)
       end
       forever begin
@@ -112,7 +125,7 @@ class axi_mas_mon extends uvm_sequencer;
           trans_h.rd_brust_e = brust_kind_e'(`MON.arbrust);
           trans_h.print();
         end
-        mas_ap.write(trans_h);
+        m_mon_ap.write(trans_h);
         `uvm_info(get_name(),"After Read Addr Channel Handshake Write call",UVM_DEBUG)
       end
       forever begin
@@ -129,7 +142,7 @@ class axi_mas_mon extends uvm_sequencer;
           end
           trans_h.r_resp_e   = resp_kind_e'(`MON.rresp);
         end
-        mas_ap.write(trans_h);
+        m_mon_ap.write(trans_h);
         `uvm_info(get_name(),"After Read data & Response Write call",UVM_DEBUG)
       end
     join

@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 01-08-2023 14:46:49
+// Last Modifiey  : 03-08-2023 12:06:56
 // File Name   	  : axi_mas_seq_item.sv
 // Class Name 	  : axi_mas_seq_item
 // Project Name	  : AXI_3 VIP
@@ -19,10 +19,10 @@
 //--------------------------------------------------------------------------
 typedef enum bit[1:0]{FIX,INCR,WRAP,RESERVE} brust_kind_e;
 typedef enum bit[1:0]{OKAY,EXOKAY,SLVERR,DECERR} resp_kind_e;
-typedef enum bit[1:0]{WRITE_REQ=1,READ_REQ,FULL_REQ} req_kind_e;
+typedef enum bit {WRITE_REQ,READ_REQ} req_kind_e;
 class axi_mas_seq_item extends uvm_sequence_item;
 
-  rand  static req_kind_e                 req_e;
+  rand  static req_kind_e           req_e;
   randc bit [(`WR_ID_WIDTH-1):0]    awr_id;
   randc bit [(`WR_ID_WIDTH-1):0]    wr_id;
   rand  brust_kind_e                wr_brust_e;
@@ -75,22 +75,43 @@ class axi_mas_seq_item extends uvm_sequence_item;
   int wsize = 1<<wr_size;
   int rsize = 1<<rd_size;
 
-  constraint WR_ID_1 {soft awr_id == wr_id;}
-  constraint WR_BRUST {soft wr_brust_e == INCR;
-                       soft rd_brust_e == INCR;}
+  constraint WR_ID_1 {
+    soft awr_id == wr_id;
+  }
+  constraint WR_BRUST {
+    soft wr_brust_e == INCR;
+    soft rd_brust_e == INCR;
+  }
+//TODO: Slove Before uses.
+  constraint WR_DATA_SIZE { 
+    solve wr_len before wr_data;
+    solve wr_len before wr_strob;
+    wr_data.size() == wr_len+1;
+    wr_strob.size()== wr_len+1;
+  }
 
-  constraint WR_DATA_SIZE { wr_data.size() == wr_len+1;
-                            wr_strob.size()== wr_len+1;}
-  constraint BRUST_SIZE   { wr_size == 2;
-                            rd_size == 2; }
+  constraint BRUST_SIZE { 
+    8*(2**wr_size) <= `WR_DATA_WIDTH;
+    8*(2**rd_size) <= `RD_DATA_WIDTH;
+  }
+//TODO: Constraint for alingned addr.
+  constraint ADDR_VAL {
+    /*  solve order constraints  */
+    solve wr_brust_e before wr_addr;
+    solve wr_size before wr_addr;
 
+    /*  rand variable constraints  */
+    if(wr_brust_e == WRAP)
+        wr_addr == int'(wr_addr/2**wr_size) * (2**wr_size);
+
+  }
   constraint WRITE_STRB   { foreach(wr_strob[i])
                             {
-                              wr_strob[i] == 'b1;
+                              wr_strob[i] == '1;
                             }
                           }
   
-  constraint REQ_TEST  { req_e == FULL_REQ; }
+//  constraint REQ_TEST  { soft req_e == WRITE_REQ; }
 
 //This willcalculate the boundry for one transfer  
   int wcontainer_size = wsize * (wr_len+1);

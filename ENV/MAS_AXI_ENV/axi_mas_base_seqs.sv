@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 01-08-2023 14:04:34
+// Last Modifiey  : 03-08-2023 14:22:31
 // File Name   	  : axi_mas_base_seqs.sv
 // Class Name 	  : axi_mas_base_seqs 
 // Project Name	  : AXI_3 VIP
@@ -28,7 +28,6 @@ class axi_mas_base_seqs extends uvm_sequence #(axi_mas_seq_item);
     super.new(name);
   endfunction
  
-//virtual axi_inf m_vif;
    
 //------------------------------------------------------------------------
 //Task : pre_body 
@@ -37,8 +36,7 @@ class axi_mas_base_seqs extends uvm_sequence #(axi_mas_seq_item);
 //      before Body task .
 //------------------------------------------------------------------------
   task pre_body();
-  //if(!(uvm_config_db #(virtual axi_inf)::get(null,"*","m_vif",m_vif)))
-  //  `uvm_fatal(get_name(),"[INTERFACE] Connection faild !!!")
+
   endtask 
 
 //------------------------------------------------------------------------
@@ -49,22 +47,13 @@ class axi_mas_base_seqs extends uvm_sequence #(axi_mas_seq_item);
   virtual task body();
   
     req = axi_mas_seq_item::type_id::create("req"); //Create the sequence item.
-    repeat(10 ) begin
+    repeat(50 ) begin
       start_item(req);      //wait the request grant from the sequencer.
       assert(req.randomize());      //Randomize the sequence item.
       finish_item(req);     //Send the randomize sequence item and wait for
     end                     // item_done call.
   endtask
-/*
-  task reset(int i);
-    repeat(i)begin
-      repeat($urandom_range(5,15))@(negedge m_vif.aclk);
-        m_vif.arstn <= 1'b0;
-      @(posedge m_vif.aclk)
-      m_vif.arstn <= 1'b1;
-    end
-  endtask : reset 
-*/
+
 endclass  : axi_mas_base_seqs 
 
 
