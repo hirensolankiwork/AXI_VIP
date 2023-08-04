@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 03-08-2023 12:09:00
+// Last Modifiey  : 04-08-2023 17:43:46
 // File Name   	  : axi_mas_drv.sv
 // Class Name 	  : axi_mas_drv 
 // Project Name	  : AXI_3 VIP
@@ -30,11 +30,17 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
 
   virtual axi_inf m_vif;      //Tacking interface to convey my packet level info to pin level.
   bit get_item_flag;          //
-  REQ write_req[$];
-  REQ read_req[$];
-  RSP write_rsp;
-  RSP read_rsp;
-//--------------------------------------------------------------------------
+  REQ trans_h;
+  REQ write_addr_req_q[$];
+  REQ write_data_req_q[$];
+  REQ read_addr_req_q[$];
+  REQ write_addr_req;
+  REQ write_data_req;
+  REQ read_addr_req;
+  RSP write_rsp_q[$];
+  RSP read_rsp_q[$];
+  int count;
+  //--------------------------------------------------------------------------
 // Function  : Build Phase  
 //--------------------------------------------------------------------------
   function void build_phase(uvm_phase phase);
@@ -74,14 +80,16 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       `ASYC_MP.arcache<= 'b0;
       `ASYC_MP.arvalid<= 'b0;
       `ASYC_MP.rready <= 'b0;
-      write_req.delete();
-      read_req.delete();
-      //Wait for reset deassert.
-      if(get_item_flag)begin
-        `uvm_info(get_full_name(),"[clear task]: After Get Next Item Inside reset",UVM_DEBUG)
-        seq_item_port.item_done();
-        `uvm_info(get_full_name(),"[clear task]: After Item done",UVM_DEBUG)
-      end
+      write_addr_req_q.delete();
+      write_data_req_q.delete();
+      read_addr_req_q.delete();
+      count = 0;
+     //Wait for reset deassert.
+     // if(get_item_flag)begin
+     //   `uvm_info(get_full_name(),"[clear task]: After Get Next Item Inside reset",UVM_DEBUG)
+     //   seq_item_port.item_done();
+     //   `uvm_info(get_full_name(),"[clear task]: After Item done",UVM_DEBUG)
+     // end
       @(posedge m_vif.arstn);
       `uvm_info(get_full_name(),"[clear task]: reset deasserted",UVM_DEBUG)
     end
@@ -90,6 +98,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
 //--------------------------------------------------------------------------
 // Task  : Run Phase  
 //--------------------------------------------------------------------------
+/*methode 1:
   task run_phase(uvm_phase phase);
     `uvm_info(get_full_name(),"Starting of Run Phase",UVM_DEBUG)
    // `uvm_info(get_name(),"Before Forever loop start",UVM_DEBUG)
@@ -100,11 +109,12 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
      fork
        begin
          `uvm_info(get_full_name(),"Before Get Call ",UVM_DEBUG)
-         seq_item_port.get(req);
+         seq_item_port.get_next_item(req);
          get_item_flag = 1;
          `uvm_info(get_full_name(),"After Get() Call and Before driver() call ",UVM_DEBUG)
          driver(req);
          `uvm_info(get_full_name(),"After driver()",UVM_DEBUG)
+         seq_item_port.item_done();
          get_item_flag = 0;
        end
        begin
@@ -116,106 +126,170 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
    end
    `uvm_info(get_full_name(),"End of Forever loop",UVM_DEBUG) 
   endtask 
-  task driver(REQ req);
-    fork
-    //Write Response chennal transfer.
-      forever begin
-        fork : BREADY_RSP
-          begin
-            @(posedge m_vif.aclk)
-            `DRV.bready <= 1'b1;
-          end
-          begin
-            @(negedge `DRV.bvalid)
-            `DRV.bready <= 1'b0;
-          end
-        join_any
-        disable BREADY_RSP;
-      end
-    //Read data and Respose Chennal
-      forever begin
-        fork : RREADY_RSP
-          begin
-            @(posedge m_vif.aclk)
-            `DRV.rready <= 1'b1;
-          end
-          begin
-            @(negedge `DRV.rvalid)
-            `DRV.rready <= 1'b0;
-          end
-        join_any
-        disable RREADY_RSP;
-      end
-    join_none
+*/
 
-      @(posedge m_vif.aclk);
-      fork
-        if(req.req_e==WRITE_REQ)begin
-          write_req.push_back(req);
-          write_trns();
-        end
-        if(req.req_e==READ_REQ)begin
-          read_req.push_back(req);
-          read_trns();
-        end
-      join
+//Method 2:
+  task run_phase(uvm_phase phase);
+    phase.raise_objection(this);
+    `uvm_info(get_full_name(),"Starting of Run Phase",UVM_DEBUG)
+   // `uvm_info(get_name(),"Before Forever loop start",UVM_DEBUG)
+   @(negedge m_vif.arstn);
+   clear(); 
+   forever begin 
+     `uvm_info(get_full_name(),"Starting of Forever loop",UVM_DEBUG)
+     fork
+       driver();
+       write_addr_trns();
+       write_data_trns();
+       write_rsp_trns();
+       read_trns();
+       read_rsp_trns();
+       forever begin
+         wait(count > 0);
+         wait(count == 0);
+         phase.drop_objection(this);
+       end
+       begin
+         @(negedge m_vif.arstn);
+       end
+     join_any
+     disable fork;
+     clear();
+   end
+   `uvm_info(get_full_name(),"End of Forever loop",UVM_DEBUG) 
   endtask 
 
-  task write_trns(); 
-    wait(write_req.size() != 0);
-    req = write_req.pop_front();
-    fork
-    `uvm_info(get_full_name(), "Inside write trns()", UVM_DEBUG)
+  task driver();
+    forever begin
+    `uvm_info(get_full_name(),"Before Get Call ",UVM_DEBUG)
+    seq_item_port.get(req);
+    $cast(trans_h,req.clone());
+    `uvm_info(get_full_name(),"After Get Call ",UVM_DEBUG)
+    get_item_flag = 1;
+    count++;
+    if(trans_h.req_e==WRITE_REQ)begin
+    `uvm_info(get_full_name(),"[driver] : WRITE_REQ ",UVM_DEBUG)
+      write_addr_req_q.push_back(trans_h);
+      write_data_req_q.push_back(trans_h);
+    end
+    else if(trans_h.req_e==READ_REQ) begin
+    `uvm_info(get_full_name(),"[driver] : READ_REQ ",UVM_DEBUG)
+      read_addr_req_q.push_back(trans_h);
+    end
+    else
+      `uvm_error(get_full_name(),"[DRIVER] Not walid request")
+  end
+  endtask : driver
+
+  task write_addr_trns(); 
+    `uvm_info(get_full_name(), "Inside write_addr_trns()", UVM_DEBUG)
     //Wrire Addres chennal transfer
-      begin
-        `DRV.awid     <= req.awr_id;
-        `DRV.awaddr   <= req.wr_addr;
-        `DRV.awsize   <= req.wr_size;
-        `DRV.awlen    <= req.wr_len;
-        `DRV.awbrust  <= req.wr_brust_e;
-        `DRV.awvalid  <= 1'b1;
-        wait(`DRV.awready == 1'b1);
-        @(posedge m_vif.aclk);
-        `DRV.awvalid  <= 1'b0;
-      end
-    //Write data chennal transfer.
-      begin
-        foreach(req.wr_data[i]) begin
-          `DRV.wid    <= req.wr_id;
-          `DRV.wvalid <= 1'b1;
-          `DRV.wdata  <= req.wr_data[i];
-          `DRV.wstrob <= req.wr_strob[i];
-          `DRV.wlast <= (i == req.wr_len) ? 1'b1 : 1'b0;
-          wait(`DRV.wready == 1'b1);
-          @(posedge m_vif.aclk);
-          `DRV.wvalid <= 1'b0;
-          `DRV.wlast  <= 1'b0;
-        end
-      end
-      wait(`DRV.bvalid);
-    join
-  endtask
+    forever begin
+      `uvm_info(get_full_name(),"[write_addr_trns] : Before wait ",UVM_DEBUG)
+      wait(write_addr_req_q.size() != 0);
+      `uvm_info(get_full_name(),"[write_addr_trns] : After  wait ",UVM_DEBUG)
+      write_addr_req = write_addr_req_q.pop_front();
+      `DRV.awid     <= write_addr_req.awr_id;
+      `DRV.awaddr   <= write_addr_req.wr_addr;
+      `DRV.awsize   <= write_addr_req.wr_size;
+      `DRV.awlen    <= write_addr_req.wr_len;
+      `DRV.awbrust  <= write_addr_req.wr_brust_e;
+      `DRV.awvalid  <= 1'b1;
+      @(posedge m_vif.aclk);
+      wait(`DRV.awready == 1'b1);
+      `DRV.awvalid  <= 1'b0;
+    `uvm_info(get_full_name(),"[write_addr_trns] : EOF ",UVM_DEBUG)
+    end
+  endtask : write_addr_trns
 
-  task read_trns();
-    wait(read_req.size() != 0);
-    req = read_req.pop_front();
-    `uvm_info(get_full_name(), "Inside read_trns()", UVM_DEBUG)
-    fork
-    //Read address chennal transfer.
-      begin
-        `DRV.arid     <= req.ard_id;
-        `DRV.araddr   <= req.rd_addr;
-        `DRV.arsize   <= req.rd_size;
-        `DRV.arlen    <= req.rd_len;
-        `DRV.arbrust  <= req.rd_brust_e;
-        `DRV.arvalid  <= 1'b1;
-        wait(`DRV.arready == 1'b1);
+  task write_data_trns();
+    `uvm_info(get_full_name(), "Inside write_data_trns()", UVM_DEBUG)
+  //Write data chennal transfer.
+  forever begin
+    `uvm_info(get_full_name(),"[write_data_trns] : Before wait ",UVM_DEBUG)
+    //wr_data_smp.get(1);
+      wait(write_data_req_q.size() != 0);
+    `uvm_info(get_full_name(),"[write_data_trns] : After  wait ",UVM_DEBUG)
+      write_data_req = write_data_req_q.pop_front();
+      foreach(write_data_req.wr_data[i]) begin
+    `uvm_info(get_full_name(),"[write_addr_trns] : Inside Foreach ",UVM_DEBUG)
+        `DRV.wid    <= write_data_req.wr_id;
+        `DRV.wvalid <= 1'b1;
+        `DRV.wdata  <= write_data_req.wr_data[i];
+        `DRV.wstrob <= write_data_req.wr_strob[i];
+        `DRV.wlast <= (i == write_data_req.wr_len) ? 1'b1 : 1'b0;
         @(posedge m_vif.aclk);
-        `DRV.arvalid  <= 1'b0;
+        wait(`DRV.wready == 1'b1);
+        `DRV.wvalid <= 1'b0;
+        `DRV.wlast  <= 1'b0;
       end
-      wait(`DRV.rvalid && `DRV.rlast);
-    join
-  endtask 
+    `uvm_info(get_full_name(),"[write_addr_trns] : EOF ",UVM_DEBUG)
+  end//wr_data_smp.put(1);
+  endtask : write_data_trns
+
+  task write_rsp_trns();  
+    `uvm_info(get_full_name(), "Inside write_rsp_trns()", UVM_DEBUG)
+  //Write Response chennal transfer.
+    forever begin
+    `uvm_info(get_full_name(),"[write_rsp_trns] : Before Fork ",UVM_DEBUG)
+      fork : BREADY_RSP
+        begin
+          @(posedge m_vif.aclk)
+          `DRV.bready <= 1'b1;
+        end
+        begin
+          @(posedge m_vif.aclk)
+          if(`DRV.bvalid )
+            count--;
+        end
+      join_any
+      disable BREADY_RSP;
+    `uvm_info(get_full_name(),"[write_data_trns] : EOF ",UVM_DEBUG)
+    end
+  endtask : write_rsp_trns
+  
+  task read_trns();
+    `uvm_info(get_full_name(),"Inside read_trns()",UVM_DEBUG)
+    forever begin
+    `uvm_info(get_full_name(),"[raed_trns] : Before wait ",UVM_DEBUG)
+      wait(read_addr_req_q.size() != 0);
+    `uvm_info(get_full_name(),"[read_trns] : After  wait",UVM_DEBUG)
+      read_addr_req = read_addr_req_q.pop_front();
+    //Read address chennal transfer.
+      `DRV.arid     <= read_addr_req.ard_id;
+      `DRV.araddr   <= read_addr_req.rd_addr;
+      `DRV.arsize   <= read_addr_req.rd_size;
+      `DRV.arlen    <= read_addr_req.rd_len;
+      `DRV.arbrust  <= read_addr_req.rd_brust_e;
+      `DRV.arvalid  <= 1'b1;
+      @(posedge m_vif.aclk);
+      wait(`DRV.arready == 1'b1);
+      `DRV.arvalid  <= 1'b0;
+      `uvm_info(get_full_name(),"[read_trns] : EOF", UVM_DEBUG)
+    end
+  endtask : read_trns 
+
+  task read_rsp_trns();  
+    `uvm_info(get_full_name(), "Inside read_rsp_trns()", UVM_DEBUG)
+  //Read data and Respose Chennal
+    forever begin 
+      `uvm_info(get_full_name(),"[read_trns] : Before Fork", UVM_DEBUG)
+      fork : RREADY_RSP
+        begin
+          @(posedge m_vif.aclk)
+          `DRV.rready <= 1'b1;
+        end
+        begin
+          @(posedge m_vif.aclk)
+          if(`DRV.rvalid && `DRV.rlast)
+            count--;
+        end
+      join_any
+      disable RREADY_RSP;  
+      `uvm_info(get_full_name(),"[read_trns] : EOF ", UVM_DEBUG)
+    end
+  endtask : read_rsp_trns
+
 endclass  : axi_mas_drv 
 
 `endif 

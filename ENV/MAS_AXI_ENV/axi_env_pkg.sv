@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 25-07-2023 15:40:26
+// Last Modifiey  : 03-08-2023 17:10:56
 // File Name   	  : axi_env_pkg.sv
 // Package Name   : axi_env_pkg
 // Project Name	  : AXI_3 VIP
@@ -22,7 +22,7 @@ package axi_env_pkg;
   `include "uvm_macros.svh";
   
   `include "axi_define.sv";
-  `include "axi_mas_cfg.sv";
+  `include "axi_mas_agent_cfg.sv";
   `include "axi_mas_seq_item.sv";
   `include "axi_mas_drv.sv";
   `include "axi_mas_seqr.sv";
