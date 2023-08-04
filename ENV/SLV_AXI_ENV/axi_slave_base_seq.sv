@@ -33,20 +33,20 @@ task body();
      forever begin
         p_sequencer.item_collected.get(tr_h);
        `uvm_info(get_name(),$sformatf("FIFO EMPTY %0d ",p_sequencer.item_collected.is_empty),UVM_DEBUG) 
-        if(tr_h.WLAST)
+        if(tr_h.AWVALID)
         begin
           `uvm_info(get_name(),$sformatf(" IN SEQUS WLAST ASSERT" ),UVM_DEBUG) 
+           tr_h.randomize with { BRESP == 0;};
           `uvm_send(tr_h);
-           tr_h.WLAST = 1'b0;
         end  
-        if(tr_h.RVALID)
+        if(tr_h.ARVALID)
         begin
            tr_h.RDATA = new[tr_h.ARLEN + 1];
            tr_h.randomize with { unique {RDATA}; };
-          `uvm_info(get_full_name,$sformatf("rvalid assert in base seqs and randomize value is %p",tr_h.RDATA),UVM_DEBUG)
-           tr_h.RVALID = 1'b0;
+           tr_h.randomize with { RRESP == 0; };
+          `uvm_info(get_full_name,$sformatf("rvalid assert in base seqs and randomize value is %p and arvalid is %0d",tr_h.RDATA,tr_h.ARVALID),UVM_DEBUG)
           `uvm_send(tr_h);
-        end
+           end
      end
   `uvm_info(get_full_name()," EXIT SLAVE BASE SEQS FUNCTION NEW ",UVM_DEBUG)
 

@@ -43,10 +43,10 @@ class axi_slave_seq_item extends  uvm_sequence_item;
     //read data channel signals
     bit                             RVALID;
     rand bit [31:0]                 RDATA[];
-    bit [1:0]                       RRESP;
+    rand bit [1:0]                  RRESP;
 
     //response channel
-    bit [1:0]                       BRESP;
+    rand bit [1:0]                  BRESP;
 endclass
 
 

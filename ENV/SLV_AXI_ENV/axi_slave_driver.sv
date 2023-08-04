@@ -58,17 +58,17 @@
              if(axi_inf.rst) begin
                  Ready_drive();
                  seq_item_port.get_next_item(req);
-                `uvm_info(get_name(),$sformatf("after get requet and req id is 0d",req),UVM_DEBUG)
+                `uvm_info(get_name(),$sformatf("after get requet and req arvalid is 0d",req.ARVALID),UVM_DEBUG)
                  item_done_flag = 1'b1;
-                 if(req.WLAST)begin
-                   `uvm_info(get_name(),$sformatf("AWVALID ASSERTED IN DRIVER"),UVM_DEBUG) 
+                 if(req.WVALID)begin
+                   `uvm_info(get_name(),$sformatf("WVALID ASSERTED IN DRIVER"),UVM_DEBUG) 
                     aw_que.push_front(req);
                    `uvm_info(get_name(),$sformatf("AW_QUE SIZE IS %0d",aw_que.size()),UVM_DEBUG) 
                  end
                  if(req.ARVALID)begin
                    `uvm_info(get_name(),$sformatf("ARVALID ASSERTED IN DRIVER"),UVM_DEBUG) 
                     ar_que.push_front(req);
-                   `uvm_info(get_name(),$sformatf("SIZE OF AR_QUE IS %0d ar_que is %p",ar_que.size(),tr_h.RDATA),UVM_DEBUG) 
+                   `uvm_info(get_name(),$sformatf("SIZE OF AR_QUE IS %0d ar_que is %p",ar_que.size(),tr_h.RDATA),UVM_DEBUG)
                  end
                  seq_item_port.item_done();
                  item_done_flag = 1'b0;
@@ -92,7 +92,7 @@
  task  resp_drive();
  forever @(axi_inf.slv_drv_cb) begin
 `uvm_info(get_full_name(),$sformatf("ENTER INSIDE DRIVER resp_drive task and size of aw-que is %0d ",aw_que.size()),UVM_DEBUG)
-    if(!aw_que.size()==0)begin
+    while(aw_que.size !==0)begin
        temp = aw_que.pop_back(); 
       `uvm_info(get_name(),$sformatf("wlast is asserted sucessfully"),UVM_DEBUG)
        axi_inf.slv_drv_cb.BRESP <= temp.BRESP;
@@ -114,7 +114,7 @@ endtask
  task read_data();
      forever @(axi_inf.slv_drv_cb) begin
         int len;
-        if(!ar_que.size ==0)begin
+        while(ar_que.size !== 0)begin
            `uvm_info(get_full_name(),$sformatf("ENTER INSIDE DRIVER read_data task and size of ar_que is %0d and ",ar_que.size()),UVM_DEBUG)
             ar_temp = ar_que.pop_back();
            `uvm_info(get_name(),$sformatf("RID is asserted sucessfully and size of ar_que is %0d rdata is %p len is %0d and arid is %0d",ar_que.size(),ar_temp.RDATA,ar_temp.ARLEN,ar_temp.ARID),UVM_DEBUG)
@@ -174,6 +174,7 @@ endtask
     axi_inf.async_reset.RDATA   <=  1'b0;
     axi_inf.async_reset.RLAST   <=  1'b0;
     ar_que.delete();
+    `uvm_info(get_name(),$sformatf("RESET  asserted sucessfully and size of ar_que is %0d ",ar_que.size()),UVM_DEBUG)
     aw_que.delete();
     if(item_done_flag) begin
         seq_item_port.item_done();

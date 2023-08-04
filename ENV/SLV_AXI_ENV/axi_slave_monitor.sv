@@ -11,8 +11,8 @@ class axi_slave_monitor extends uvm_monitor;
 `uvm_component_utils(axi_slave_monitor);
 uvm_analysis_port #(axi_slave_seq_item) mon2sb;
 uvm_analysis_port #(axi_slave_seq_item) mon2seqr;
-axi_slave_seq_item wr_addr_h,rd_addr_h,wr_data_h;
-axi_slave_seq_item wr_addr_que[$];
+axi_slave_seq_item wr_addr_h,rd_addr_h,wr_data_h,wr_addr_que[$];
+int wr_addr[$];
 slave_sequencer  seqr_h;
 virtual axi_interface axi_inf;
 
@@ -118,19 +118,27 @@ task write_data_monitor();
  forever begin
     if(axi_inf.WVALID && axi_inf.WREADY)begin
       `uvm_info(get_name()," WVALID AND WREADY  ASSERTED ASSERTED IN MONITOR ",UVM_DEBUG)
-       wr_data_h.wdata = new[wr_data_h.AWLEN + 1];
-       wr_data_h.WVALID =  axi_inf.WVALID;
-       wr_data_h.WID    =  axi_inf.WID;
-       wr_data_h.wstrobe[i]  = axi_inf.WSTRB;
-       wr_data_h.wdata[i]  = axi_inf.WDATA;
-       i++;
-       if(axi_inf.WLAST)begin
-       wr_data_h.WLAST = 1'b1;
-       wr_data_h.WID   = axi_inf.WID;
-       mon2seqr.write(wr_data_h);
-       wr_data_h = new();
-       i = 0;
-       end 
+       if(wr_addr_que.size() > 0)begin
+            wr_addr = wr_addr_que.find_index with (item.AWID == axi_inf.WID);  
+           //`uvm_info(get_full_name(),$sformatf(" wr_addr AWID is %0d and handle id is %0d then AWLEN is %0d",wr_addr[0].AWID,wr_addr[0],wr_addr[0].AWLEN),UVM_DEBUG)
+            wr_addr_h = wr_addr_que[wr_addr[0]];
+            wr_addr_que.delete(wr_addr[0]);
+            wr_addr.delete();
+          // `uvm_info(get_full_name(),$sformatf(" wr_addr AWID is %0d and handle id is %0d then AWLEN is %0d",wr_addr_h.AWID,wr_addr_h,wr_addr_h.AWLEN),UVM_DEBUG)
+            wr_data_h.wdata = new[wr_addr_h.AWLEN + 1];
+            wr_data_h.WID   = axi_inf.WID;
+            wr_data_h.WVALID =  axi_inf.WVALID;
+            foreach(wr_data_h.wdata[i])begin
+                 wr_data_h.wstrobe[i]  = axi_inf.WSTRB;
+                 wr_data_h.wdata[i]  = axi_inf.WDATA;
+                 wr_data_h.WLAST = axi_inf.WLAST;
+                 if(axi_inf.WLAST)begin
+                    mon2seqr.write(wr_data_h);
+                 end 
+             @(posedge axi_inf.mon_cb);
+             wait( axi_inf.WVALID && axi_inf.WREADY);
+            end   
+       end
     end
     @(posedge axi_inf.mon_cb);
  end
@@ -153,10 +161,9 @@ forever begin
       rd_addr_h.ARLEN   =    axi_inf.ARLEN;
       rd_addr_h.ARBURST =    axi_inf.ARBURST;
       rd_addr_h.ARID    =    axi_inf.ARID;
-      rd_addr_h.RVALID  =    1'b1;
       rd_addr_h.ARVALID =    axi_inf.ARVALID;
       rd_addr_h.ARSIZE  =    2** axi_inf.ARSIZE;
-     `uvm_info(get_name(),$sformatf("inside monitor arid=%0d,arlen=%0d,arsize=%0d",rd_addr_h.ARID,rd_addr_h.ARLEN,rd_addr_h.ARSIZE),UVM_DEBUG)
+      `uvm_info(get_name(),$sformatf("inside monitor arid=%0d,arlen=%0d,arsize=%0d arvalid is %0d",rd_addr_h.ARID,rd_addr_h.ARLEN,rd_addr_h.ARSIZE,rd_addr_h.ARVALID),UVM_DEBUG)
       mon2seqr.write(rd_addr_h);
    end
 @(axi_inf.mon_cb);
