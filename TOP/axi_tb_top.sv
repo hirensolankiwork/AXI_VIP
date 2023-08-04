@@ -90,7 +90,7 @@ module axi_tb_top();
      @(posedge clk)
      rstn = 1'b1;
      if($test$plusargs("UVM_TESTNAME=axi_reset_test"))
-       reset(6);
+       reset(1);
    end
 //--------------------------------------------------------------------------------------------
 //           Calling test

@@ -47,6 +47,7 @@ class axi_mas_base_seqs extends uvm_sequence #(axi_mas_seq_item);
   virtual task body();
   
     req = axi_mas_seq_item::type_id::create("req"); //Create the sequence item.
+
     repeat(50 ) begin
       start_item(req);      //wait the request grant from the sequencer.
       assert(req.randomize());      //Randomize the sequence item.

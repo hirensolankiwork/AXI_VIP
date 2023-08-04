@@ -30,7 +30,7 @@ package axi_env_pkg;
   `include "axi_mas_agent.sv";
  // `include "axi_mas_uvc.sv";
   `include "axi_config.sv";
-  `include "axi_trans.sv";
+  `include "axi_slave_seq_item.sv";
   `include "axi_slave_driver.sv";
   `include "slave_sequencer.sv";
   `include "axi_slave_monitor.sv";
