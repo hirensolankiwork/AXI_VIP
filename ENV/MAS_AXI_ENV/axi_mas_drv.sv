@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 04-08-2023 17:43:46
+// Last Modifiey  : 07-08-2023 00:51:46
 // File Name   	  : axi_mas_drv.sv
 // Class Name 	  : axi_mas_drv 
 // Project Name	  : AXI_3 VIP
@@ -28,7 +28,8 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
     super.new(name,parent);
   endfunction 
 
-  virtual axi_inf m_vif;      //Tacking interface to convey my packet level info to pin level.
+  virtual axi_inf    m_vif;      //Tacking interface to convey my packet level info to pin level.
+  axi_mas_agent_cfg  m_agnt_cfg;
   bit get_item_flag;          //
   REQ trans_h;
   REQ write_addr_req_q[$];
@@ -46,6 +47,11 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
   function void build_phase(uvm_phase phase);
     `uvm_info(get_full_name(),"Starting of Build Phase",UVM_DEBUG)
     super.build_phase(phase);
+    if(!uvm_config_db #(axi_mas_agent_cfg)::get(this,
+                                                "",
+                                                "axi_master_agent_config",
+                                                m_agnt_cfg))
+      `uvm_fatal("[MASTER_CONFIG]","m_agnt_cfg can not get in master driver class");
     `uvm_info(get_full_name(),"Ending of Build Phase",UVM_DEBUG)
   endfunction
 //--------------------------------------------------------------------------
@@ -198,7 +204,18 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       @(posedge m_vif.aclk);
       wait(`DRV.awready == 1'b1);
       `DRV.awvalid  <= 1'b0;
-    `uvm_info(get_full_name(),"[write_addr_trns] : EOF ",UVM_DEBUG)
+      if(m_agnt_cfg.m_write_interleave)begin
+        `DRV.awid     <= write_addr_req.awr_id+2;
+        `DRV.awaddr   <= write_addr_req.wr_addr+4;
+        `DRV.awsize   <= write_addr_req.wr_size;
+        `DRV.awlen    <= write_addr_req.wr_len;
+        `DRV.awbrust  <= write_addr_req.wr_brust_e;
+        `DRV.awvalid  <= 1'b1;
+        @(posedge m_vif.aclk);
+        wait(`DRV.awready == 1'b1);
+        `DRV.awvalid  <= 1'b0;
+      end
+      `uvm_info(get_full_name(),"[write_addr_trns] : EOF ",UVM_DEBUG)
     end
   endtask : write_addr_trns
 
@@ -222,6 +239,18 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
         wait(`DRV.wready == 1'b1);
         `DRV.wvalid <= 1'b0;
         `DRV.wlast  <= 1'b0;
+        if(m_agnt_cfg.m_write_interleave)begin
+          @(posedge m_vif.aclk);
+          `DRV.wid    <= write_data_req.wr_id+2;
+          `DRV.wvalid <= 1'b1;
+          `DRV.wdata  <= write_data_req.wr_data[i]+4;
+          `DRV.wstrob <= write_data_req.wr_strob[i];
+          `DRV.wlast <= (i == write_data_req.wr_len) ? 1'b1 : 1'b0;
+          @(posedge m_vif.aclk);
+          wait(`DRV.wready == 1'b1);
+          `DRV.wvalid <= 1'b0;
+          `DRV.wlast  <= 1'b0;
+        end
       end
     `uvm_info(get_full_name(),"[write_addr_trns] : EOF ",UVM_DEBUG)
   end//wr_data_smp.put(1);
@@ -231,20 +260,12 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
     `uvm_info(get_full_name(), "Inside write_rsp_trns()", UVM_DEBUG)
   //Write Response chennal transfer.
     forever begin
-    `uvm_info(get_full_name(),"[write_rsp_trns] : Before Fork ",UVM_DEBUG)
-      fork : BREADY_RSP
-        begin
-          @(posedge m_vif.aclk)
-          `DRV.bready <= 1'b1;
-        end
-        begin
-          @(posedge m_vif.aclk)
-          if(`DRV.bvalid )
-            count--;
-        end
-      join_any
-      disable BREADY_RSP;
-    `uvm_info(get_full_name(),"[write_data_trns] : EOF ",UVM_DEBUG)
+      `uvm_info(get_full_name(),"[write_rsp_trns] : Before Fork ",UVM_DEBUG)
+      @(posedge m_vif.aclk)
+      `DRV.bready <= 1'b1;
+      if(`DRV.bvalid )
+        count--;
+      `uvm_info(get_full_name(),"[write_data_trns] : EOF ",UVM_DEBUG)
     end
   endtask : write_rsp_trns
   
@@ -265,6 +286,17 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       @(posedge m_vif.aclk);
       wait(`DRV.arready == 1'b1);
       `DRV.arvalid  <= 1'b0;
+      if(m_agnt_cfg.m_write_interleave)begin
+        `DRV.arid     <= read_addr_req.ard_id;
+        `DRV.araddr   <= read_addr_req.rd_addr;
+        `DRV.arsize   <= read_addr_req.rd_size;
+        `DRV.arlen    <= read_addr_req.rd_len;
+        `DRV.arbrust  <= read_addr_req.rd_brust_e;
+        `DRV.arvalid  <= 1'b1;
+        @(posedge m_vif.aclk);
+        wait(`DRV.arready == 1'b1);
+        `DRV.arvalid  <= 1'b0;
+      end
       `uvm_info(get_full_name(),"[read_trns] : EOF", UVM_DEBUG)
     end
   endtask : read_trns 
@@ -274,18 +306,10 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
   //Read data and Respose Chennal
     forever begin 
       `uvm_info(get_full_name(),"[read_trns] : Before Fork", UVM_DEBUG)
-      fork : RREADY_RSP
-        begin
-          @(posedge m_vif.aclk)
-          `DRV.rready <= 1'b1;
-        end
-        begin
-          @(posedge m_vif.aclk)
-          if(`DRV.rvalid && `DRV.rlast)
-            count--;
-        end
-      join_any
-      disable RREADY_RSP;  
+      @(posedge m_vif.aclk)
+      `DRV.rready <= 1'b1;
+      if(`DRV.rvalid && `DRV.rlast)
+        count--;
       `uvm_info(get_full_name(),"[read_trns] : EOF ", UVM_DEBUG)
     end
   endtask : read_rsp_trns

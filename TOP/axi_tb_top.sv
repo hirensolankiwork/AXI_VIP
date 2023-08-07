@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 01-08-2023 14:10:16
+// Last Modifiey  : 06-08-2023 23:52:00
 // File Name   	  : axi_tb_top.sv
 // Module Name 	  : axi_tb_top
 // Project Name	  : AXI_3 VIP
@@ -76,7 +76,7 @@ module axi_tb_top();
 //           set config_db
 //--------------------------------------------------------------------------------------------
    initial begin
-    uvm_config_db #(virtual axi_inf)::set(uvm_root::get(),"*","m_vif",m_inf);   //uvm_root::get()
+    uvm_config_db #(virtual axi_inf)::set(uvm_root::get(),"*","vif_0",m_inf);   //uvm_root::get()
 	   uvm_config_db #(virtual axi_interface)::set(uvm_root::get(),"*","vif",s_inf);   //uvm_root::get()
    end
 //--------------------------------------------------------------------------------------------

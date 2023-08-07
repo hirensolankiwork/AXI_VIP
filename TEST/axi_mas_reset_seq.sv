@@ -2,10 +2,10 @@
 // Company        : SCALEDGE 
 // Engineer       : ADITYA MISHRA 
 // Create Date    : 31-07-2023
-// Last Modifiey  : 01-08-2023 14:05:21
+// Last Modifiey  : 06-08-2023 19:19:01
 // File Name   	  : axi_mas_reset_seq.sv
-// Class Name 	  : 
-// Project Name	  : 
+// Class Name 	  : axi_mas_reset_seq 
+// Project Name	  : AXI_3 VIP
 // Description	  : 
 //////////////////////////////////////////////////////////////////////////
 

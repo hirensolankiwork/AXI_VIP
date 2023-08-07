@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 03-08-2023 14:34:49
+// Last Modifiey  : 07-08-2023 10:23:42
 // File Name   	  : axi_mas_agent.sv
 // Class Name 	  : axi_mas_agent 
 // Project Name	  : AXI_3 VIP
@@ -22,10 +22,12 @@ class axi_mas_agent extends uvm_agent;
   `uvm_component_utils(axi_mas_agent)
 
 //new counstructore declaration.
-  function new(string name="axi_mas_agent",uvm_component parent=null);
+  function new(string name="magent_h",uvm_component parent=null);
     super.new(name,parent);
   endfunction 
 
+//--------------------------------------------------------------------------
+ 
   virtual axi_inf                       m_vif;
   axi_mas_drv                           mdrv_h;
   axi_mas_mon                           mmon_h;
@@ -39,14 +41,22 @@ class axi_mas_agent extends uvm_agent;
   function void build_phase(uvm_phase phase);
     `uvm_info(get_name(),"Starting of Build Phase",UVM_DEBUG)
     super.build_phase(phase);
-    mcfg_h = axi_mas_agent_cfg::type_id::create("mcfg_h");
+    if(!uvm_config_db #(axi_mas_agent_cfg)::get(this,
+                                                "",
+                                                "axi_master_agent_config",
+                                                mcfg_h))
+      `uvm_fatal(get_name(),"Master Agent Configuration is Faild !!!!")
+
     m_agent_ap = new("M_AGENT_AP",this);
-    mmon_h = axi_mas_mon::type_id::create("MMON_H",this);
+    mmon_h = axi_mas_mon::type_id::create("mmon_h",this);
     if(mcfg_h.is_active==UVM_ACTIVE)begin
-      mdrv_h = axi_mas_drv::type_id::create("MDRV_H",this);
-      mseqr_h= axi_mas_seqr::type_id::create("MSEQR_H",this);
+      mdrv_h = axi_mas_drv::type_id::create("mdrv_h",this);
+      mseqr_h= axi_mas_seqr::type_id::create("mseqr_h",this);
     end
-    if(!uvm_config_db #(virtual axi_inf)::get(this,"*","m_vif",m_vif))
+    if(!uvm_config_db #(virtual axi_inf)::get(this,
+                                              "",
+                                              "vif_0",
+                                              m_vif))
       `uvm_fatal(get_name(),"Interface Configuration is Faild !!!!")
     `uvm_info(get_name(),"Ending of Build Phase",UVM_DEBUG)
   endfunction

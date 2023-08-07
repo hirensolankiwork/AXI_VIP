@@ -2,10 +2,10 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 26-07-2023 16:04:22
+// Last Modifiey  : 06-08-2023 19:21:45
 // File Name   	  : axi_define.sv
-// Class Name 	  : 
-// Project Name	  : 
+// Class Name 	  : axi_define
+// Project Name	  : AXI_3 VIP
 // Description	  : 
 //////////////////////////////////////////////////////////////////////////
 

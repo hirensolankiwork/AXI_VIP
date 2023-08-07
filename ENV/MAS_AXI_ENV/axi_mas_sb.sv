@@ -2,20 +2,20 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 03-08-2023 14:03:38
-// File Name   	  : axi_sb.sv
-// Class Name 	  : 
-// Project Name	  : 
+// Last Modifiey  : 06-08-2023 19:19:41
+// File Name   	  : axi_mas_sb.sv
+// Class Name 	  : axi_mas_sb 
+// Project Name	  : AXI_3 VIP
 // Description	  : 
 //////////////////////////////////////////////////////////////////////////
 
-`ifndef AXI_SB_SV
-`define AXI_SB_SV
+`ifndef AXI_MAS_SB_SV
+`define AXI_MAS_SB_SV
 
 //--------------------------------------------------------------------------
-// class  : axi_sb 
+// class  : axi_mas_sb 
 //--------------------------------------------------------------------------
-class axi_sb extends uvm_scoreboard;
+class axi_mas_sb extends uvm_scoreboard;
 
   `uvm_analysis_imp_decl(_mas)
 //  `uvm_analysis_imp_decl(_slv)
@@ -32,14 +32,14 @@ class axi_sb extends uvm_scoreboard;
 
 //UVM Fectory registretion.
 //uvm_sequencer is Component that's why we are using `uvm_component_utils macro.
-  `uvm_component_utils(axi_sb)
+  `uvm_component_utils(axi_mas_sb)
 
 // Add necessary TLM exports to receive transactions from other
 // components and instantiat them in build_phase
-  uvm_analysis_imp_mas #(axi_mas_seq_item,axi_sb) m_sb_imp;  
-//  uvm_analysis_imp_slv #(axi_slv_seq_item,axi_sb) slv_ap_imp;  
+  uvm_analysis_imp_mas #(axi_mas_seq_item,axi_mas_sb) m_sb_imp;  
+//  uvm_analysis_imp_slv #(axi_slv_seq_item,axi_mas_sb) slv_ap_imp;  
 //new counstructore declaration.
-  function new(string name="axi_sb",uvm_component parent=null);
+  function new(string name="axi_mas_sb",uvm_component parent=null);
     super.new(name,parent);
   endfunction
 

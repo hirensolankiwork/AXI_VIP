@@ -2,10 +2,10 @@
 // Company        : SCALEDGE 
 // Engineer       : ADITYA MISHRA 
 // Create Date    : 31-07-2023
-// Last Modifiey  : 01-08-2023 11:39:30
+// Last Modifiey  : 07-08-2023 10:47:09
 // File Name   	  : axi_reset_test.sv
-// Class Name 	  : 
-// Project Name	  : 
+// Class Name 	  : axi_reset_test 
+// Project Name	  : AXI_3 VIP
 // Description	  : 
 //////////////////////////////////////////////////////////////////////////
 
@@ -27,7 +27,8 @@ class axi_reset_test extends axi_base_test;
   endfunction 
 
   axi_mas_reset_seq     mseqs_h;
-  
+  axi_slave_base_seq    sseqs_h;
+ 
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
   endfunction 
@@ -37,11 +38,11 @@ class axi_reset_test extends axi_base_test;
     fork
       begin
 		    mseqs_h = axi_mas_reset_seq::type_id::create("MSEQS_H");
-		    mseqs_h.start(env_h.magent_h.mseqr_h);
+		    mseqs_h.start(env_h.magent_h[0].mseqr_h);
 		  end
 		  begin
 		    sseqs_h = axi_slave_base_seq::type_id::create("SSEQS_H");
-        sseqs_h.start(env_h.sagent_h.slv_seqr);
+        sseqs_h.start(env_h.sagent_h[0].slv_seqr);
 		  end 
     join_any
     phase.phase_done.set_drain_time(this,100) ;
