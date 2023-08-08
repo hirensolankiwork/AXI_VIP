@@ -133,10 +133,13 @@ task write_data_monitor();
                  wr_data_h.wdata[i]  = axi_inf.WDATA;
                  wr_data_h.WLAST = axi_inf.WLAST;
                  if(axi_inf.WLAST)begin
-                    mon2seqr.write(wr_data_h);
+                    `uvm_info(get_full_name(),$sformatf("WLAST ASSERTED and awvalid"),UVM_DEBUG)
+                     mon2seqr.write(wr_data_h);
+                     wr_data_h = new();
                  end 
              @(posedge axi_inf.mon_cb);
              wait( axi_inf.WVALID && axi_inf.WREADY);
+             `uvm_info(get_full_name(),$sformatf("WLAST  NOT ASSERTED"),UVM_DEBUG)
             end   
        end
     end
@@ -154,20 +157,20 @@ endtask
 task read_addr_monitor();
 
 `uvm_info(get_full_name()," ENTER INSIDE THE read_addr_monitor TASK ",UVM_DEBUG)
-forever begin
-    if(axi_inf.ARVALID &&  axi_inf.ARREADY)begin
-      rd_addr_h = new();
-      rd_addr_h.ARADDR  =    axi_inf.ARADDR;                      
-      rd_addr_h.ARLEN   =    axi_inf.ARLEN;
-      rd_addr_h.ARBURST =    axi_inf.ARBURST;
-      rd_addr_h.ARID    =    axi_inf.ARID;
-      rd_addr_h.ARVALID =    axi_inf.ARVALID;
-      rd_addr_h.ARSIZE  =    2** axi_inf.ARSIZE;
-      `uvm_info(get_name(),$sformatf("inside monitor arid=%0d,arlen=%0d,arsize=%0d arvalid is %0d",rd_addr_h.ARID,rd_addr_h.ARLEN,rd_addr_h.ARSIZE,rd_addr_h.ARVALID),UVM_DEBUG)
-      mon2seqr.write(rd_addr_h);
+    forever @(axi_inf.mon_cb) begin
+       if(axi_inf.ARVALID &&  axi_inf.ARREADY )begin
+         rd_addr_h = new();
+         rd_addr_h.ARADDR  =    axi_inf.ARADDR;                      
+         rd_addr_h.ARLEN   =    axi_inf.ARLEN;
+         rd_addr_h.ARBURST =    axi_inf.ARBURST;
+         rd_addr_h.ARID    =    axi_inf.ARID;
+         rd_addr_h.ARVALID =    axi_inf.ARVALID;
+         rd_addr_h.ARSIZE  =    2** axi_inf.ARSIZE;
+         `uvm_info(get_name(),$sformatf("inside monitor arid=%0d,arlen=%0d,arsize=%0d arvalid is %0d",rd_addr_h.ARID,rd_addr_h.ARLEN,rd_addr_h.ARSIZE,rd_addr_h.ARVALID),UVM_DEBUG)
+         mon2seqr.write(rd_addr_h);
+       end
    end
-@(axi_inf.mon_cb);
-end
+
 `uvm_info(get_full_name()," EXIT INSIDE THE read_addr_monitor TASK ",UVM_DEBUG)
 
 endtask

@@ -18,7 +18,7 @@ class axi_slave_seq_item extends  uvm_sequence_item;
     function new(string name = "axi_slave_seq_item");
       super.new(name);
     endfunction: new
-
+     
     bit[3:0]                        wstrobe [];
     bit[`WR_DATA_WIDTH-1:0]         wdata[];
     // write address FLAG
@@ -44,7 +44,6 @@ class axi_slave_seq_item extends  uvm_sequence_item;
     bit                             RVALID;
     rand bit [31:0]                 RDATA[];
     rand bit [1:0]                  RRESP;
-
     //response channel
     rand bit [1:0]                  BRESP;
 endclass

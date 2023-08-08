@@ -39,7 +39,7 @@ class axi_rand_test extends axi_base_test;
 		    end
 		    begin
 		      sseqs_h = axi_slave_base_seq::type_id::create("SSEQS_H");
-          sseqs_h.start(env_h.sagent_h[0].slv_seqr);
+          sseqs_h.start(env_uvc.env.agent_uvc.slv_agnt.slv_seqr);
 		    end 
       join_any
     phase.phase_done.set_drain_time(this,200) ;

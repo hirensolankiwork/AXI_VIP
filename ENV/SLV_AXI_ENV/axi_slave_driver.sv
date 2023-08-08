@@ -8,10 +8,11 @@
  class axi_slave_driver extends uvm_driver#(axi_slave_seq_item);
  `uvm_component_utils(axi_slave_driver)
   virtual axi_interface axi_inf;
-  axi_slave_seq_item tr_h,temp,ar_temp;
-  axi_slave_seq_item aw_que[$],ar_que[$];
+  axi_slave_seq_item tr_h,temp,ar_temp,req_h;
+  axi_slave_seq_item aw_que[$],ar_que[$],req_que[$];
   bit item_done_flag;
- 
+  slave_sequencer  seqr_h;
+
  ////////////////////////////////////////////////////////////////////////
  //Method name : Constructor new
  //Arguments   :  str,parent
@@ -58,23 +59,24 @@
              if(axi_inf.rst) begin
                  Ready_drive();
                  seq_item_port.get_next_item(req);
+                 req_h  = req;
                 `uvm_info(get_name(),$sformatf("after get requet and req arvalid is 0d",req.ARVALID),UVM_DEBUG)
                  item_done_flag = 1'b1;
-                 if(req.WVALID)begin
+                 if(req_h.WVALID)begin
                    `uvm_info(get_name(),$sformatf("WVALID ASSERTED IN DRIVER"),UVM_DEBUG) 
-                    aw_que.push_front(req);
+                    aw_que.push_front(req_h);
                    `uvm_info(get_name(),$sformatf("AW_QUE SIZE IS %0d",aw_que.size()),UVM_DEBUG) 
                  end
-                 if(req.ARVALID)begin
+                 if(req_h.ARVALID)begin
                    `uvm_info(get_name(),$sformatf("ARVALID ASSERTED IN DRIVER"),UVM_DEBUG) 
-                    ar_que.push_front(req);
+                    ar_que.push_front(req_h);
                    `uvm_info(get_name(),$sformatf("SIZE OF AR_QUE IS %0d ar_que is %p",ar_que.size(),tr_h.RDATA),UVM_DEBUG)
                  end
                  seq_item_port.item_done();
                  item_done_flag = 1'b0;
-             end 
-           end   
-        end
+           end  
+          end
+       end   
     join_any
     disable fork;
         reset();
@@ -176,6 +178,12 @@ endtask
     ar_que.delete();
     `uvm_info(get_name(),$sformatf("RESET  asserted sucessfully and size of ar_que is %0d ",ar_que.size()),UVM_DEBUG)
     aw_que.delete();
+    while(req != null)begin
+       seq_item_port.get_next_item(req);
+       seq_item_port.item_done();
+      `uvm_info(get_name(),$sformatf("seq_item_port is clearing"),UVM_DEBUG)
+    end   
+
     if(item_done_flag) begin
         seq_item_port.item_done();
         item_done_flag = 1'b0;

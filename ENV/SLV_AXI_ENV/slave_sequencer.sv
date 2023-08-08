@@ -12,7 +12,8 @@ class slave_sequencer extends uvm_sequencer#(axi_slave_seq_item);
      bit[7:0] slv_mem[int];
      int len[];
      axi_slave_seq_item  tr_h;
-     
+     virtual axi_interface axi_inf;
+
      ////////////////////////////////////////////////////////////////////////
      //Method name : 
      //Arguments   :  
@@ -21,6 +22,8 @@ class slave_sequencer extends uvm_sequencer#(axi_slave_seq_item);
      function new(string str = "slave_sequencer",uvm_component parent = null);
        super.new(str,parent);
        item_collected = new("item_collected",this);
+       if (!uvm_config_db #(virtual axi_interface)::get(this,"","vif",axi_inf))
+       `uvm_fatal(get_full_name(), "Not able to get the virtual interface!")
        tr_h = new();
      endfunction
 
@@ -34,7 +37,7 @@ class slave_sequencer extends uvm_sequencer#(axi_slave_seq_item);
       `uvm_info(get_name(),$sformatf("IN SQUANCER ANALYSIS FIFO size is %0d ",item_collected.used()),UVM_DEBUG) 
       if(!item_collected.is_empty())
       begin
-         item_collected.get(tr_h);
+         //item_collected.get(tr_h);
          len = new[tr_h.AWLEN + 1];
         `uvm_info(get_name(),$sformatf("INSIDE THE  SEQUANCER TASK len  size is  %0d AND AWSIZE IS %0d",len.size,tr_h.AWLEN),UVM_DEBUG) 
            foreach(len[i])
@@ -50,5 +53,7 @@ class slave_sequencer extends uvm_sequencer#(axi_slave_seq_item);
              end
            end 
     endtask
-
+   
+   
+  
 endclass

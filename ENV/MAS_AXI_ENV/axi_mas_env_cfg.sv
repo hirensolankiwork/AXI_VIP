@@ -42,7 +42,7 @@ class axi_mas_env_cfg extends uvm_object;
 
 //dynamic array Configuration handles for the sub_components.
   axi_mas_agent_cfg m_agent_cfg_h[];
-  axi_agent_config  s_agent_cfg_h[];
+//  axi_agent_config  s_agent_cfg_h[];
 
 //Set the noumber of DUT.
   int no_dut=1;

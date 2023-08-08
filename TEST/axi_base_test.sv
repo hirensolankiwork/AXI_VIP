@@ -22,7 +22,8 @@ class axi_base_test extends uvm_test;
   axi_mas_env           env_h;
   axi_mas_env_cfg       m_env_cfg_h;
   axi_mas_agent_cfg     m_agent_cfg_h[];
-  axi_agent_config      s_agent_cfg_h[];
+  axi_slave_agent_config      s_agent_cfg_h[];
+  axi_slave_env_uvc     env_uvc; 
   uvm_report_server     server_h; 
 
 // no of dut 
@@ -70,6 +71,8 @@ class axi_base_test extends uvm_test;
         m_env_cfg_h.m_agent_cfg_h[i] = m_agent_cfg_h[i]; 
       end
     end
+    
+/*
     if(has_sagent)begin
       s_agent_cfg_h = new[no_dut];
       foreach(s_agent_cfg_h[i])begin
@@ -84,12 +87,12 @@ class axi_base_test extends uvm_test;
       s_agent_cfg_h[i].s_write_out_order_resp = write_out_order_resp;
       s_agent_cfg_h[i].s_read_interleave = read_interleave ;
       s_agent_cfg_h[i].s_read_out_order_resp = read_out_order_resp;*/
-      m_env_cfg_h.s_agent_cfg_h[i] = s_agent_cfg_h[i];
-      end
-    end
+     // m_env_cfg_h.s_agent_cfg_h[i] = s_agent_cfg_h[i];
+     // end
+   // end
 		m_env_cfg_h.no_dut = no_dut;
 		m_env_cfg_h.has_magent = has_magent;
-		m_env_cfg_h.has_sagent = has_sagent;
+		//m_env_cfg_h.has_sagent = has_sagent;
   	m_env_cfg_h.has_mcollector= has_mcollector;
   	m_env_cfg_h.has_scollector= has_scollector;
     m_env_cfg_h.has_scoreboard= 0;
@@ -98,11 +101,12 @@ class axi_base_test extends uvm_test;
   function void build_phase (uvm_phase phase);
     super.build_phase(phase);
     m_env_cfg_h = axi_mas_env_cfg::type_id::create("axi_mas_env_cfg_h");
+    env_uvc     = axi_slave_env_uvc::type_id::create("env_uvc",this);
     if(has_magent)
       m_env_cfg_h.m_agent_cfg_h = new[no_dut];
 		
-    if(has_sagent)
-      m_env_cfg_h.s_agent_cfg_h = new[no_dut];
+    //if(has_sagent)
+      //m_env_cfg_h.s_agent_cfg_h = new[no_dut];
 
     config_axi();
     uvm_config_db #(axi_mas_env_cfg)::set(this,

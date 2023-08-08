@@ -27,10 +27,10 @@ class axi_mas_env extends uvm_env;
   endfunction 
 
   axi_mas_agent         magent_h[];
-  axi_slave_agent       sagent_h[];
+  //axi_slave_agent       sagent_h[];
   axi_mas_sb            sb_h[];
   axi_mas_env_cfg       m_env_cfg_h;
-
+ // axi_slave_agent_uvc   slv_uvc;
 //--------------------------------------------------------------------------
 // Function  : Build Phase  
 //--------------------------------------------------------------------------
@@ -53,6 +53,7 @@ class axi_mas_env extends uvm_env;
         magent_h[i] = axi_mas_agent::type_id::create($sformatf("magent_h[%0d]",i),this);
       end
     end
+    /*
     if(m_env_cfg_h.has_sagent)begin
       sagent_h = new[m_env_cfg_h.no_dut];
       foreach(sagent_h[i])begin
@@ -62,7 +63,13 @@ class axi_mas_env extends uvm_env;
                                                m_env_cfg_h.s_agent_cfg_h[i]);
         sagent_h[i] = axi_slave_agent::type_id::create($sformatf("sagent_h[%0d]",i),this);
       end
-    end
+    */   
+     //slv_uvc = axi_slave_agent_uvc::type_id::create("slv_uvc",this);   
+
+    
+    
+    //end
+
     if(m_env_cfg_h.has_scoreboard)begin
       sb_h = new[m_env_cfg_h.no_dut];
       foreach(sb_h[i])begin
@@ -70,6 +77,7 @@ class axi_mas_env extends uvm_env;
       end
     end    
     `uvm_info(get_name(),"Ending of Build Phase",UVM_DEBUG)
+
   endfunction
 //--------------------------------------------------------------------------
 // Function  : Connect Phase  
