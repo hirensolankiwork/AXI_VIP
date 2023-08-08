@@ -2,7 +2,7 @@
 // Company        : SCALEDGE 
 // Engineer       : ADITYA MISHRA 
 // Create Date    : 31-07-2023
-// Last Modifiey  : 07-08-2023 10:47:09
+// Last Modifiey  : 08-08-2023 11:47:00
 // File Name   	  : axi_reset_test.sv
 // Class Name 	  : axi_reset_test 
 // Project Name	  : AXI_3 VIP
@@ -28,8 +28,8 @@ class axi_reset_test extends axi_base_test;
 
   axi_mas_reset_seq     mseqs_h;
   axi_slave_base_seq    sseqs_h;
- 
   function void build_phase(uvm_phase phase);
+    super.no_seq_xtn=3;
     super.build_phase(phase);
   endfunction 
 

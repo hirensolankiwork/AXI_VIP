@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 03-08-2023 18:02:07
+// Last Modifiey  : 08-08-2023 16:00:21
 // File Name   	  : axi_mas_inf.sv
 // Interface Name : axi_mas_inf
 // Project Name	  : AXI_3 VIP
@@ -192,6 +192,32 @@ interface axi_inf(input logic aclk,
                        input  rdata,
                        input  rlast,
                        output rready);
+
+  property axi_reset;
+    @(negedge arstn) $fell(awvalid) |-> $fell(wvalid) |-> $fell(arvalid);
+  endproperty
+
+  AXI_RESET_ASSERT : assert property (axi_reset)
+                       $info({"[RESET_ASSERT]",":Assertion PASS"});
+                     else
+                       $error({"[RESET_ASSERT]",":Assertion fail..."});
+
+  property axi_awvalid_dasser;
+    @(posedge aclk) disable iff(!arstn) $fell(awvalid) |-> $past(awready,1);
+  endproperty
+    
+  AXI_AWVALID_DEASSERT  : assert property (axi_awvalid_dasser)
+                            $info({"[AWVALID_DEASSERT]",":Assertion PASS"});
+                          else
+                            $error({"[AWVALID_DEASSERT]",":Assertion fail..."});
+  property axi_wvalid_dasser;
+    @(posedge aclk) disable iff(!arstn) $fell(wvalid) |-> $past(wready,1);
+  endproperty
+    
+  AXI_WVALID_DEASSERT  : assert property (axi_wvalid_dasser)
+                            $info({"[WVALID_DEASSERT]",":Assertion PASS"});
+                          else
+                            $error({"[WVALID_DEASSERT]",":Assertion fail..."});
 
 endinterface
 

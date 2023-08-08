@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 07-08-2023 00:51:46
+// Last Modifiey  : 08-08-2023 16:11:36
 // File Name   	  : axi_mas_drv.sv
 // Class Name 	  : axi_mas_drv 
 // Project Name	  : AXI_3 VIP
@@ -167,24 +167,29 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
 
   task driver();
     forever begin
-    `uvm_info(get_full_name(),"Before Get Call ",UVM_DEBUG)
-    seq_item_port.get(req);
-    $cast(trans_h,req.clone());
-    `uvm_info(get_full_name(),"After Get Call ",UVM_DEBUG)
-    get_item_flag = 1;
-    count++;
-    if(trans_h.req_e==WRITE_REQ)begin
-    `uvm_info(get_full_name(),"[driver] : WRITE_REQ ",UVM_DEBUG)
-      write_addr_req_q.push_back(trans_h);
-      write_data_req_q.push_back(trans_h);
+      `uvm_info(get_full_name(),"Before Get Call ",UVM_DEBUG)
+      seq_item_port.get(req);
+      $cast(trans_h,req.clone());
+      `uvm_info(get_full_name(),"After Get Call ",UVM_DEBUG)
+      get_item_flag = 1;
+      count++;
+      if(trans_h.req_e==WRITE_REQ)begin
+        `uvm_info(get_full_name(),"[driver] : WRITE_REQ ",UVM_DEBUG)
+        wait(write_addr_req_q.size() <= m_agnt_cfg.no_seq_xtn);
+        write_addr_req_q.push_back(trans_h);
+        write_data_req_q.push_back(trans_h);
+      end
+      else if(trans_h.req_e==READ_REQ)begin
+        `uvm_info(get_full_name(),"[driver] : READ_REQ ",UVM_DEBUG)
+        wait(read_addr_req_q.size() <= m_agnt_cfg.no_seq_xtn);
+        read_addr_req_q.push_back(trans_h);
+      end
+      else
+        `uvm_error(get_full_name(),"[DRIVER] Not walid request")
+      get_item_flag = 0;
+      m_agnt_cfg.axi_drv_count_h++;
+    //TODO: send only five pkt at a tme then get.   
     end
-    else if(trans_h.req_e==READ_REQ) begin
-    `uvm_info(get_full_name(),"[driver] : READ_REQ ",UVM_DEBUG)
-      read_addr_req_q.push_back(trans_h);
-    end
-    else
-      `uvm_error(get_full_name(),"[DRIVER] Not walid request")
-  end
   endtask : driver
 
   task write_addr_trns(); 
@@ -200,6 +205,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       `DRV.awsize   <= write_addr_req.wr_size;
       `DRV.awlen    <= write_addr_req.wr_len;
       `DRV.awbrust  <= write_addr_req.wr_brust_e;
+      repeat(m_agnt_cfg.delay_cycle)@(posedge m_vif.aclk);
       `DRV.awvalid  <= 1'b1;
       @(posedge m_vif.aclk);
       wait(`DRV.awready == 1'b1);
@@ -210,6 +216,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
         `DRV.awsize   <= write_addr_req.wr_size;
         `DRV.awlen    <= write_addr_req.wr_len;
         `DRV.awbrust  <= write_addr_req.wr_brust_e;
+        repeat(m_agnt_cfg.delay_cycle)@(posedge m_vif.aclk);
         `DRV.awvalid  <= 1'b1;
         @(posedge m_vif.aclk);
         wait(`DRV.awready == 1'b1);
@@ -231,6 +238,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       foreach(write_data_req.wr_data[i]) begin
     `uvm_info(get_full_name(),"[write_addr_trns] : Inside Foreach ",UVM_DEBUG)
         `DRV.wid    <= write_data_req.wr_id;
+        repeat(m_agnt_cfg.delay_cycle)@(posedge m_vif.aclk);
         `DRV.wvalid <= 1'b1;
         `DRV.wdata  <= write_data_req.wr_data[i];
         `DRV.wstrob <= write_data_req.wr_strob[i];
@@ -242,6 +250,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
         if(m_agnt_cfg.m_write_interleave)begin
           @(posedge m_vif.aclk);
           `DRV.wid    <= write_data_req.wr_id+2;
+          repeat(m_agnt_cfg.delay_cycle)@(posedge m_vif.aclk);
           `DRV.wvalid <= 1'b1;
           `DRV.wdata  <= write_data_req.wr_data[i]+4;
           `DRV.wstrob <= write_data_req.wr_strob[i];
@@ -261,7 +270,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
   //Write Response chennal transfer.
     forever begin
       `uvm_info(get_full_name(),"[write_rsp_trns] : Before Fork ",UVM_DEBUG)
-      @(posedge m_vif.aclk)
+      repeat(m_agnt_cfg.delay_cycle)@(posedge m_vif.aclk);
       `DRV.bready <= 1'b1;
       if(`DRV.bvalid )
         count--;
@@ -282,6 +291,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       `DRV.arsize   <= read_addr_req.rd_size;
       `DRV.arlen    <= read_addr_req.rd_len;
       `DRV.arbrust  <= read_addr_req.rd_brust_e;
+      repeat(m_agnt_cfg.delay_cycle)@(posedge m_vif.aclk);
       `DRV.arvalid  <= 1'b1;
       @(posedge m_vif.aclk);
       wait(`DRV.arready == 1'b1);
@@ -292,6 +302,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
         `DRV.arsize   <= read_addr_req.rd_size;
         `DRV.arlen    <= read_addr_req.rd_len;
         `DRV.arbrust  <= read_addr_req.rd_brust_e;
+        repeat(m_agnt_cfg.delay_cycle)@(posedge m_vif.aclk);
         `DRV.arvalid  <= 1'b1;
         @(posedge m_vif.aclk);
         wait(`DRV.arready == 1'b1);
@@ -306,7 +317,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
   //Read data and Respose Chennal
     forever begin 
       `uvm_info(get_full_name(),"[read_trns] : Before Fork", UVM_DEBUG)
-      @(posedge m_vif.aclk)
+      repeat(m_agnt_cfg.delay_cycle)@(posedge m_vif.aclk);
       `DRV.rready <= 1'b1;
       if(`DRV.rvalid && `DRV.rlast)
         count--;

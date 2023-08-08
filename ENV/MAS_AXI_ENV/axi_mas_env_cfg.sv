@@ -2,7 +2,7 @@
 // Company        : SCALEDGE 
 // Engineer       : ADITYA MISHRA 
 // Create Date    : 04-08-2023
-// Last Modifiey  : 06-08-2023 23:17:37
+// Last Modifiey  : 08-08-2023 16:42:50
 // File Name   	  : axi_mas_env_cfg.sv
 // Class Name 	  : axi_mas_env_cfg
 // Project Name	  : AXI_3 VIP 
@@ -21,10 +21,10 @@ class axi_mas_env_cfg extends uvm_object;
 //uvm_sequencer is Object that's why we are using `uvm_object_utils macro.
   `uvm_object_utils(axi_mas_env_cfg)
 
-//new counstructore declaration.
-  function new(string name="AXI_MAS_ENV_CFG");
-    super.new(name);
-  endfunction 
+
+  
+  static int axi_drv_count_h;
+  static int axi_mon_count_h;
 
 //Various Agents
   bit has_magent=1;
@@ -41,11 +41,17 @@ class axi_mas_env_cfg extends uvm_object;
   bit has_scollector=0;
 
 //dynamic array Configuration handles for the sub_components.
-  axi_mas_agent_cfg m_agent_cfg_h[];
-//  axi_agent_config  s_agent_cfg_h[];
+  axi_mas_agent_cfg       m_agent_cfg_h[];
+  axi_slave_agent_config  s_agent_cfg_h[];
 
 //Set the noumber of DUT.
   int no_dut=1;
+//new counstructore declaration.
+  function new(string name="AXI_MAS_ENV_CFG");
+    super.new(name);
+    m_agent_cfg_h = new[no_dut];
+    s_agent_cfg_h = new[no_dut];
+  endfunction 
 
 endclass  : axi_mas_env_cfg
 

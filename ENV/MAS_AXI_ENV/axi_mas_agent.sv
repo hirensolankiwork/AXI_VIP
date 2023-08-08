@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 07-08-2023 10:23:42
+// Last Modifiey  : 08-08-2023 10:21:50
 // File Name   	  : axi_mas_agent.sv
 // Class Name 	  : axi_mas_agent 
 // Project Name	  : AXI_3 VIP
@@ -42,14 +42,16 @@ class axi_mas_agent extends uvm_agent;
     `uvm_info(get_name(),"Starting of Build Phase",UVM_DEBUG)
     super.build_phase(phase);
     if(!uvm_config_db #(axi_mas_agent_cfg)::get(this,
-                                                "",
+                                                "*",
                                                 "axi_master_agent_config",
                                                 mcfg_h))
       `uvm_fatal(get_name(),"Master Agent Configuration is Faild !!!!")
 
     m_agent_ap = new("M_AGENT_AP",this);
     mmon_h = axi_mas_mon::type_id::create("mmon_h",this);
+      `uvm_info(get_name(),"[UVM_ACTIVE]",UVM_DEBUG)
     if(mcfg_h.is_active==UVM_ACTIVE)begin
+      `uvm_info(get_name(),"[UVM_ACTIVE]",UVM_DEBUG)
       mdrv_h = axi_mas_drv::type_id::create("mdrv_h",this);
       mseqr_h= axi_mas_seqr::type_id::create("mseqr_h",this);
     end

@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 06-08-2023 23:52:00
+// Last Modifiey  : 08-08-2023 17:13:39
 // File Name   	  : axi_tb_top.sv
 // Module Name 	  : axi_tb_top
 // Project Name	  : AXI_3 VIP
@@ -64,7 +64,7 @@ module axi_tb_top();
 //--------------------------------------------------------------------------------------------
   task reset(int i);
     repeat(i)begin
-      repeat($urandom_range(5,35))@(negedge clk);
+      repeat($urandom_range(5,15))@(negedge clk);
         rstn = 1'b0;
       @(posedge clk)
       rstn = 1'b1;

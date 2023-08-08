@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 07-08-2023 00:44:38
+// Last Modifiey  : 08-08-2023 17:02:35
 // File Name   	  : axi_mas_env.sv
 // Class Name 	  : axi_mas_env 
 // Project Name	  : AXI_3 VIP
@@ -29,6 +29,7 @@ class axi_mas_env extends uvm_env;
   axi_mas_agent         magent_h[];
   //axi_slave_agent       sagent_h[];
   axi_mas_sb            sb_h[];
+  axi_mas_collector     m_colect_h[];
   axi_mas_env_cfg       m_env_cfg_h;
  // axi_slave_agent_uvc   slv_uvc;
 //--------------------------------------------------------------------------
@@ -76,6 +77,12 @@ class axi_mas_env extends uvm_env;
         sb_h[i] = axi_mas_sb::type_id::create($sformatf("sb_h[%0d]",i),this);
       end
     end    
+    if(m_env_cfg_h.has_mcollector)begin
+      m_colect_h = new[m_env_cfg_h.no_dut];
+      foreach(m_colect_h[i])begin
+        m_colect_h[i] = axi_mas_collector::type_id::create($sformatf("m_colect_h[%0d]",i),this);
+      end
+    end    
     `uvm_info(get_name(),"Ending of Build Phase",UVM_DEBUG)
 
   endfunction
@@ -89,6 +96,11 @@ class axi_mas_env extends uvm_env;
     if(m_env_cfg_h.has_scoreboard)begin
       foreach(magent_h[i])begin
         magent_h[i].m_agent_ap.connect(sb_h[i].m_sb_imp);
+      end
+    end    
+    if(m_env_cfg_h.has_mcollector)begin
+      foreach(magent_h[i])begin
+        magent_h[i].m_agent_ap.connect(m_colect_h[i].analysis_export);
       end
     end    
     `uvm_info(get_name(),"Ending of connect Phase",UVM_DEBUG)

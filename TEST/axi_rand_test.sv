@@ -2,7 +2,7 @@
 // Company        : SCALEDGE 
 // Engineer       : ADITYA MISHRA 
 // Create Date    : 07-08-2023
-// Last Modifiey  : 07-08-2023 10:43:31
+// Last Modifiey  : 08-08-2023 10:30:11
 // File Name   	  : axi_rand_test.sv
 // Class Name 	  : axi_rand_test
 // Project Name	  : AXI_3 VIP
@@ -27,10 +27,13 @@ class axi_rand_test extends axi_base_test;
   axi_slave_base_seq    sseqs_h;
   
   function void build_phase(uvm_phase phase);
+    `uvm_info(get_name(),"Start of Build Phase",UVM_DEBUG);
     super.build_phase(phase);
+    `uvm_info(get_name(),"End of Build Phase",UVM_DEBUG);
   endfunction 
 
   task run_phase (uvm_phase phase);
+    `uvm_info(get_name(),"Start of Run Phase",UVM_DEBUG);
     phase.raise_objection(this);
       fork
         begin
@@ -44,6 +47,7 @@ class axi_rand_test extends axi_base_test;
       join_any
     phase.phase_done.set_drain_time(this,200) ;
 	  phase.drop_objection(this);
+    `uvm_info(get_name(),"End of Run Phase",UVM_DEBUG);
   endtask
 
 endclass  : axi_rand_test
