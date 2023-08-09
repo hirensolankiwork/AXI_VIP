@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 08-08-2023 17:02:35
+// Last Modifiey  : 08-08-2023 18:14:50
 // File Name   	  : axi_mas_env.sv
 // Class Name 	  : axi_mas_env 
 // Project Name	  : AXI_3 VIP
@@ -27,11 +27,11 @@ class axi_mas_env extends uvm_env;
   endfunction 
 
   axi_mas_agent         magent_h[];
-  //axi_slave_agent       sagent_h[];
+  axi_slave_agent       sagent_h[];
   axi_mas_sb            sb_h[];
   axi_mas_collector     m_colect_h[];
   axi_mas_env_cfg       m_env_cfg_h;
- // axi_slave_agent_uvc   slv_uvc;
+//axi_slave_agent_uvc   slv_uvc;
 //--------------------------------------------------------------------------
 // Function  : Build Phase  
 //--------------------------------------------------------------------------

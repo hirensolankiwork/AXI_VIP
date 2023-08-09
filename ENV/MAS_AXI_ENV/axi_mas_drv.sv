@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 08-08-2023 16:11:36
+// Last Modifiey  : 09-08-2023 15:29:07
 // File Name   	  : axi_mas_drv.sv
 // Class Name 	  : axi_mas_drv 
 // Project Name	  : AXI_3 VIP
@@ -139,7 +139,6 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
     phase.raise_objection(this);
     `uvm_info(get_full_name(),"Starting of Run Phase",UVM_DEBUG)
    // `uvm_info(get_name(),"Before Forever loop start",UVM_DEBUG)
-   @(negedge m_vif.arstn);
    clear(); 
    forever begin 
      `uvm_info(get_full_name(),"Starting of Forever loop",UVM_DEBUG)
@@ -271,6 +270,8 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
     forever begin
       `uvm_info(get_full_name(),"[write_rsp_trns] : Before Fork ",UVM_DEBUG)
       repeat(m_agnt_cfg.delay_cycle)@(posedge m_vif.aclk);
+      if(!m_agnt_cfg.delay_cycle)
+        @(posedge m_vif.aclk);
       `DRV.bready <= 1'b1;
       if(`DRV.bvalid )
         count--;
@@ -318,7 +319,9 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
     forever begin 
       `uvm_info(get_full_name(),"[read_trns] : Before Fork", UVM_DEBUG)
       repeat(m_agnt_cfg.delay_cycle)@(posedge m_vif.aclk);
-      `DRV.rready <= 1'b1;
+      if(!m_agnt_cfg.delay_cycle)
+        @(posedge m_vif.aclk);
+     `DRV.rready <= 1'b1;
       if(`DRV.rvalid && `DRV.rlast)
         count--;
       `uvm_info(get_full_name(),"[read_trns] : EOF ", UVM_DEBUG)

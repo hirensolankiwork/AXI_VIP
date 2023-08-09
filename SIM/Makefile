@@ -23,10 +23,10 @@ comp :
 	vlog $(PKG) $(TOP) -l axi_comp_log.log +incdir+../ENV/MAS_AXI_ENV +incdir+../ENV/SLV_AXI_ENV +incdir+../TEST
 
 qsim :
-	vsim -novopt $(TOP_M) -l axi_run_log.log
+	vsim -novopt -assertdebug $(TOP_M) -l axi_run_log.log +UVM_TESTNAME=$1 +UVM_VERBOSITY=$2
 
 sim :
-	vsim -novopt $(TOP_M) -l axi_run_log.log -c -do "run -all; exit" +UVM_VERBOSITY=UVM_DEBUG
+	vsim -novopt -assertdebug $(TOP_M) -l axi_run_log.log -c -do "run -all; exit" +UVM_TESTNAME=$1 +UVM_VERBOSITY=$2
 
 # for coverage report compilation	
 
@@ -43,9 +43,10 @@ regression :
 
 
 # for every single test
-
 TEST_CASE_1 :
-	vsim -vopt -coverage $(TOP_M) -l axi_run_idel_log.log -c -do "coverage save -onexit -directive -cvg -codeAll test_idel_con.ucdb; run -all; exit;" +UVM_TESTNAME=mux_base_test
+	vsim -vopt -coverage -assertdebug $(TOP_M) -l axi_run_idel_log.log -c -do "coverage save -onexit -directive -cvg -codeAll test_idel_con.ucdb; run -all; exit;" +UVM_TESTNAME=axi_rand_test
 
 TEST_CASE_2:
-	vsim -vopt -coverage $(TOP_M) -l axi_reset_test_log.log -c -do "coverage save -onexit -directive -cvg -codeAll test_reset_con.ucdb; run -all; exit;" +UVM_TESTNAME=axi_reset_test	
+	vsim -vopt -coverage -assertdebug $(TOP_M) -l axi_reset_test_log.log -c -do "coverage save -onexit -directive -cvg -codeAll test_reset_con.ucdb; run -all; exit;" +UVM_TESTNAME=axi_reset_test
+	
+	

@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 08-08-2023 17:14:24
+// Last Modifiey  : 09-08-2023 15:33:45
 // File Name   	  : axi_base_test.sv
 // Class Name 	  : axi_base_test 
 // Project Name	  : AXI_3 VIP
@@ -31,6 +31,7 @@ class axi_base_test extends uvm_test;
 // no of dut 
   int no_dut = 1;
   
+  bit[4:0] delay_cycle=1;
 //create the agent
   int has_magent = 1;
   int has_sagent = 1;
@@ -69,6 +70,7 @@ class axi_base_test extends uvm_test;
           `uvm_fatal("[VIF CONFIG]","cannot get()interface axi_cfg_vif from uvm_config_db. Have you set() it?")
         m_agnt_cfg_h[i].is_active = UVM_ACTIVE;
         m_agnt_cfg_h[i].no_seq_xtn = no_seq_xtn ;
+        m_agnt_cfg_h[i].delay_cycle= delay_cycle;
         m_agnt_cfg_h[i].m_write_interleave = write_interleave;
         m_agnt_cfg_h[i].m_write_out_order_resp = write_out_order_resp;
         m_agnt_cfg_h[i].m_read_interleave = read_interleave ;
@@ -128,7 +130,7 @@ class axi_base_test extends uvm_test;
                                           "*",
                                           "axi_mas_env_config",
                                           m_env_cfg_h);
-    `uvm_info("[DEBUG]",$sformetf("%p",m_env_cfg_h.m_agent_cfg_h[0]),UVM_DEBUG);
+    `uvm_info("[DEBUG]",$sformatf("%p",m_env_cfg_h.m_agent_cfg_h[0]),UVM_DEBUG);
 	  env_h = axi_mas_env::type_id::create("env_h",this);
     `uvm_info(get_name(),"End of Build Phase",UVM_DEBUG);
   endfunction

@@ -45,7 +45,6 @@
   task  run_phase(uvm_phase phase);
    `uvm_info(get_full_name()," ENTER INSIDE DRIVER RUN PHASE ",UVM_DEBUG)
     super.run_phase(phase); 
-    @(negedge axi_inf.rst);
     reset();
     forever begin
       fork

@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 08-08-2023 16:00:21
+// Last Modifiey  : 09-08-2023 17:15:42
 // File Name   	  : axi_mas_inf.sv
 // Interface Name : axi_mas_inf
 // Project Name	  : AXI_3 VIP
@@ -194,30 +194,88 @@ interface axi_inf(input logic aclk,
                        output rready);
 
   property axi_reset;
-    @(negedge arstn) $fell(awvalid) |-> $fell(wvalid) |-> $fell(arvalid);
+    @(negedge arstn)1'b1 |-> @(posedge arstn) (!awvalid) && (!wvalid) && (!arvalid);
   endproperty
 
-  AXI_RESET_ASSERT : assert property (axi_reset)
-                       $info({"[RESET_ASSERT]",":Assertion PASS"});
+  AXI_RESET_ASSERT : assert property (axi_reset)begin
+                       $info("[RESET_ASSERT]:Assertion PASS");
+                     end
                      else
-                       $error({"[RESET_ASSERT]",":Assertion fail..."});
+                       $error("[RESET_ASSERT]:Assertion fail...");
 
   property axi_awvalid_dasser;
     @(posedge aclk) disable iff(!arstn) $fell(awvalid) |-> $past(awready,1);
   endproperty
     
-  AXI_AWVALID_DEASSERT  : assert property (axi_awvalid_dasser)
-                            $info({"[AWVALID_DEASSERT]",":Assertion PASS"});
+  AXI_AWVALID_DEASSERT  : assert property (axi_awvalid_dasser)begin
+                            $info("[AWVALID_DEASSERT]:Assertion PASS");
+                          end
                           else
-                            $error({"[AWVALID_DEASSERT]",":Assertion fail..."});
+                            $error("[AWVALID_DEASSERT]:Assertion fail...");
   property axi_wvalid_dasser;
     @(posedge aclk) disable iff(!arstn) $fell(wvalid) |-> $past(wready,1);
   endproperty
     
-  AXI_WVALID_DEASSERT  : assert property (axi_wvalid_dasser)
-                            $info({"[WVALID_DEASSERT]",":Assertion PASS"});
+  AXI_WVALID_DEASSERT  : assert property (axi_wvalid_dasser)begin
+                            $info("[WVALID_DEASSERT]:Assertion PASS");
+                         end
+                         else
+                            $error("[WVALID_DEASSERT]:Assertion fail...");
+  property axi_arvalid_dasser;
+    @(posedge aclk) disable iff(!arstn) $fell(arvalid) |-> $past(arready,1);
+  endproperty
+    
+  AXI_ARVALID_DEASSERT  : assert property (axi_arvalid_dasser)begin
+                            $info("[AWVALID_DEASSERT]:Assertion PASS");
+                          end
                           else
-                            $error({"[WVALID_DEASSERT]",":Assertion fail..."});
+                            $error("[AWVALID_DEASSERT]:Assertion fail...");
+
+  property axi_awvalid_asser;
+    @(posedge aclk) disable iff(!arstn) $rose(awvalid) |=> !$isunknown(awaddr) && 
+                                                           !$isunknown(awbrust) && 
+                                                           !$isunknown(awsize) &&
+                                                           !$isunknown(awlen) &&
+                                                           !$isunknown(awid) ;
+  endproperty
+  property axi_wvalid_asser;
+    @(posedge aclk) disable iff(!arstn) $rose(wvalid) |=> !$isunknown(wdata) && 
+                                                           !$isunknown(wstrob) && 
+                                                           !$isunknown(wlast) &&
+                                                           !$isunknown(wid) ;
+  endproperty
+  property axi_arvalid_asser;
+    @(posedge aclk) disable iff(!arstn) $rose(arvalid) |=> !$isunknown(araddr) && 
+                                                           !$isunknown(arbrust) && 
+                                                           !$isunknown(arsize) &&
+                                                           !$isunknown(arlen) &&
+                                                           !$isunknown(arid) ;
+  endproperty
+
+  AXI_AWVALID_ASSERT  : assert property (axi_awvalid_asser)begin
+                            $info("[AWVALID_ASSERT]:Assertion PASS");
+                          end
+                          else
+                            $error("[AWVALID_ASSERT]:Assertion fail...");
+  AXI_WVALID_ASSERT  : assert property (axi_wvalid_asser)begin
+                            $info("[WVALID_ASSERT]:Assertion PASS");
+                          end
+                          else
+                            $error("[WVALID_ASSERT]:Assertion fail...");
+  AXI_ARVALID_ASSERT  : assert property (axi_arvalid_asser)begin
+                            $info("[ARVALID_ASSERT]:Assertion PASS");
+                          end
+                          else
+                            $error("[ARVALID_ASSERT]:Assertion fail...");
+  
+  property axi_ready_before_valid(logic valid,logic ready);    
+    @(posedge aclk) disable iff(!arstn) ($past(valid,1)==0)&& ready |-> ##[1:$] valid ##1 !valid;
+  endproperty
+  AXI_READY_ASSERTED_BEFOR_VALID_ASSERT : assert property (axi_ready_before_valid(awvalid,awready))begin
+                                             $info("[ARVALID_ASSERT]:Assertion PASS");
+                                          end
+                                          else
+                                             $error("[ARVALID_ASSERT]:Assertion fail...");
 
 endinterface
 
