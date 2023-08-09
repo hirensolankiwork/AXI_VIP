@@ -75,6 +75,7 @@ class axi_base_test extends uvm_test;
         m_agnt_cfg_h[i].m_write_out_order_resp = write_out_order_resp;
         m_agnt_cfg_h[i].m_read_interleave = read_interleave ;
         m_agnt_cfg_h[i].m_read_out_order_resp = read_out_order_resp;
+        m_agnt_cfg_h[i].delay_cycle = 0;
         $display("%p",m_agnt_cfg_h[i]);
         m_env_cfg_h.m_agent_cfg_h[i] = m_agnt_cfg_h[i]; 
         $display("%p",m_agnt_cfg_h[i]);

@@ -18,7 +18,6 @@ slave_sequencer   slv_seqr;
 uvm_analysis_port #(axi_slave_seq_item) mon2sb;
 axi_slave_agent_config slv_cfg;
 
-
 ////////////////////////////////////////////////////////////////////////
 //Method name : new constructor 
 //Arguments   :  str,phase
@@ -55,11 +54,9 @@ function void connect_phase(uvm_phase phase);
   super.connect_phase(phase);
   `uvm_info(get_name(), " AGENT Connect Phase", UVM_DEBUG);
   mon2sb.connect(slv_mon.mon2sb);
-   if (slv_cfg.active == UVM_ACTIVE) begin
-  slv_drv.seq_item_port.connect(slv_seqr.seq_item_export);
-  slv_mon.mon2seqr.connect(slv_seqr.item_collected.analysis_export);
-  slv_mon.seqr_h = slv_seqr;
-  slv_drv.seqr_h = slv_seqr;
+  if (slv_cfg.active == UVM_ACTIVE) begin
+     slv_drv.seq_item_port.connect(slv_seqr.seq_item_export);
+     slv_seqr.get_port.connect(slv_mon.get_imp);
   end
 endfunction
 endclass

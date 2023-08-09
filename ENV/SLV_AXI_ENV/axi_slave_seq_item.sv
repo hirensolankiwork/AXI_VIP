@@ -7,7 +7,7 @@
 //////////////////////////////////////////////////////////////////////
 
 
-class axi_slave_seq_item extends  uvm_sequence_item;
+ class axi_slave_seq_item extends  uvm_sequence_item;
   
    `uvm_object_utils(axi_slave_seq_item)
     ////////////////////////////////////////////////////////////////////////
@@ -45,6 +45,7 @@ class axi_slave_seq_item extends  uvm_sequence_item;
     rand bit [31:0]                 RDATA[];
     rand bit [1:0]                  RRESP;
     //response channel
+    static bit                      VALID;
     rand bit [1:0]                  BRESP;
 endclass
 

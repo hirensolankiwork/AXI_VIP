@@ -12,7 +12,7 @@
   axi_slave_seq_item aw_que[$],ar_que[$],req_que[$];
   bit item_done_flag;
   slave_sequencer  seqr_h;
-
+  int count;
  ////////////////////////////////////////////////////////////////////////
  //Method name : Constructor new
  //Arguments   :  str,parent
@@ -177,17 +177,22 @@ endtask
     ar_que.delete();
     `uvm_info(get_name(),$sformatf("RESET  asserted sucessfully and size of ar_que is %0d ",ar_que.size()),UVM_DEBUG)
     aw_que.delete();
+    
     while(req != null)begin
-       seq_item_port.get_next_item(req);
-       seq_item_port.item_done();
-      `uvm_info(get_name(),$sformatf("seq_item_port is clearing"),UVM_DEBUG)
+       if(seq_item_port.has_do_available())begin
+           seq_item_port.get_next_item(req);
+           seq_item_port.item_done();
+          `uvm_info(get_name(),$sformatf("seq_item_port is clearing"),UVM_DEBUG)
+       end
+       else
+           req = null;
     end   
 
     if(item_done_flag) begin
         seq_item_port.item_done();
         item_done_flag = 1'b0;
     end   
-    @(posedge axi_inf.rst);
+    @(posedge axi_inf.rst)
    `uvm_info(get_full_name()," EXIT  DRIVER RESET TASK ",UVM_DEBUG)
 endtask
 endclass
