@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 04-08-2023 17:10:21
+// Last Modifiey  : 10-08-2023 16:01:59
 // File Name   	  : axi_mas_base_seqs.sv
 // Class Name 	  : axi_mas_base_seqs 
 // Project Name	  : AXI_3 VIP
@@ -28,6 +28,7 @@ class axi_mas_base_seqs extends uvm_sequence #(axi_mas_seq_item);
     super.new(name);
   endfunction
  
+  int count=50;
    
 //------------------------------------------------------------------------
 //Task : pre_body 
@@ -36,7 +37,9 @@ class axi_mas_base_seqs extends uvm_sequence #(axi_mas_seq_item);
 //      before Body task .
 //------------------------------------------------------------------------
   task pre_body();
-
+    `uvm_info(get_name(),"Start of body task .",UVM_HIGH);
+    use_response_handler(1);
+    `uvm_info(get_name(),"Start of body task .",UVM_HIGH);
   endtask 
 
 //------------------------------------------------------------------------
@@ -45,15 +48,25 @@ class axi_mas_base_seqs extends uvm_sequence #(axi_mas_seq_item);
 //      -nent the sequence you want to send can be done inside this task.
 //------------------------------------------------------------------------
   virtual task body();
-  
+    `uvm_info(get_name(),"Start of body task .",UVM_HIGH);
     req = axi_mas_seq_item::type_id::create("req"); //Create the sequence item.
-
-    repeat( 50) begin
+    repeat(count) begin
       start_item(req);      //wait the request grant from the sequencer.
       assert(req.randomize());      //Randomize the sequence item.
       finish_item(req);     //Send the randomize sequence item and wait for
     end                     // item_done call.
+    `uvm_info(get_name(),"End of body task .",UVM_HIGH);
   endtask
+  
+  task post_body ();
+    `uvm_info(get_name(),"Start of body task .",UVM_HIGH);
+    wait(count == 0);
+  endtask
+  
+  function void response_handler (uvm_sequence_item response);
+    count--;
+    `uvm_info(get_type_name(),$sformatf("count : %0d Response : %p",count,response),UVM_HIGH)
+  endfunction
 
 endclass  : axi_mas_base_seqs 
 

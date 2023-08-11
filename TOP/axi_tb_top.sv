@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 08-08-2023 17:13:39
+// Last Modifiey  : 09-08-2023 12:41:03
 // File Name   	  : axi_tb_top.sv
 // Module Name 	  : axi_tb_top
 // Project Name	  : AXI_3 VIP
@@ -17,46 +17,46 @@ module axi_tb_top();
 // include the uvm_macros.svh
 	`include "uvm_macros.svh"
 
-  bit clk;
+  bit clk=1;
   bit rstn;
 
   axi_inf m_inf(clk,rstn);
   axi_interface s_inf(clk,rstn); 
 
-  always @(*) s_inf.ARID     = m_inf.arid;
-  always @(*) s_inf.ARADDR   = m_inf.araddr;
-  always @(*) s_inf.ARLEN    = m_inf.arlen;
-  always @(*) s_inf.ARSIZE   = m_inf.arsize;
-  always @(*) s_inf.ARBURST  = m_inf.arbrust;
-  always @(*) s_inf.ARVALID  = m_inf.arvalid;
-  always @(*) m_inf.arready  = s_inf.ARREADY;
+  assign s_inf.ARID     = m_inf.arid;
+  assign s_inf.ARADDR   = m_inf.araddr;
+  assign s_inf.ARLEN    = m_inf.arlen;
+  assign s_inf.ARSIZE   = m_inf.arsize;
+  assign s_inf.ARBURST  = m_inf.arbrust;
+  assign s_inf.ARVALID  = m_inf.arvalid;
+  assign m_inf.arready  = s_inf.ARREADY;
 
-  always @(*) m_inf.rid      = s_inf.RID;  
-  always @(*) m_inf.rdata    = s_inf.RDATA;  
-  always @(*) m_inf.rresp    = s_inf.RRESP;  
-  always @(*) m_inf.rlast    = s_inf.RLAST;  
-  always @(*) m_inf.rvalid   = s_inf.RVALID;  
-  always @(*) s_inf.RREADY   = m_inf.rready;  
+  assign m_inf.rid      = s_inf.RID;  
+  assign m_inf.rdata    = s_inf.RDATA;  
+  assign m_inf.rresp    = s_inf.RRESP;  
+  assign m_inf.rlast    = s_inf.RLAST;  
+  assign m_inf.rvalid   = s_inf.RVALID;  
+  assign s_inf.RREADY   = m_inf.rready;  
    
-  always @(*) m_inf.bid      = s_inf.BID;  
-  always @(*) m_inf.bresp    = s_inf.BRESP;  
-  always @(*) m_inf.bvalid   = s_inf.BVALID;  
-  always @(*) s_inf.BREADY   = m_inf.bready;  
+  assign m_inf.bid      = s_inf.BID;  
+  assign m_inf.bresp    = s_inf.BRESP;  
+  assign m_inf.bvalid   = s_inf.BVALID;  
+  assign s_inf.BREADY   = m_inf.bready;  
    
-  always @(*) s_inf.AWID     = m_inf.awid;  
-  always @(*) s_inf.AWADDR   = m_inf.awaddr;  
-  always @(*) s_inf.AWLEN    = m_inf.awlen;  
-  always @(*) s_inf.AWSIZE   = m_inf.awsize;  
-  always @(*) s_inf.AWBURST  = m_inf.awbrust; 
-  always @(*) s_inf.AWVALID  = m_inf.awvalid; 
-  always @(*) m_inf.awready  = s_inf.AWREADY; 
+  assign s_inf.AWID     = m_inf.awid;  
+  assign s_inf.AWADDR   = m_inf.awaddr;  
+  assign s_inf.AWLEN    = m_inf.awlen;  
+  assign s_inf.AWSIZE   = m_inf.awsize;  
+  assign s_inf.AWBURST  = m_inf.awbrust; 
+  assign s_inf.AWVALID  = m_inf.awvalid; 
+  assign m_inf.awready  = s_inf.AWREADY; 
    
-  always @(*) s_inf.WID      = m_inf.wid;  
-  always @(*) s_inf.WDATA    = m_inf.wdata;  
-  always @(*) s_inf.WSTRB    = m_inf.wstrob;  
-  always @(*) s_inf.WVALID   = m_inf.wvalid;  
-  always @(*) s_inf.WLAST    = m_inf.wlast;  
-  always @(*) m_inf.wready   = s_inf.WREADY;  
+  assign s_inf.WID      = m_inf.wid;  
+  assign s_inf.WDATA    = m_inf.wdata;  
+  assign s_inf.WSTRB    = m_inf.wstrob;  
+  assign s_inf.WVALID   = m_inf.wvalid;  
+  assign s_inf.WLAST    = m_inf.wlast;  
+  assign m_inf.wready   = s_inf.WREADY;  
 
 
 //--------------------------------------------------------------------------------------------
@@ -64,7 +64,8 @@ module axi_tb_top();
 //--------------------------------------------------------------------------------------------
   task reset(int i);
     repeat(i)begin
-      repeat($urandom_range(5,15))@(negedge clk);
+    //  repeat($urandom_range(2,15))@(negedge clk);
+      repeat(8)@(negedge clk);
         rstn = 1'b0;
       @(posedge clk)
       rstn = 1'b1;
@@ -84,10 +85,8 @@ module axi_tb_top();
 //--------------------------------------------------------------------------------------------
 
    initial begin
-     rstn = 1'b1;
-     @(negedge clk);
      rstn = 1'b0;
-     @(posedge clk)
+     repeat(2)@(posedge clk);
      rstn = 1'b1;
      if($test$plusargs("UVM_TESTNAME=axi_reset_test"))
        reset(1);

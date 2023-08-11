@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 09-08-2023 15:33:45
+// Last Modifiey  : 10-08-2023 12:39:34
 // File Name   	  : axi_base_test.sv
 // Class Name 	  : axi_base_test 
 // Project Name	  : AXI_3 VIP
@@ -57,9 +57,9 @@ class axi_base_test extends uvm_test;
   endfunction
   
   function void config_axi();
-    `uvm_info(get_name(),"config_axi() callled.",UVM_DEBUG);
+    `uvm_info(get_name(),"config_axi() callled.",UVM_DEBUG)
     if(has_magent)begin
-      `uvm_info(get_name(),"[config_axi] it has master agent.",UVM_DEBUG);
+      `uvm_info(get_name(),"[config_axi] it has master agent.",UVM_DEBUG)
       m_agnt_cfg_h = new[no_dut];
       foreach(m_agnt_cfg_h[i])begin
         m_agnt_cfg_h[i]=axi_mas_agent_cfg::type_id::create($sformatf("m_agent_cfg_h[%0d]",i));
@@ -75,17 +75,15 @@ class axi_base_test extends uvm_test;
         m_agnt_cfg_h[i].m_write_out_order_resp = write_out_order_resp;
         m_agnt_cfg_h[i].m_read_interleave = read_interleave ;
         m_agnt_cfg_h[i].m_read_out_order_resp = read_out_order_resp;
-        m_agnt_cfg_h[i].delay_cycle = 0;
-        $display("%p",m_agnt_cfg_h[i]);
+      //`uvm_info(get_name(),$sformatf("Aggent Config : %p",m_agnt_cfg_h[i],UVM_DEBUG)
         m_env_cfg_h.m_agent_cfg_h[i] = m_agnt_cfg_h[i]; 
-        $display("%p",m_agnt_cfg_h[i]);
-        $display("%p",m_env_cfg_h.m_agent_cfg_h[i]);
+      //`uvm_info(get_name(),$sformatf("Aggent config after assignment : %p",m_env_cfg_h.m_agent_cfg_h[i]),UVM_DEBUG)
       end
     end
     
 
     if(has_sagent)begin
-      `uvm_info(get_name(),"[config_axi] it has slave agent.",UVM_DEBUG);
+      `uvm_info(get_name(),"[config_axi] it has slave agent.",UVM_DEBUG)
       s_agnt_cfg_h = new[no_dut];
       foreach(s_agnt_cfg_h[i])begin
       s_agnt_cfg_h[i]= new($sformatf("s_agent_cfg_h[%0d]", i));
@@ -113,14 +111,14 @@ class axi_base_test extends uvm_test;
   endfunction : config_axi  
 
   function void build_phase (uvm_phase phase);
-    `uvm_info(get_name(),"Start of Build Phase",UVM_DEBUG);
+    `uvm_info(get_name(),"Start of Build Phase",UVM_HIGH)
     super.build_phase(phase);
     if(has_magent)begin
-      `uvm_info(get_name(),"[config_axi] it has master agent.",UVM_DEBUG);
+      `uvm_info(get_name(),"[config_axi] it has master agent.",UVM_HIGH)
       m_agnt_cfg_h = new[no_dut];
     end
     if(has_sagent)begin
-      `uvm_info(get_name(),"[config_axi] it has slave agent.",UVM_DEBUG);
+      `uvm_info(get_name(),"[config_axi] it has slave agent.",UVM_HIGH)
       s_agnt_cfg_h = new[no_dut];
     end
     m_env_cfg_h = axi_mas_env_cfg::type_id::create("axi_mas_env_cfg_h");
@@ -131,21 +129,20 @@ class axi_base_test extends uvm_test;
                                           "*",
                                           "axi_mas_env_config",
                                           m_env_cfg_h);
-    `uvm_info("[DEBUG]",$sformatf("%p",m_env_cfg_h.m_agent_cfg_h[0]),UVM_DEBUG);
 	  env_h = axi_mas_env::type_id::create("env_h",this);
-    `uvm_info(get_name(),"End of Build Phase",UVM_DEBUG);
+    `uvm_info(get_name(),"End of Build Phase",UVM_HIGH)
   endfunction
   
   function void end_of_elaboration_phase(uvm_phase phase);
-    `uvm_info(get_name(),"Start of end of elaboration Phase",UVM_DEBUG);
+    `uvm_info(get_name(),"Start of end of elaboration Phase",UVM_HIGH)
     super.end_of_elaboration_phase(phase);
     uvm_top.print_topology();
-    `uvm_info(get_name(),"End of end of elaboration Phase",UVM_DEBUG);
+    `uvm_info(get_name(),"End of end of elaboration Phase",UVM_HIGH)
   endfunction 
 
   
   function void report_phase (uvm_phase phase);
-    `uvm_info(get_name(),"Start of Report Phase",UVM_DEBUG);
+    `uvm_info(get_name(),"Start of Report Phase",UVM_HIGH)
     super.report_phase(phase);
     server_h = uvm_report_server::get_server();
     
@@ -181,7 +178,7 @@ class axi_base_test extends uvm_test;
                "|                 ###             |\n");
       $display("///////////////////////////////////\n");
     end
-    `uvm_info(get_name(),"End of Report Phase",UVM_DEBUG);
+    `uvm_info(get_name(),"End of Report Phase",UVM_HIGH)
   endfunction
 
 

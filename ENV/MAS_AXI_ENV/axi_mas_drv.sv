@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 09-08-2023 15:29:07
+// Last Modifiey  : 11-08-2023 12:51:56
 // File Name   	  : axi_mas_drv.sv
 // Class Name 	  : axi_mas_drv 
 // Project Name	  : AXI_3 VIP
@@ -38,21 +38,20 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
   REQ write_addr_req;
   REQ write_data_req;
   REQ read_addr_req;
-  RSP write_rsp_q[$];
-  RSP read_rsp_q[$];
-  int count;
-  //--------------------------------------------------------------------------
+  RSP write_rsp;
+  RSP read_rsp;
+//--------------------------------------------------------------------------
 // Function  : Build Phase  
 //--------------------------------------------------------------------------
   function void build_phase(uvm_phase phase);
-    `uvm_info(get_full_name(),"Starting of Build Phase",UVM_DEBUG)
+    `uvm_info(get_full_name(),"Starting of Build Phase",UVM_HIGH)
     super.build_phase(phase);
     if(!uvm_config_db #(axi_mas_agent_cfg)::get(this,
                                                 "",
                                                 "axi_master_agent_config",
                                                 m_agnt_cfg))
       `uvm_fatal("[MASTER_CONFIG]","m_agnt_cfg can not get in master driver class");
-    `uvm_info(get_full_name(),"Ending of Build Phase",UVM_DEBUG)
+    `uvm_info(get_full_name(),"Ending of Build Phase",UVM_HIGH)
   endfunction
 //--------------------------------------------------------------------------
 // Task : clear
@@ -60,7 +59,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
   task clear();
     `uvm_info(get_full_name(),"Start of clear task",UVM_DEBUG)
     if(!m_vif.arstn)begin
-      `uvm_info(get_full_name(),"[clear task]: reset aserted",UVM_DEBUG)
+      `uvm_info(get_full_name(),"[clear task]: reset aserted",UVM_HIGH)
       `ASYC_MP.awid   <= 'b0;
       `ASYC_MP.awaddr <= 'b0;
       `ASYC_MP.awbrust<= 'b0;
@@ -89,15 +88,14 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       write_addr_req_q.delete();
       write_data_req_q.delete();
       read_addr_req_q.delete();
-      count = 0;
      //Wait for reset deassert.
      // if(get_item_flag)begin
-     //   `uvm_info(get_full_name(),"[clear task]: After Get Next Item Inside reset",UVM_DEBUG)
+     //   `uvm_info(get_full_name(),"[clear task]: After Get Next Item Inside reset",UVM_HIGH)
      //   seq_item_port.item_done();
-     //   `uvm_info(get_full_name(),"[clear task]: After Item done",UVM_DEBUG)
+     //   `uvm_info(get_full_name(),"[clear task]: After Item done",UVM_HIGH)
      // end
       @(posedge m_vif.arstn);
-      `uvm_info(get_full_name(),"[clear task]: reset deasserted",UVM_DEBUG)
+      `uvm_info(get_full_name(),"[clear task]: reset deasserted",UVM_HIGH)
     end
     `uvm_info(get_full_name(),"Start of clear task",UVM_DEBUG)
   endtask 
@@ -106,20 +104,20 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
 //--------------------------------------------------------------------------
 /*methode 1:
   task run_phase(uvm_phase phase);
-    `uvm_info(get_full_name(),"Starting of Run Phase",UVM_DEBUG)
-   // `uvm_info(get_name(),"Before Forever loop start",UVM_DEBUG)
+    `uvm_info(get_full_name(),"Starting of Run Phase",UVM_HIGH)
+   // `uvm_info(get_name(),"Before Forever loop start",UVM_HIGH)
    @(negedge m_vif.arstn);
    clear(); 
    forever begin 
-     `uvm_info(get_full_name(),"Starting of Forever loop",UVM_DEBUG)
+     `uvm_info(get_full_name(),"Starting of Forever loop",UVM_HIGH)
      fork
        begin
-         `uvm_info(get_full_name(),"Before Get Call ",UVM_DEBUG)
+         `uvm_info(get_full_name(),"Before Get Call ",UVM_HIGH)
          seq_item_port.get_next_item(req);
          get_item_flag = 1;
-         `uvm_info(get_full_name(),"After Get() Call and Before driver() call ",UVM_DEBUG)
+         `uvm_info(get_full_name(),"After Get() Call and Before driver() call ",UVM_HIGH)
          driver(req);
-         `uvm_info(get_full_name(),"After driver()",UVM_DEBUG)
+         `uvm_info(get_full_name(),"After driver()",UVM_HIGH)
          seq_item_port.item_done();
          get_item_flag = 0;
        end
@@ -130,18 +128,17 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
      disable fork;
      clear();
    end
-   `uvm_info(get_full_name(),"End of Forever loop",UVM_DEBUG) 
+   `uvm_info(get_full_name(),"End of Forever loop",UVM_HIGH) 
   endtask 
 */
 
 //Method 2:
   task run_phase(uvm_phase phase);
-    phase.raise_objection(this);
-    `uvm_info(get_full_name(),"Starting of Run Phase",UVM_DEBUG)
-   // `uvm_info(get_name(),"Before Forever loop start",UVM_DEBUG)
+    `uvm_info(get_full_name(),"Starting of Run Phase",UVM_HIGH)
+   // `uvm_info(get_name(),"Before Forever loop start",UVM_HIGH)
    clear(); 
    forever begin 
-     `uvm_info(get_full_name(),"Starting of Forever loop",UVM_DEBUG)
+     `uvm_info(get_full_name(),"Starting of Forever loop",UVM_HIGH)
      fork
        driver();
        write_addr_trns();
@@ -149,11 +146,6 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
        write_rsp_trns();
        read_trns();
        read_rsp_trns();
-       forever begin
-         wait(count > 0);
-         wait(count == 0);
-         phase.drop_objection(this);
-       end
        begin
          @(negedge m_vif.arstn);
        end
@@ -161,7 +153,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
      disable fork;
      clear();
    end
-   `uvm_info(get_full_name(),"End of Forever loop",UVM_DEBUG) 
+   `uvm_info(get_full_name(),"End of Forever loop",UVM_HIGH) 
   endtask 
 
   task driver();
@@ -169,19 +161,25 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       `uvm_info(get_full_name(),"Before Get Call ",UVM_DEBUG)
       seq_item_port.get(req);
       $cast(trans_h,req.clone());
+      $display("%p",trans_h);
       `uvm_info(get_full_name(),"After Get Call ",UVM_DEBUG)
       get_item_flag = 1;
-      count++;
       if(trans_h.req_e==WRITE_REQ)begin
         `uvm_info(get_full_name(),"[driver] : WRITE_REQ ",UVM_DEBUG)
         wait(write_addr_req_q.size() <= m_agnt_cfg.no_seq_xtn);
         write_addr_req_q.push_back(trans_h);
         write_data_req_q.push_back(trans_h);
+        $cast(write_rsp,trans_h.clone());
+        write_rsp.set_id_info(trans_h);
+        write_rsp.set_sequence_id(1);
       end
       else if(trans_h.req_e==READ_REQ)begin
         `uvm_info(get_full_name(),"[driver] : READ_REQ ",UVM_DEBUG)
         wait(read_addr_req_q.size() <= m_agnt_cfg.no_seq_xtn);
         read_addr_req_q.push_back(trans_h);
+        $cast(read_rsp,trans_h.clone());
+        read_rsp.set_id_info(trans_h);
+        read_rsp.set_sequence_id(2);
       end
       else
         `uvm_error(get_full_name(),"[DRIVER] Not walid request")
@@ -273,8 +271,12 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       if(!m_agnt_cfg.delay_cycle)
         @(posedge m_vif.aclk);
       `DRV.bready <= 1'b1;
-      if(`DRV.bvalid )
-        count--;
+      if(`DRV.bvalid )begin
+        write_rsp.b_resp_e   = resp_kind_e'(`DRV.bresp);
+        write_rsp.r_id       = `DRV.rid;
+        $display("%p",write_rsp);
+        seq_item_port.put(write_rsp);
+      end
       `uvm_info(get_full_name(),"[write_data_trns] : EOF ",UVM_DEBUG)
     end
   endtask : write_rsp_trns
@@ -322,8 +324,12 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       if(!m_agnt_cfg.delay_cycle)
         @(posedge m_vif.aclk);
      `DRV.rready <= 1'b1;
-      if(`DRV.rvalid && `DRV.rlast)
-        count--;
+      if(`DRV.rvalid && `DRV.rlast)begin
+        read_rsp.r_resp_e   = resp_kind_e'(`DRV.rresp);
+        read_rsp.r_id       = `DRV.rid;
+        $display("%p",read_rsp);
+        seq_item_port.put(read_rsp);
+      end
       `uvm_info(get_full_name(),"[read_trns] : EOF ", UVM_DEBUG)
     end
   endtask : read_rsp_trns
