@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 08-08-2023 18:14:50
+// Last Modifiey  : 10-08-2023 12:10:50
 // File Name   	  : axi_mas_env.sv
 // Class Name 	  : axi_mas_env 
 // Project Name	  : AXI_3 VIP
@@ -36,7 +36,7 @@ class axi_mas_env extends uvm_env;
 // Function  : Build Phase  
 //--------------------------------------------------------------------------
   function void build_phase(uvm_phase phase);
-    `uvm_info(get_name(),"Starting of Build Phase",UVM_DEBUG)
+    `uvm_info(get_name(),"Starting of Build Phase",UVM_HIGH)
     super.build_phase(phase);
     if(!uvm_config_db #(axi_mas_env_cfg)::get(this,
                                               "",
@@ -50,26 +50,26 @@ class axi_mas_env extends uvm_env;
                                                 $sformatf("*magent_h[%0d]*",i),
                                                 "axi_master_agent_config",
                                                 m_env_cfg_h.m_agent_cfg_h[i]);
-        $display("%p",m_env_cfg_h.m_agent_cfg_h[i]);
+        `uvm_info(get_name(),$sformatf("%p",m_env_cfg_h.m_agent_cfg_h[i]),UVM_DEBUG)
         magent_h[i] = axi_mas_agent::type_id::create($sformatf("magent_h[%0d]",i),this);
       end
     end
-    /*
+    
     if(m_env_cfg_h.has_sagent)begin
       sagent_h = new[m_env_cfg_h.no_dut];
       foreach(sagent_h[i])begin
-        uvm_config_db #(axi_agent_config)::set(this,
+        uvm_config_db #(axi_slave_agent_config)::set(this,
                                                $sformatf("*sagent_h[%0d]*",i),
                                                "slv_cfg",
                                                m_env_cfg_h.s_agent_cfg_h[i]);
         sagent_h[i] = axi_slave_agent::type_id::create($sformatf("sagent_h[%0d]",i),this);
       end
-    */   
+      
      //slv_uvc = axi_slave_agent_uvc::type_id::create("slv_uvc",this);   
 
     
     
-    //end
+    end
 
     if(m_env_cfg_h.has_scoreboard)begin
       sb_h = new[m_env_cfg_h.no_dut];
@@ -83,14 +83,14 @@ class axi_mas_env extends uvm_env;
         m_colect_h[i] = axi_mas_collector::type_id::create($sformatf("m_colect_h[%0d]",i),this);
       end
     end    
-    `uvm_info(get_name(),"Ending of Build Phase",UVM_DEBUG)
+    `uvm_info(get_name(),"Ending of Build Phase",UVM_HIGH)
 
   endfunction
 //--------------------------------------------------------------------------
 // Function  : Connect Phase  
 //--------------------------------------------------------------------------
   function void connect_phase(uvm_phase phase);
-    `uvm_info(get_name(),"Starting of Connect Phase",UVM_DEBUG)
+    `uvm_info(get_name(),"Starting of Connect Phase",UVM_HIGH)
     super.connect_phase(phase);
 //TODO: config for score board.
     if(m_env_cfg_h.has_scoreboard)begin
@@ -103,7 +103,7 @@ class axi_mas_env extends uvm_env;
         magent_h[i].m_agent_ap.connect(m_colect_h[i].analysis_export);
       end
     end    
-    `uvm_info(get_name(),"Ending of connect Phase",UVM_DEBUG)
+    `uvm_info(get_name(),"Ending of connect Phase",UVM_HIGH)
   endfunction 
 
 endclass 

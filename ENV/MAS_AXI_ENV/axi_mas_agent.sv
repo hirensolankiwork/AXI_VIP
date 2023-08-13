@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 08-08-2023 10:21:50
+// Last Modifiey  : 10-08-2023 12:01:22
 // File Name   	  : axi_mas_agent.sv
 // Class Name 	  : axi_mas_agent 
 // Project Name	  : AXI_3 VIP
@@ -39,7 +39,7 @@ class axi_mas_agent extends uvm_agent;
 // Function  : Build Phase  
 //------------------------------------------------------------------------
   function void build_phase(uvm_phase phase);
-    `uvm_info(get_name(),"Starting of Build Phase",UVM_DEBUG)
+    `uvm_info(get_name(),"Starting of Build Phase",UVM_HIGH)
     super.build_phase(phase);
     if(!uvm_config_db #(axi_mas_agent_cfg)::get(this,
                                                 "*",
@@ -49,7 +49,6 @@ class axi_mas_agent extends uvm_agent;
 
     m_agent_ap = new("M_AGENT_AP",this);
     mmon_h = axi_mas_mon::type_id::create("mmon_h",this);
-      `uvm_info(get_name(),"[UVM_ACTIVE]",UVM_DEBUG)
     if(mcfg_h.is_active==UVM_ACTIVE)begin
       `uvm_info(get_name(),"[UVM_ACTIVE]",UVM_DEBUG)
       mdrv_h = axi_mas_drv::type_id::create("mdrv_h",this);
@@ -60,13 +59,13 @@ class axi_mas_agent extends uvm_agent;
                                               "vif_0",
                                               m_vif))
       `uvm_fatal(get_name(),"Interface Configuration is Faild !!!!")
-    `uvm_info(get_name(),"Ending of Build Phase",UVM_DEBUG)
+    `uvm_info(get_name(),"Ending of Build Phase",UVM_HIGH)
   endfunction
 //------------------------------------------------------------------------
 // Function  : Connect Phase  
 //------------------------------------------------------------------------
   function void connect_phase(uvm_phase phase);
-    `uvm_info(get_name(),"Starting of Connect Phase",UVM_DEBUG)
+    `uvm_info(get_name(),"Starting of Connect Phase",UVM_HIGH)
     super.connect_phase(phase);
     if(mcfg_h.is_active==UVM_ACTIVE) begin
       mdrv_h.seq_item_port.connect(mseqr_h.seq_item_export);
@@ -74,7 +73,7 @@ class axi_mas_agent extends uvm_agent;
     end
     mmon_h.m_vif = m_vif;
     m_agent_ap.connect(mmon_h.m_mon_ap);
-    `uvm_info(get_name(),"Ending of connect Phase",UVM_DEBUG)
+    `uvm_info(get_name(),"Ending of connect Phase",UVM_HIGH)
   endfunction 
 
 

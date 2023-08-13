@@ -2,7 +2,7 @@
 // Company        : SCALEDGE 
 // Engineer       : ADITYA MISHRA 
 // Create Date    : 07-08-2023
-// Last Modifiey  : 08-08-2023 10:30:11
+// Last Modifiey  : 10-08-2023 12:17:31
 // File Name   	  : axi_rand_test.sv
 // Class Name 	  : axi_rand_test
 // Project Name	  : AXI_3 VIP
@@ -27,14 +27,14 @@ class axi_rand_test extends axi_base_test;
   axi_slave_base_seq    sseqs_h;
   
   function void build_phase(uvm_phase phase);
-    `uvm_info(get_name(),"Start of Build Phase",UVM_DEBUG);
+    `uvm_info(get_name(),"Start of Build Phase",UVM_HIGH)
     super.build_phase(phase);
-    `uvm_info(get_name(),"End of Build Phase",UVM_DEBUG);
+    `uvm_info(get_name(),"End of Build Phase",UVM_HIGH)
   endfunction 
 
   task run_phase (uvm_phase phase);
-    `uvm_info(get_name(),"Start of Run Phase",UVM_DEBUG);
-    phase.raise_objection(this);
+    `uvm_info(get_name(),"Start of Run Phase",UVM_HIGH)
+    phase.raise_objection(this,{get_name(),"Raise of the objection in run phase"});
       fork
         begin
 		      mseqs_h = axi_mas_base_seqs::type_id::create("MSEQS_H");
@@ -46,8 +46,8 @@ class axi_rand_test extends axi_base_test;
 		    end 
       join_any
     phase.phase_done.set_drain_time(this,200) ;
-	  phase.drop_objection(this);
-    `uvm_info(get_name(),"End of Run Phase",UVM_DEBUG);
+	  phase.drop_objection(this,{get_name(),"Drop of the objection in run phase"});
+    `uvm_info(get_name(),"End of Run Phase",UVM_HIGH)
   endtask
 
 endclass  : axi_rand_test
