@@ -14,7 +14,7 @@ axi_slave_seq_item wr_addr_h,rd_addr_h,wr_data_h,wr_addr_que[$],rd_addr_que[$],w
 int wr_addr[$];
 uvm_blocking_get_imp #(axi_slave_seq_item,axi_slave_monitor) get_imp; 
 virtual axi_interface axi_inf;
- 
+ int wrcount; 
  ////////////////////////////////////////////////////////////////////////
 //Method name : constructor
 //Arguments   :  str,parent
@@ -36,6 +36,7 @@ function void build_phase(uvm_phase phase);
  `uvm_info(get_type_name(), " ENTERING THE Slave monitor Build Phase", UVM_DEBUG)
   mon2sb = new("mon2sb",this);
   wr_data_h = new();
+  wr_addr_h = new();
   get_imp = new("get_imp",this);
   if (!uvm_config_db #(virtual axi_interface)::get(this,"","vif",axi_inf))
 	`uvm_fatal(get_full_name(), "Not able to get the virtual interface!")
@@ -90,20 +91,23 @@ endtask
 //////////////////////////////////////////////////////////////////////
 task write_addr_monitor();
 
-`uvm_info(get_full_name()," ENTER INSIDE THE write_addr_monitor TASK ",UVM_DEBUG)
+`uvm_info(get_name()," ENTER INSIDE THE write_addr_monitor TASK ",UVM_DEBUG)
     forever @(axi_inf.mon_cb) begin
-      if(axi_inf.AWVALID && axi_inf.AWREADY)begin
-         wr_addr_h = new();
-         wr_addr_h.AWADDR  =  axi_inf.AWADDR;
-         wr_addr_h.AWLEN   =  axi_inf.AWLEN;
-         wr_addr_h.AWBURST =  axi_inf.AWBURST;
-         wr_addr_h.AWID    =  axi_inf.AWID;
-         wr_addr_h.AWVALID =  axi_inf.AWVALID;
-         wr_addr_h.AWSIZE  =   2** axi_inf.AWSIZE;
-         wr_addr_que.push_front(wr_addr_h);
+      if(axi_inf.mon_cb.AWVALID && axi_inf.mon_cb.AWREADY)begin
+          wr_addr_h = new();
+         wr_addr_h.AWADDR  =  axi_inf.mon_cb.AWADDR;
+         wr_addr_h.AWLEN   =  axi_inf.mon_cb.AWLEN;
+         wr_addr_h.AWBURST =  axi_inf.mon_cb.AWBURST;
+         wr_addr_h.AWID    =  axi_inf.mon_cb.AWID;
+         wr_addr_h.AWVALID =  axi_inf.mon_cb.AWVALID;
+         wr_addr_h.AWSIZE  =   2** axi_inf.mon_cb.AWSIZE;
+         wr_addr_que.push_back(wr_addr_h);
+         wrcount++;
+        `uvm_info(get_name(), $sformatf("@AWVALID && AWREADY here push wr_addr_que  and size is %0d and write count is %0d and wr_addr_h.awid is %0d,wr_addr_h awlen is %0d ,wr_addr_h address is %0d ",wr_addr_que.size(),wrcount,wr_addr_h.AWID,wr_addr_h.AWLEN,wr_addr_h),UVM_DEBUG)
+         
       end
     end
-`uvm_info(get_full_name()," EXIT INSIDE THE write_addr_monitor TASK ",UVM_DEBUG)
+`uvm_info(get_name()," EXIT INSIDE THE write_addr_monitor TASK ",UVM_DEBUG)
 
 endtask
 
@@ -117,34 +121,36 @@ task write_data_monitor();
 //`uvm_info(get_full_name()," ENTER INSIDE THE write_data_monitor TASK ",UVM_DEBUG)
  int i;
  forever@(axi_inf.mon_cb) begin
-    if(axi_inf.WVALID && axi_inf.WREADY)begin
-      `uvm_info(get_name(), $sformatf("WVALID AND WREADY  ASSERTED ASSERTED IN MONITOR size of wr_addr_que is %0d",wr_addr_que.size()),UVM_DEBUG)
-       if(wr_addr_que.size() > 0)begin
-            wr_addr = wr_addr_que.find_index with (item.AWID == axi_inf.WID);  
-            wr_addr_h = wr_addr_que[wr_addr[0]];
+    if(axi_inf.mon_cb.WVALID && axi_inf.mon_cb.WREADY)begin
+      `uvm_info(get_name(), $sformatf("WVALID &&WREADY  ASSERTED ASSERTED IN MONITOR size of wr_addr_que is %0d and wrcount is %0d",wr_addr_que.size(),wrcount),UVM_DEBUG)
+       wait(wr_addr_que.size() >0 )begin
+            wr_addr = wr_addr_que.find_index with (item.AWID == axi_inf.mon_cb.WID);  
+            wr_data_h = wr_addr_que[wr_addr[0]];
             wr_addr_que.delete(wr_addr[0]);
             wr_addr.delete();
-           `uvm_info(get_full_name(),$sformatf(" wlast not asserted"),UVM_DEBUG)
-            wr_data_h.wdata = new[wr_addr_h.AWLEN + 1];
-            wr_data_h.WID   = axi_inf.WID;
-            wr_data_h.WVALID =  axi_inf.WVALID;
+            wrcount--;
+           `uvm_info(get_name(),$sformatf("WVALID && WREADY WLAST !=0 and size of wr_addr_que after  data taken  is %0d and wr_count is %0d wid is %0d wlen is %0d ",wr_addr_que.size(),wrcount, axi_inf.mon_cb.WID,wr_data_h.AWLEN),UVM_DEBUG)
+            wr_data_h.wdata = new[wr_data_h.AWLEN + 1];
+            wr_data_h.WID   = axi_inf.mon_cb.WID;
+            wr_data_h.WVALID =  axi_inf.mon_cb.WVALID;
             foreach(wr_data_h.wdata[i])begin
-                 wr_data_h.wstrobe[i]  = axi_inf.WSTRB;
-                 wr_data_h.wdata[i]  = axi_inf.WDATA;
-                 wr_data_h.WLAST = axi_inf.WLAST;
-                 if(axi_inf.WLAST)begin
-                    `uvm_info(get_full_name(),$sformatf("wlast asserted %0d",wr_data_h.WLAST),UVM_DEBUG)
+                 wait( axi_inf.mon_cb.WVALID && axi_inf.mon_cb.WREADY);
+                 wr_data_h.wstrobe[i]  = axi_inf.mon_cb.WSTRB;
+                 wr_data_h.wdata[i]  = axi_inf.mon_cb.WDATA;
+                 wr_data_h.WLAST = axi_inf.mon_cb.WLAST;
+                `uvm_info(get_name(),$sformatf("WVALID && WREADY awlen  is %0d and i is %0d and inf_wid is %0d and awid is %0d and address is %0d size of wdata is %0d",(wr_data_h.AWLEN),i,axi_inf.mon_cb.WID,wr_data_h.AWID,wr_data_h,wr_data_h.wdata.size()),UVM_DEBUG)
+                 if(axi_inf.mon_cb.WLAST)begin
                      wr_data_que.push_front(wr_data_h);
                      wr_data_h = new();
-                 end 
-             @(posedge axi_inf.mon_cb);
-             wait( axi_inf.WVALID && axi_inf.WREADY);
-             `uvm_info(get_full_name(),$sformatf("WLAST  NOT ASSERTED"),UVM_DEBUG)
+                    `uvm_info(get_full_name(),$sformatf("[@monitor]wlast asserted %0d",wr_data_h.WLAST),UVM_DEBUG)
+                 end
+                 else
+                     @(posedge axi_inf.mon_cb);
             end   
         end
       end
  end
- `uvm_info(get_full_name()," EXIT INSIDE THE write_data_monitor TASK ",UVM_DEBUG)
+ `uvm_info(get_name()," EXIT INSIDE THE write_data_monitor TASK ",UVM_DEBUG)
 
 endtask
 
@@ -155,43 +161,43 @@ endtask
 //////////////////////////////////////////////////////////////////////
  task read_addr_monitor();
 
- `uvm_info(get_full_name()," ENTER INSIDE THE read_addr_monitor TASK ",UVM_DEBUG)
+ `uvm_info(get_name()," ENTER INSIDE THE read_addr_monitor TASK ",UVM_DEBUG)
     forever @(axi_inf.mon_cb) begin
-       if(axi_inf.ARVALID &&  axi_inf.ARREADY )begin
+       if(axi_inf.mon_cb.ARVALID &&  axi_inf.mon_cb.ARREADY )begin
          rd_addr_h = new();
-         rd_addr_h.ARADDR  =    axi_inf.ARADDR;                      
-         rd_addr_h.ARLEN   =    axi_inf.ARLEN;
-         rd_addr_h.ARBURST =    axi_inf.ARBURST;
-         rd_addr_h.ARID    =    axi_inf.ARID;
-         rd_addr_h.ARVALID =    axi_inf.ARVALID;
-         rd_addr_h.ARSIZE  =    2** axi_inf.ARSIZE;
+         rd_addr_h.ARADDR  =    axi_inf.mon_cb.ARADDR;                      
+         rd_addr_h.ARLEN   =    axi_inf.mon_cb.ARLEN;
+         rd_addr_h.ARBURST =    axi_inf.mon_cb.ARBURST;
+         rd_addr_h.ARID    =    axi_inf.mon_cb.ARID;
+         rd_addr_h.ARVALID =    axi_inf.mon_cb.ARVALID;
+         rd_addr_h.ARSIZE  =    2** axi_inf.mon_cb.ARSIZE;
          rd_addr_que.push_front(rd_addr_h);
-         `uvm_info(get_name(),$sformatf("inside monitor arid=%0d,arlen=%0d,arsize=%0d arvalid is %0d",rd_addr_h.ARID,rd_addr_h.ARLEN,rd_addr_h.ARSIZE,rd_addr_h.ARVALID),UVM_DEBUG)
+         `uvm_info(get_name(),$sformatf(" ARVALID && ARREADYinside monitor arid=%0d,arlen=%0d,arsize=%0d arvalid is %0d",rd_addr_h.ARID,rd_addr_h.ARLEN,rd_addr_h.ARSIZE,rd_addr_h.ARVALID),UVM_DEBUG)
        end
     end
-`uvm_info(get_full_name()," EXIT INSIDE THE read_addr_monitor TASK ",UVM_DEBUG)
+`uvm_info(get_name()," EXIT INSIDE THE read_addr_monitor TASK ",UVM_DEBUG)
  endtask
 
  task get(output axi_slave_seq_item temp_h);
  wait (rd_addr_que.size >0 | wr_data_que.size() >0)
     if(rd_addr_que.size() >0)begin
-      `uvm_info(get_full_name(), $sformatf("before pop rd_addr_que size is %0d",rd_addr_que.size()),UVM_DEBUG)
+      `uvm_info(get_name(), $sformatf("[INSIDE GET]before pop rd_addr_que size is %0d",rd_addr_que.size()),UVM_DEBUG)
        temp_h = rd_addr_que.pop_back(); 
-      `uvm_info(get_full_name(), $sformatf("after pop rd_addr_que size is %0d and arvalid is %0d",rd_addr_que.size(),temp_h.ARVALID),UVM_DEBUG)
+      `uvm_info(get_full_name(), $sformatf("[INSIDE GET]after pop rd_addr_que size is %0d and arvalid is %0d",rd_addr_que.size(),temp_h.ARVALID),UVM_DEBUG)
     end   
     else if(wr_data_que.size() >0)begin
-      `uvm_info(get_full_name(),$sformatf(" wr_data_que size is %0d ",wr_data_que.size()),UVM_DEBUG)
+      `uvm_info(get_name(),$sformatf(" [INSIDE GET]wr_data_que size is %0d ",wr_data_que.size()),UVM_DEBUG)
        temp_h = wr_data_que.pop_back();
-      `uvm_info(get_full_name(),$sformatf(" wr_data_que size is %0d and WLAST is %0d ",wr_data_que.size(),wr_data_h.WLAST),UVM_DEBUG)
+      `uvm_info(get_name(),$sformatf(" [INSIDE GET]wr_data_que size is %0d and WLAST is %0d ",wr_data_que.size(),wr_data_h.WLAST),UVM_DEBUG)
     end
  endtask
 
  task reset();
-    `uvm_info(get_full_name(),$sformatf("BEFORE in monitor reset asserted and rd_addr_que size %0d wr_data_que size %0d and size of wr_addr_que %0d ",rd_addr_que.size(),wr_data_que.size(),wr_addr.size()),UVM_DEBUG)
+    `uvm_info(get_name(),$sformatf("BEFORE in monitor reset asserted and rd_addr_que size %0d wr_data_que size %0d and size of wr_addr_que %0d ",rd_addr_que.size(),wr_data_que.size(),wr_addr.size()),UVM_DEBUG)
     rd_addr_que.delete();
     wr_data_que.delete();
     wr_addr_que.delete();
-    `uvm_info(get_full_name(),$sformatf("AFTER in monitor reset asserted and rd_addr_que size %0d wr_data_que size %0d and size of wr_addr_que %0d ",rd_addr_que.size(),wr_data_que.size(),wr_addr.size()),UVM_DEBUG)
+    `uvm_info(get_name(),$sformatf("AFTER in monitor reset asserted and rd_addr_que size %0d wr_data_que size %0d and size of wr_addr_que %0d ",rd_addr_que.size(),wr_data_que.size(),wr_addr.size()),UVM_DEBUG)
     @(posedge axi_inf.rst);
  endtask
  endclass 

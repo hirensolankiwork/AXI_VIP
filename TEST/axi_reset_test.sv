@@ -30,6 +30,7 @@ class axi_reset_test extends axi_base_test;
   axi_slave_base_seq    sseqs_h;
   function void build_phase(uvm_phase phase);
     super.no_seq_xtn=3;
+    super.delay_cycle = 0;
     super.build_phase(phase);
   endfunction 
 
