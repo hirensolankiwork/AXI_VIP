@@ -2,7 +2,7 @@
 // Company        : SCALEDGE 
 // Engineer       : ADITYA MISHRA 
 // Create Date    : 31-07-2023
-// Last Modifiey  : 11-08-2023 12:56:18
+// Last Modifiey  : 13-08-2023 16:10:18
 // File Name   	  : axi_reset_test.sv
 // Class Name 	  : axi_reset_test 
 // Project Name	  : AXI_3 VIP
@@ -47,7 +47,7 @@ class axi_reset_test extends axi_base_test;
         sseqs_h.start(env_uvc.env.agent_uvc.slv_agnt.slv_seqr);
 		  end 
     join_any
-    phase.phase_done.set_drain_time(this,100) ;
+    phase.phase_done.set_drain_time(this,200) ;
 	  phase.drop_objection(this,{get_name(),"Drop of the objection in run phase"});
     `uvm_info(get_name(),"End of Run Phase",UVM_HIGH)
   endtask 

@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 07-08-2023 15:16:20
+// Last Modifiey  : 13-08-2023 13:40:09
 // File Name   	  : axi_mas_seq_item.sv
 // Class Name 	  : axi_mas_seq_item
 // Project Name	  : AXI_3 VIP
@@ -22,7 +22,7 @@ typedef enum bit[1:0]{OKAY,EXOKAY,SLVERR,DECERR} resp_kind_e;
 typedef enum bit {WRITE_REQ,READ_REQ} req_kind_e;
 class axi_mas_seq_item extends uvm_sequence_item;
 
-  rand  static req_kind_e           req_e;
+  rand  req_kind_e           req_e;
   randc bit [(`WR_ID_WIDTH-1):0]    awr_id;
   randc bit [(`WR_ID_WIDTH-1):0]    wr_id;
   rand  brust_kind_e                wr_brust_e;

@@ -11,7 +11,7 @@
  
  `uvm_component_utils(axi_env)
   axi_slave_agent       slv_agnt ;
-  //axi_scoreboard        axi_sb;
+  axi_mas_sb            axi_sb;
   axi_slave_env_config  env_cfg;
   axi_slave_agent_uvc   agent_uvc;  
  
@@ -33,7 +33,7 @@
  function void build_phase(uvm_phase phase);
    super.build_phase(phase); 
    `uvm_info(get_type_name(), " Entering Env Build Phase", UVM_DEBUG)
-    //axi_sb   = axi_scoreboard::type_id::create("axi_sb", this);
+    axi_sb   = axi_mas_sb::type_id::create("axi_sb", this);
     
     //environment config get
     uvm_config_db #(axi_slave_env_config)::get(this,"*","env",env_cfg);
@@ -49,6 +49,7 @@
  function void connect_phase(uvm_phase phase);
    super.connect_phase(phase); 
    `uvm_info(get_name(), " Entering Connect Phase...", UVM_DEBUG)
+    agent_uvc.slv_agnt.mon2sb.connect(axi_sb.s_ap_imp);
    `uvm_info("", " Exit connect  Phase", UVM_DEBUG)
  endfunction
  

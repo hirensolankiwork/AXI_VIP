@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 11-08-2023 12:51:56
+// Last Modifiey  : 13-08-2023 16:17:02
 // File Name   	  : axi_mas_drv.sv
 // Class Name 	  : axi_mas_drv 
 // Project Name	  : AXI_3 VIP
@@ -89,11 +89,16 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       write_data_req_q.delete();
       read_addr_req_q.delete();
      //Wait for reset deassert.
-     // if(get_item_flag)begin
-     //   `uvm_info(get_full_name(),"[clear task]: After Get Next Item Inside reset",UVM_HIGH)
-     //   seq_item_port.item_done();
-     //   `uvm_info(get_full_name(),"[clear task]: After Item done",UVM_HIGH)
-     // end
+      if(get_item_flag)begin
+        `uvm_info(get_full_name(),"[clear task]: After Get Next Item Inside reset",UVM_HIGH)
+        repeat(m_agnt_cfg.no_seq_xtn+1)begin
+          seq_item_port.put(write_rsp);
+          seq_item_port.put(read_rsp);
+        end
+        seq_item_port.put(write_rsp);
+        seq_item_port.put(read_rsp);
+        `uvm_info(get_full_name(),"[clear task]: After Item done",UVM_HIGH)
+      end
       @(posedge m_vif.arstn);
       `uvm_info(get_full_name(),"[clear task]: reset deasserted",UVM_HIGH)
     end
@@ -161,12 +166,12 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       `uvm_info(get_full_name(),"Before Get Call ",UVM_DEBUG)
       seq_item_port.get(req);
       $cast(trans_h,req.clone());
-      $display("%p",trans_h);
       `uvm_info(get_full_name(),"After Get Call ",UVM_DEBUG)
       get_item_flag = 1;
       if(trans_h.req_e==WRITE_REQ)begin
         `uvm_info(get_full_name(),"[driver] : WRITE_REQ ",UVM_DEBUG)
-        wait(write_addr_req_q.size() <= m_agnt_cfg.no_seq_xtn);
+        wait(write_addr_req_q.size() < m_agnt_cfg.no_seq_xtn &&
+             write_data_req_q.size() < m_agnt_cfg.no_seq_xtn);
         write_addr_req_q.push_back(trans_h);
         write_data_req_q.push_back(trans_h);
         $cast(write_rsp,trans_h.clone());
@@ -175,11 +180,11 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       end
       else if(trans_h.req_e==READ_REQ)begin
         `uvm_info(get_full_name(),"[driver] : READ_REQ ",UVM_DEBUG)
-        wait(read_addr_req_q.size() <= m_agnt_cfg.no_seq_xtn);
+        wait(read_addr_req_q.size() < m_agnt_cfg.no_seq_xtn);
         read_addr_req_q.push_back(trans_h);
         $cast(read_rsp,trans_h.clone());
         read_rsp.set_id_info(trans_h);
-        read_rsp.set_sequence_id(2);
+        read_rsp.set_sequence_id(1);
       end
       else
         `uvm_error(get_full_name(),"[DRIVER] Not walid request")
@@ -271,7 +276,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       if(!m_agnt_cfg.delay_cycle)
         @(posedge m_vif.aclk);
       `DRV.bready <= 1'b1;
-      if(`DRV.bvalid )begin
+      if(`ASYC_MP.bvalid )begin
         write_rsp.b_resp_e   = resp_kind_e'(`DRV.bresp);
         write_rsp.r_id       = `DRV.rid;
         $display("%p",write_rsp);
@@ -324,7 +329,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       if(!m_agnt_cfg.delay_cycle)
         @(posedge m_vif.aclk);
      `DRV.rready <= 1'b1;
-      if(`DRV.rvalid && `DRV.rlast)begin
+      if(`ASYC_MP.rvalid && `ASYC_MP.rlast)begin
         read_rsp.r_resp_e   = resp_kind_e'(`DRV.rresp);
         read_rsp.r_id       = `DRV.rid;
         $display("%p",read_rsp);

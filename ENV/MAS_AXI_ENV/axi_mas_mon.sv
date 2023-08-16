@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 06-08-2023 19:20:28
+// Last Modifiey  : 13-08-2023 12:30:11
 // File Name   	  : axi_mas_mon.sv
 // Class Name 	  : axi_mas_mon 
 // Project Name	  : AXI_3 VIP
@@ -101,7 +101,7 @@ class axi_mas_mon extends uvm_sequencer;
           end
           trans_h.print();
         end
-         m_mon_ap.write(trans_h);
+          m_mon_ap.write(trans_h);
         `uvm_info(get_name(),"After  Write Data Channel Handshak Write call",UVM_DEBUG)
       end
       forever begin
