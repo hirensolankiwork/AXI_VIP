@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 13-08-2023 16:21:35
+// Last Modifiey  : 18-08-2023 13:51:35
 // File Name   	  : axi_base_test.sv
 // Class Name 	  : axi_base_test 
 // Project Name	  : AXI_3 VIP
@@ -21,7 +21,6 @@ class axi_base_test extends uvm_test;
 
   axi_mas_env               env_h;
   axi_mas_env_cfg           m_env_cfg_h;
-  axi_mas_agent_cfg         m_agent_cfg_h[];
   axi_slave_agent_config    s_agnt_cfg_h[];
   axi_slave_env_uvc         env_uvc; 
   axi_mas_agent_cfg         m_agnt_cfg_h[];
@@ -39,7 +38,11 @@ class axi_base_test extends uvm_test;
 //enable the coverage collector
   bit has_mcollector=1;
  	bit has_scollector=0;
-  
+
+//enable the checker
+  bit has_mchecker=1;
+ 	bit has_schecker=0; 
+
 // no of sequence u want run
  	int no_seq_xtn=5;
   
@@ -105,8 +108,10 @@ class axi_base_test extends uvm_test;
 		m_env_cfg_h.no_dut = no_dut;
 		m_env_cfg_h.has_magent = has_magent;
 		m_env_cfg_h.has_sagent = has_sagent;
-  	m_env_cfg_h.has_mcollector= has_mcollector;
+   	m_env_cfg_h.has_mcollector= has_mcollector;
   	m_env_cfg_h.has_scollector= has_scollector;
+   	m_env_cfg_h.has_mchecker= has_mchecker;
+  	m_env_cfg_h.has_schecker= has_schecker;
     m_env_cfg_h.has_scoreboard= 1;
   endfunction : config_axi  
 

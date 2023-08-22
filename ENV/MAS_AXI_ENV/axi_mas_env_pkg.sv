@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 08-08-2023 18:12:23
+// Last Modifiey  : 17-08-2023 14:32:40
 // File Name   	  : axi_mas_env_pkg.sv
 // Package Name   : axi_mas_env_pkg
 // Project Name	  : AXI_3 VIP
@@ -43,6 +43,7 @@ package axi_mas_env_pkg;
   `include "axi_mas_base_seqs.sv";
   `include "axi_slave_base_seq.sv";
   `include "axi_mas_collector.sv";
+  `include "axi_mas_checker.sv";
   `include "axi_mas_sb.sv";  
   `include "axi_mas_env.sv";
   `include  "axi_env.sv"

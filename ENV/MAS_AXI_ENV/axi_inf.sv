@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 10-08-2023 09:42:15
+// Last Modifiey  : 22-08-2023 11:31:12
 // File Name   	  : axi_mas_inf.sv
 // Interface Name : axi_mas_inf
 // Project Name	  : AXI_3 VIP
@@ -239,7 +239,7 @@ interface axi_inf(input logic aclk,
                                                            !$isunknown(awid) ;
   endproperty
   property axi_wvalid_asser;
-    @(posedge aclk) disable iff(!arstn) $rose(wvalid) |=> !$isunknown(wdata) && 
+    @(posedge aclk) disable iff(!arstn) $rose(wvalid) |=>  !$isunknown(wdata) && 
                                                            !$isunknown(wstrob) && 
                                                            !$isunknown(wlast) &&
                                                            !$isunknown(wid) ;
@@ -267,7 +267,44 @@ interface axi_inf(input logic aclk,
                           end
                           else
                             $error("[ARVALID_ASSERT]:Assertion fail...");
-  
+ 
+  property axi_awch_stable;
+    @(posedge aclk) disable iff(!arstn) awvalid |-> $stable(awaddr) && 
+                                                    $stable(awbrust) && 
+                                                    $stable(awsize) &&
+                                                    $stable(awlen) &&
+                                                    $stable(awid) ;
+  endproperty
+  property axi_wch_stable;
+    @(posedge aclk) disable iff(!arstn) wvalid |-> $stable(wdata) && 
+                                                   $stable(wstrob) && 
+                                                   $stable(wlast) &&
+                                                   $stable(wid) ;
+  endproperty
+  property axi_arch_stable;
+    @(posedge aclk) disable iff(!arstn) arvalid |-> $stable(araddr) && 
+                                                    $stable(arbrust) && 
+                                                    $stable(arsize) &&
+                                                    $stable(arlen) &&
+                                                    $stable(arid) ;
+  endproperty
+
+  AXI_AWCH_STABLE  : assert property (axi_awch_stable)begin
+                            $info("[AWCH_STABLE]:Assertion PASS");
+                          end
+                          else
+                            $error("[AWCH_STABLE]:Assertion fail...");
+  AXI_WCH_STABLE  : assert property (axi_wch_stable)begin
+                            $info("[WCH_STABLE]:Assertion PASS");
+                          end
+                          else
+                            $error("[WCH_STABLE]:Assertion fail...");
+  AXI_ARCH_STABLE  : assert property (axi_arch_stable)begin
+                            $info("[ARCH_STABLE]:Assertion PASS");
+                          end
+                          else
+                            $error("[ARCH_STABLE]:Assertion fail...");                         
+
   property axi_ready_before_valid(logic valid,logic ready);    
     @(posedge aclk) disable iff(!arstn) ($past(valid,1)==0)&& ready |-> ##[1:$] valid ##1 !valid;
   endproperty

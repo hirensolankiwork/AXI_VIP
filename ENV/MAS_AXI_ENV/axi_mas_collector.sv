@@ -2,7 +2,7 @@
 // Company        : SCALEDGE 
 // Engineer       : ADITYA MISHRA 
 // Create Date    : 07-08-2023
-// Last Modifiey  : 08-08-2023 10:05:10
+// Last Modifiey  : 22-08-2023 14:40:54
 // File Name   	  : axi_mas_collector.sv
 // Class Name 	  : axi_mas_collector
 // Project Name	  : AXI_3 VIP
@@ -90,13 +90,13 @@ class axi_mas_collector extends uvm_subscriber #(axi_mas_seq_item);
     
     AWBRUST_CB  : coverpoint m_tx_h.wr_brust_e
       {
-        bins wr_brust_cb = {[0:2]};
+        bins wr_brust_cb[] = {[0:2]};
         illegal_bins wr_brust_illegal = {3};
       }
 
     ARBRUST_CB  : coverpoint m_tx_h.rd_brust_e
       {
-        bins rd_brust_cb = {[0:2]};
+        bins rd_brust_cb[] = {[0:2]};
         illegal_bins rd_brust_illegal = {3};
       }
 
@@ -134,7 +134,7 @@ class axi_mas_collector extends uvm_subscriber #(axi_mas_seq_item);
       wr_data_cg[j].sample(m_tx_h.wr_data[i][j]);
    
     foreach(m_tx_h.rd_data[i,j])
-      rd_data_cg[j].sample(m_tx_h.rd_data[i][j]);
+      rd_data_cg[j].sample(m_tx_h.rd_data[i][j] );
    
   endfunction
   

@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 13-08-2023 13:40:09
+// Last Modifiey  : 22-08-2023 15:27:28
 // File Name   	  : axi_mas_seq_item.sv
 // Class Name 	  : axi_mas_seq_item
 // Project Name	  : AXI_3 VIP
@@ -72,8 +72,7 @@ class axi_mas_seq_item extends uvm_sequence_item;
   endfunction
 
 // to get the Bytes per transfer.
-  int wsize = 1<<wr_size;
-  int rsize = 1<<rd_size;
+
 
   constraint WR_ID_1 {
     soft awr_id == wr_id;
@@ -110,19 +109,18 @@ class axi_mas_seq_item extends uvm_sequence_item;
                               wr_strob[i] == '1;
                             }
                           }
-  
-//  constraint REQ_TEST  { soft req_e == WRITE_REQ; }
+ int wcontainer_size;
+ int rcontainer_size;
+//This will calculate the boundry for one transfer  
+  function int w_wrap_boundry ();
+    wcontainer_size = (1<<wr_size) * (wr_len+1);
+    return int'(wr_addr/wcontainer_size) * wcontainer_size;
+  endfunction
 
-//This willcalculate the boundry for one transfer  
-  int wcontainer_size = wsize * (wr_len+1);
-  int rcontainer_size = rsize * (rd_len+1);
-
-  int wlow_cont = wr_addr;
-  int wup_cont = wlow_cont + wcontainer_size;
-  int rlow_cont = rd_addr;
-  int rup_cont = rlow_cont + rcontainer_size;
-
-  
+  function int r_wrap_boundry ();
+    rcontainer_size = (1<<rd_size) * (rd_len+1);
+    return int'(rd_addr/rcontainer_size) * rcontainer_size;
+  endfunction
 
 endclass  : axi_mas_seq_item 
 

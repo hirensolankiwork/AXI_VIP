@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 13-08-2023 12:30:11
+// Last Modifiey  : 22-08-2023 12:36:43
 // File Name   	  : axi_mas_mon.sv
 // Class Name 	  : axi_mas_mon 
 // Project Name	  : AXI_3 VIP
@@ -36,7 +36,7 @@ class axi_mas_mon extends uvm_sequencer;
   function void build_phase(uvm_phase phase);
     `uvm_info(get_name(),"Starting of Build Phase",UVM_DEBUG)
     super.build_phase(phase);
-    m_mon_ap = new("mon_ap",this);
+    m_mon_ap = new("m_mon_ap",this);
     `uvm_info(get_name(),"Ending of Build Phase",UVM_DEBUG)
   endfunction
 
@@ -74,20 +74,20 @@ class axi_mas_mon extends uvm_sequencer;
     fork
       forever begin
         @(posedge m_vif.aclk);
-        if (`ASYC_MP.awvalid && `ASYC_MP.awready)begin
+        if (`MON.awvalid && `MON.awready)begin
           `uvm_info(get_name(),"Write Addr Chennal Handshak",UVM_DEBUG)
           trans_h.awr_id     = `MON.awid;
           trans_h.wr_addr    = `MON.awaddr;
           trans_h.wr_size    = `MON.awsize;
           trans_h.wr_len     = `MON.awlen;
           trans_h.wr_brust_e = brust_kind_e'(`MON.awbrust);
+          m_mon_ap.write(trans_h);
         end
-        m_mon_ap.write(trans_h);
         `uvm_info(get_name(),"After Write Addr Chennal Handshak Write call",UVM_DEBUG)
       end
       forever begin
         @(posedge m_vif.aclk);
-        if(`ASYC_MP.wvalid && `ASYC_MP.wready)begin
+        if(`MON.wvalid && `MON.wready)begin
           `uvm_info(get_name(),"Wrire Data Channel Handshak",UVM_DEBUG)
           trans_h.wr_id      = `MON.wid;
           trans_h.wr_data    = new[trans_h.wr_len +1];
@@ -97,52 +97,52 @@ class axi_mas_mon extends uvm_sequencer;
             trans_h.wr_strob[i]  = `MON.wstrob;
             @(posedge m_vif.aclk);
             if(i != trans_h.wr_len)
-              wait(`ASYC_MP.wvalid && `ASYC_MP.wready);            
+              wait(`MON.wvalid && `MON.wready);            
           end
-          trans_h.print();
-        end
+          //trans_h.print();
           m_mon_ap.write(trans_h);
+        end
         `uvm_info(get_name(),"After  Write Data Channel Handshak Write call",UVM_DEBUG)
       end
       forever begin
         @(posedge m_vif.aclk);
-        if(`ASYC_MP.bready && `ASYC_MP.bvalid)begin
+        if(`MON.bready && `MON.bvalid)begin
           `uvm_info(get_name(),"Wrire response Channel Handshake",UVM_DEBUG)
           trans_h.b_id       = `MON.bid;
           trans_h.b_resp_e   = resp_kind_e'(`MON.bresp);
+          m_mon_ap.write(trans_h);
         end
-        m_mon_ap.write(trans_h);
         `uvm_info(get_name(),"After  Write Response Channel Handshak Write call",UVM_DEBUG)
       end
       forever begin
         @(posedge m_vif.aclk);
-        if(`ASYC_MP.arready && `ASYC_MP.rvalid)begin
+        if(`MON.arready && `MON.rvalid)begin
           `uvm_info(get_name(),"Read Addr Channel Handshake",UVM_DEBUG)
           trans_h.ard_id     = `MON.arid;
           trans_h.rd_addr    = `MON.araddr;
           trans_h.rd_size    = `MON.arsize;
           trans_h.rd_len     = `MON.arlen;
           trans_h.rd_brust_e = brust_kind_e'(`MON.arbrust);
-          trans_h.print();
+          //trans_h.print();
+          m_mon_ap.write(trans_h);
         end
-        m_mon_ap.write(trans_h);
         `uvm_info(get_name(),"After Read Addr Channel Handshake Write call",UVM_DEBUG)
       end
       forever begin
         @(posedge m_vif.aclk);
-        if(`ASYC_MP.rready && `ASYC_MP.rvalid)begin
+        if(`MON.rready && `MON.rvalid)begin
           `uvm_info(get_name(),"Read data Channel Handshake",UVM_DEBUG)
           trans_h.r_id       = `MON.rid;
           for(int i=0; i<=trans_h.rd_len ;i++)begin
             trans_h.rd_data.push_back(`MON.rdata);
             @(posedge m_vif.aclk );
             if(i != trans_h.rd_len)
-              wait(`ASYC_MP.rready && `ASYC_MP.rvalid);
-            trans_h.print();
+              wait(`MON.rready && `MON.rvalid);
+           // trans_h.print();
           end
           trans_h.r_resp_e   = resp_kind_e'(`MON.rresp);
+          m_mon_ap.write(trans_h);
         end
-        m_mon_ap.write(trans_h);
         `uvm_info(get_name(),"After Read data & Response Write call",UVM_DEBUG)
       end
     join

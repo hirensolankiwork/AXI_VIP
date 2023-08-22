@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 10-08-2023 12:10:50
+// Last Modifiey  : 18-08-2023 13:55:28
 // File Name   	  : axi_mas_env.sv
 // Class Name 	  : axi_mas_env 
 // Project Name	  : AXI_3 VIP
@@ -30,6 +30,7 @@ class axi_mas_env extends uvm_env;
   axi_slave_agent       sagent_h[];
   axi_mas_sb            sb_h[];
   axi_mas_collector     m_colect_h[];
+  axi_mas_checker       m_check_h[];
   axi_mas_env_cfg       m_env_cfg_h;
 //axi_slave_agent_uvc   slv_uvc;
 //--------------------------------------------------------------------------
@@ -83,6 +84,12 @@ class axi_mas_env extends uvm_env;
         m_colect_h[i] = axi_mas_collector::type_id::create($sformatf("m_colect_h[%0d]",i),this);
       end
     end    
+    if(m_env_cfg_h.has_mchecker)begin
+      m_check_h = new[m_env_cfg_h.no_dut];
+      foreach(m_check_h[i])begin
+        m_check_h[i] = axi_mas_checker::type_id::create($sformatf("m_check_h[%0d]",i),this);
+      end
+    end  
     `uvm_info(get_name(),"Ending of Build Phase",UVM_HIGH)
 
   endfunction
@@ -95,7 +102,7 @@ class axi_mas_env extends uvm_env;
 //TODO: config for score board.
     if(m_env_cfg_h.has_scoreboard)begin
       foreach(magent_h[i])begin
-        magent_h[i].m_agent_ap.connect(sb_h[i].m_sb_imp);
+        magent_h[i].m_agent_ap.connect(sb_h[i].m_mon_aimp);
       end
     end    
     if(m_env_cfg_h.has_mcollector)begin
@@ -103,7 +110,11 @@ class axi_mas_env extends uvm_env;
         magent_h[i].m_agent_ap.connect(m_colect_h[i].analysis_export);
       end
     end    
-    `uvm_info(get_name(),"Ending of connect Phase",UVM_HIGH)
+    if(m_env_cfg_h.has_mchecker)begin
+      foreach(magent_h[i])begin
+        magent_h[i].m_agent_ap.connect(m_check_h[i].analysis_export);
+      end
+    end     `uvm_info(get_name(),"Ending of connect Phase",UVM_HIGH)
   endfunction 
 
 endclass 

@@ -2,7 +2,7 @@
 // Company        : SCALEDGE 
 // Engineer       : ADITYA MISHRA 
 // Create Date    : 04-08-2023
-// Last Modifiey  : 13-08-2023 16:20:09
+// Last Modifiey  : 17-08-2023 14:26:37
 // File Name   	  : axi_mas_env_cfg.sv
 // Class Name 	  : axi_mas_env_cfg
 // Project Name	  : AXI_3 VIP 
@@ -39,6 +39,10 @@ class axi_mas_env_cfg extends uvm_object;
 //to set coverage.
   bit has_mcollector=0;
   bit has_scollector=0;
+
+//to set checker.
+  bit has_mchecker=0;
+  bit has_schecker=0; 
 
 //dynamic array Configuration handles for the sub_components.
   axi_mas_agent_cfg       m_agent_cfg_h[];

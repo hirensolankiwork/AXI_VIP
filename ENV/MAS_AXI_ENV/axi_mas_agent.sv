@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 10-08-2023 12:01:22
+// Last Modifiey  : 18-08-2023 15:54:22
 // File Name   	  : axi_mas_agent.sv
 // Class Name 	  : axi_mas_agent 
 // Project Name	  : AXI_3 VIP
@@ -33,7 +33,7 @@ class axi_mas_agent extends uvm_agent;
   axi_mas_mon                           mmon_h;
   axi_mas_seqr                          mseqr_h;
   axi_mas_agent_cfg                     mcfg_h;
-  uvm_analysis_port #(axi_mas_seq_item) m_agent_ap;
+  uvm_analysis_export #(axi_mas_seq_item) m_agent_ap;
 
 //------------------------------------------------------------------------
 // Function  : Build Phase  
@@ -72,7 +72,7 @@ class axi_mas_agent extends uvm_agent;
       mdrv_h.m_vif = m_vif;
     end
     mmon_h.m_vif = m_vif;
-    m_agent_ap.connect(mmon_h.m_mon_ap);
+    mmon_h.m_mon_ap.connect(this.m_agent_ap);
     `uvm_info(get_name(),"Ending of connect Phase",UVM_HIGH)
   endfunction 
 
