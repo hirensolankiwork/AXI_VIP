@@ -1,24 +1,24 @@
 /////////////////////////////////////////////////////////////////////////
 // Company        : SCALEDGE 
 // Engineer       : ADITYA MISHRA 
-// Create Date    : 16-08-2023
-// Last Modifiey  : 28-08-2023 10:59:09
-// File Name   	  : axi_incr_seq.sv
-// Class Name 	  : 
-// Project Name	  : 
+// Create Date    : 28-08-2023
+// Last Modifiey  : 29-08-2023 11:28:19
+// File Name   	  : axi_wrap_seq.sv
+// Class Name 	  : axi_wrap_seq
+// Project Name	  : AXI_3 VIP
 // Description	  : 
 //////////////////////////////////////////////////////////////////////////
 
-`ifndef AXI_INCR_SEQ_SV
-`define AXI_INCR_SEQ_SV
+`ifndef AXI_WRAP_SEQ_SV
+`define AXI_WRAP_SEQ_SV
 
-class axi_incr_seq extends axi_mas_base_seqs;
+class axi_wrap_seq extends axi_mas_base_seqs;
 //UVM Fectory registretion.
 //uvm_sequence is object that's why we are using `uvm_object_utils macro.
-  `uvm_object_utils(axi_incr_seq)
+  `uvm_object_utils(axi_wrap_seq)
 
 //new counstructore declaration.
-  function new(string name="axi_incr_seq");
+  function new(string name="axi_wrap_seq");
     super.new(name);
   endfunction 
 
@@ -41,7 +41,7 @@ class axi_incr_seq extends axi_mas_base_seqs;
       begin //Simple Sequence item randomize process.
         repeat(count) begin
           start_item(req);              //wait the request grant from the sequencer.
-          assert(req.randomize());      //Randomize the sequence item.
+          assert(req.randomize() with {wr_brust_e== WRAP; rd_brust_e==WRAP;});      //Randomize the sequence item.
           finish_item(req);             //Send the randomize sequence item and wait for
         end                             // item_done call.
      end
@@ -53,6 +53,6 @@ class axi_incr_seq extends axi_mas_base_seqs;
     super.post_body();
   endtask
 
-endclass  : axi_incr_seq
+endclass  : axi_wrap_seq
 
 `endif 

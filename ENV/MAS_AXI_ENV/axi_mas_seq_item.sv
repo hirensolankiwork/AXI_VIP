@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 22-08-2023 15:27:28
+// Last Modifiey  : 25-08-2023 14:33:50
 // File Name   	  : axi_mas_seq_item.sv
 // Class Name 	  : axi_mas_seq_item
 // Project Name	  : AXI_3 VIP
@@ -22,7 +22,7 @@ typedef enum bit[1:0]{OKAY,EXOKAY,SLVERR,DECERR} resp_kind_e;
 typedef enum bit {WRITE_REQ,READ_REQ} req_kind_e;
 class axi_mas_seq_item extends uvm_sequence_item;
 
-  rand  req_kind_e           req_e;
+  rand  req_kind_e                  req_e;
   randc bit [(`WR_ID_WIDTH-1):0]    awr_id;
   randc bit [(`WR_ID_WIDTH-1):0]    wr_id;
   rand  brust_kind_e                wr_brust_e;
@@ -31,6 +31,7 @@ class axi_mas_seq_item extends uvm_sequence_item;
   rand  bit [(`WR_ADDR_LEN-1):0]    wr_len;
   rand  bit [(`WR_DATA_WIDTH-1):0]  wr_data[];
   rand  bit [(`WR_STROBE-1):0]      wr_strob[];
+        bit                         b_valid;
         bit [(`WR_ID_WIDTH-1):0]    b_id;
         resp_kind_e                 b_resp_e;
   randc bit [(`RD_ID_WIDTH-1):0]    ard_id;
@@ -39,6 +40,8 @@ class axi_mas_seq_item extends uvm_sequence_item;
   rand  bit [(`RD_ADDR_SIZE-1):0]   rd_size;
   rand  bit [(`RD_ADDR_LEN-1):0]    rd_len;
         bit [(`RD_DATA_WIDTH-1):0]  rd_data[$];
+        bit                         r_last;
+        bit                         r_valid;
         bit [(`RD_ID_WIDTH-1):0]    r_id;
         resp_kind_e                 r_resp_e;
 

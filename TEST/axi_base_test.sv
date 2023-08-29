@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 18-08-2023 13:51:35
+// Last Modifiey  : 25-08-2023 11:42:47
 // File Name   	  : axi_base_test.sv
 // Class Name 	  : axi_base_test 
 // Project Name	  : AXI_3 VIP
@@ -112,7 +112,7 @@ class axi_base_test extends uvm_test;
   	m_env_cfg_h.has_scollector= has_scollector;
    	m_env_cfg_h.has_mchecker= has_mchecker;
   	m_env_cfg_h.has_schecker= has_schecker;
-    m_env_cfg_h.has_scoreboard= 1;
+    m_env_cfg_h.has_scoreboard= 0;
   endfunction : config_axi  
 
   function void build_phase (uvm_phase phase);

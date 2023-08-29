@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 22-08-2023 12:36:43
+// Last Modifiey  : 28-08-2023 17:09:57
 // File Name   	  : axi_mas_mon.sv
 // Class Name 	  : axi_mas_mon 
 // Project Name	  : AXI_3 VIP
@@ -28,8 +28,11 @@ class axi_mas_mon extends uvm_sequencer;
 
   axi_mas_seq_item trans_h;                       //Taking the tarantection packet to send it to the score board.
   virtual axi_inf m_vif;                          //Tacking interface to convey my packet level info to pin level.
-  uvm_analysis_port #(axi_mas_seq_item) m_mon_ap;   //Taking the analysis port.
-
+  uvm_analysis_port #(axi_mas_seq_item) m_mon_ap; //Taking the analysis port.
+  int mem_awid [$];
+  int mem_arid [$];
+  int temp_q   [$];
+  int temp_q1   [$];
 //--------------------------------------------------------------------------
 // Function  : Build Phase  
 //--------------------------------------------------------------------------
@@ -46,7 +49,6 @@ class axi_mas_mon extends uvm_sequencer;
   task run_phase(uvm_phase phase);
     `uvm_info(get_name(),"Starting of Run Phase",UVM_DEBUG)
     `uvm_info(get_name(),"Before Forever loop start",UVM_DEBUG)
-    @(negedge m_vif.arstn);
     forever begin
     `uvm_info(get_name(),"Starting of Forever loop",UVM_DEBUG)
       fork
@@ -54,7 +56,6 @@ class axi_mas_mon extends uvm_sequencer;
           trans_h = axi_mas_seq_item::type_id::create("trans_h");
           monitore(trans_h);
         end
-//TODO: RESET 
         begin
           @(negedge m_vif.arstn);
         end
@@ -77,6 +78,7 @@ class axi_mas_mon extends uvm_sequencer;
         if (`MON.awvalid && `MON.awready)begin
           `uvm_info(get_name(),"Write Addr Chennal Handshak",UVM_DEBUG)
           trans_h.awr_id     = `MON.awid;
+          mem_awid.push_back(`MON.awid);
           trans_h.wr_addr    = `MON.awaddr;
           trans_h.wr_size    = `MON.awsize;
           trans_h.wr_len     = `MON.awlen;
@@ -92,15 +94,17 @@ class axi_mas_mon extends uvm_sequencer;
           trans_h.wr_id      = `MON.wid;
           trans_h.wr_data    = new[trans_h.wr_len +1];
           trans_h.wr_strob   = new[trans_h.wr_len +1];
+
           foreach(trans_h.wr_data[i])begin
             trans_h.wr_data[i]= `MON.wdata;
             trans_h.wr_strob[i]  = `MON.wstrob;
             @(posedge m_vif.aclk);
             if(i != trans_h.wr_len)
-              wait(`MON.wvalid && `MON.wready);            
+              wait(`MON.wvalid && `MON.wready);
+            else
+              m_mon_ap.write(trans_h);
           end
           //trans_h.print();
-          m_mon_ap.write(trans_h);
         end
         `uvm_info(get_name(),"After  Write Data Channel Handshak Write call",UVM_DEBUG)
       end
@@ -108,6 +112,17 @@ class axi_mas_mon extends uvm_sequencer;
         @(posedge m_vif.aclk);
         if(`MON.bready && `MON.bvalid)begin
           `uvm_info(get_name(),"Wrire response Channel Handshake",UVM_DEBUG)
+          trans_h.b_valid    = `MON.bvalid;
+          temp_q = mem_awid.find_first_index() with (item == `MON.bid);
+          $display(mem_awid);
+          if(temp_q.size() != 0)begin
+            $display(temp_q);
+            `uvm_info("BID_CHECKER","The Checker for BID got PASS.",UVM_HIGH)
+            foreach(temp_q[i])
+              mem_awid.delete(temp_q[i]-i);
+          end
+          else
+            `uvm_error("BID_CHECKER","The Checker for BID got Fail.")
           trans_h.b_id       = `MON.bid;
           trans_h.b_resp_e   = resp_kind_e'(`MON.bresp);
           m_mon_ap.write(trans_h);
@@ -116,9 +131,11 @@ class axi_mas_mon extends uvm_sequencer;
       end
       forever begin
         @(posedge m_vif.aclk);
-        if(`MON.arready && `MON.rvalid)begin
+        if(`MON.arready && `MON.arvalid)begin
           `uvm_info(get_name(),"Read Addr Channel Handshake",UVM_DEBUG)
           trans_h.ard_id     = `MON.arid;
+          mem_arid.push_back(`MON.arid);
+              $display(mem_arid);
           trans_h.rd_addr    = `MON.araddr;
           trans_h.rd_size    = `MON.arsize;
           trans_h.rd_len     = `MON.arlen;
@@ -132,16 +149,31 @@ class axi_mas_mon extends uvm_sequencer;
         @(posedge m_vif.aclk);
         if(`MON.rready && `MON.rvalid)begin
           `uvm_info(get_name(),"Read data Channel Handshake",UVM_DEBUG)
+          trans_h.r_valid    = `MON.rvalid;
           trans_h.r_id       = `MON.rid;
           for(int i=0; i<=trans_h.rd_len ;i++)begin
             trans_h.rd_data.push_back(`MON.rdata);
             @(posedge m_vif.aclk );
             if(i != trans_h.rd_len)
               wait(`MON.rready && `MON.rvalid);
+            else begin
+              wait(`MON.rlast);
+                temp_q1 = mem_arid.find_first_index() with (item == `MON.rid);
+                $display(mem_arid);
+                if(temp_q1.size() != 0)begin
+                  $display(temp_q1);
+                  `uvm_info("RID_CHECKER","The Checker for RID got PASS.",UVM_HIGH)
+                  foreach(temp_q1[i])
+                    mem_arid.delete(temp_q1[i]-i);
+                end
+                else
+                  `uvm_error("RID_CHECKER","The Checker for RID got Fail.")
+                trans_h.r_last = `MON.rlast;
+            end
            // trans_h.print();
           end
           trans_h.r_resp_e   = resp_kind_e'(`MON.rresp);
-          m_mon_ap.write(trans_h);
+                    m_mon_ap.write(trans_h);
         end
         `uvm_info(get_name(),"After Read data & Response Write call",UVM_DEBUG)
       end

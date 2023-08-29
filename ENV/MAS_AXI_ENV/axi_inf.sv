@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 22-08-2023 11:31:12
+// Last Modifiey  : 28-08-2023 17:44:11
 // File Name   	  : axi_mas_inf.sv
 // Interface Name : axi_mas_inf
 // Project Name	  : AXI_3 VIP
@@ -33,7 +33,6 @@ interface axi_inf(input logic aclk,
 //-------------------------------------------------------------------------
   logic [(`WR_ID_WIDTH-1)  :0]   wid;
   logic [(`WR_DATA_WIDTH-1):0]   wdata;
-  // TODO : Change in strobe width. 
   logic [(`WR_STROBE-1):0]       wstrob;
   logic                          wlast;
   logic                          wready;
@@ -269,24 +268,24 @@ interface axi_inf(input logic aclk,
                             $error("[ARVALID_ASSERT]:Assertion fail...");
  
   property axi_awch_stable;
-    @(posedge aclk) disable iff(!arstn) awvalid |-> $stable(awaddr) && 
-                                                    $stable(awbrust) && 
-                                                    $stable(awsize) &&
-                                                    $stable(awlen) &&
-                                                    $stable(awid) ;
+    @(posedge aclk) disable iff(!arstn) awvalid && !awready |-> $stable(awaddr) && 
+                                                               $stable(awbrust) && 
+                                                               $stable(awsize) &&
+                                                               $stable(awlen) &&
+                                                               $stable(awid) ;
   endproperty
   property axi_wch_stable;
-    @(posedge aclk) disable iff(!arstn) wvalid |-> $stable(wdata) && 
-                                                   $stable(wstrob) && 
-                                                   $stable(wlast) &&
-                                                   $stable(wid) ;
+    @(posedge aclk) disable iff(!arstn) wvalid && !wready |-> $stable(wdata) && 
+                                                              $stable(wstrob) && 
+                                                              $stable(wlast) &&
+                                                              $stable(wid) ;
   endproperty
   property axi_arch_stable;
-    @(posedge aclk) disable iff(!arstn) arvalid |-> $stable(araddr) && 
-                                                    $stable(arbrust) && 
-                                                    $stable(arsize) &&
-                                                    $stable(arlen) &&
-                                                    $stable(arid) ;
+    @(posedge aclk) disable iff(!arstn) arvalid && !arready|-> $stable(araddr) && 
+                                                               $stable(arbrust) && 
+                                                               $stable(arsize) &&
+                                                               $stable(arlen) &&
+                                                               $stable(arid) ;
   endproperty
 
   AXI_AWCH_STABLE  : assert property (axi_awch_stable)begin
