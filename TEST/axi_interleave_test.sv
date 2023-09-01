@@ -1,37 +1,38 @@
 /////////////////////////////////////////////////////////////////////////
 // Company        : SCALEDGE 
 // Engineer       : ADITYA MISHRA 
-// Create Date    : 28-08-2023
-// Last Modifiey  : 31-08-2023 10:29:34
-// File Name   	  : axi_wrap_test.sv
-// Class Name 	  : axi_wrap_test
-// Project Name	  : AXI_3 VIP
+// Create Date    : 31-08-2023
+// Last Modifiey  : 01-09-2023 11:01:16
+// File Name   	  : axi_interleave_test.sv
+// Class Name 	  : 
+// Project Name	  : 
 // Description	  : 
 //////////////////////////////////////////////////////////////////////////
 
-`ifndef AXI_WRAP_TEST_SV
-`define AXI_WRAP_TEST_SV
+`ifndef AXI_INTERLRAVE_TEST_SV
+`define AXI_INTERLRAVE_TEST_SV
 
 //------------------------------------------------------------------------
-// class  : axi_wrap_test 
+// class  : axi_interleave_test 
 //------------------------------------------------------------------------
 
-class axi_wrap_test extends axi_base_test;
+class axi_interleave_test extends axi_base_test;
 //UVM Fectory registretion.
 //axi_base_test is Component that's why we are using 
 //`uvm_component_utils macro.
-  `uvm_component_utils(axi_wrap_test)
+  `uvm_component_utils(axi_interleave_test)
 
 //new counstructore declaration.
-  function new(string name="AXI_WRAP_TEST",uvm_component parent=null);
+  function new(string name="axi_interleave_test",uvm_component parent=null);
     super.new(name,parent);
   endfunction 
 
-  axi_wrap_seq          mseqs_h;
+  axi_interleave_seq    mseqs_h;
   axi_slave_base_seq    sseqs_h;
   
   function void build_phase(uvm_phase phase);
     `uvm_info(get_name(),"Start of Build Phase",UVM_HIGH)
+    super.write_interleave = 1;
     super.build_phase(phase);
     `uvm_info(get_name(),"End of Build Phase",UVM_HIGH)
   endfunction 
@@ -41,7 +42,8 @@ class axi_wrap_test extends axi_base_test;
     phase.raise_objection(this,{get_name(),"Raise of the objection in run phase"});
       fork
         begin
-		      mseqs_h = axi_wrap_seq::type_id::create("MSEQS_H");
+		      mseqs_h = axi_interleave_seq::type_id::create("MSEQS_H");
+          mseqs_h.count = 20;
 		      mseqs_h.start(env_h.magent_h[0].mseqr_h);
 		    end
 		    begin
@@ -54,6 +56,6 @@ class axi_wrap_test extends axi_base_test;
     `uvm_info(get_name(),"End of Run Phase",UVM_HIGH)
   endtask
 
-endclass  : axi_wrap_test
+endclass  : axi_interleave_test
 
 `endif 

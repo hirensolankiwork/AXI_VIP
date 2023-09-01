@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 29-08-2023 18:07:12
+// Last Modifiey  : 01-09-2023 10:46:28
 // File Name   	  : axi_mas_drv.sv
 // Class Name 	  : axi_mas_drv 
 // Project Name	  : AXI_3 VIP
@@ -314,8 +314,8 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
       wait(`DRV.arready == 1'b1);
       `DRV.arvalid  <= 1'b0;
       if(m_agnt_cfg.m_write_interleave)begin
-        `DRV.arid     <= read_addr_req.ard_id;
-        `DRV.araddr   <= read_addr_req.rd_addr;
+        `DRV.arid     <= read_addr_req.ard_id + 2;
+        `DRV.araddr   <= read_addr_req.rd_addr + 4;
         `DRV.arsize   <= read_addr_req.rd_size;
         `DRV.arlen    <= read_addr_req.rd_len;
         `DRV.arbrust  <= read_addr_req.rd_brust_e;
