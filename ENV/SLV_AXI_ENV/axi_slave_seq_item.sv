@@ -6,7 +6,7 @@
 //Description : transaction 
 //////////////////////////////////////////////////////////////////////
 
-
+ typedef enum bit [1:0] {FIXED,INCREMENT,WRAP_AROUND,RESERVED} aw_burst_kind;
  class axi_slave_seq_item extends  uvm_sequence_item;
   
    `uvm_object_utils(axi_slave_seq_item)
@@ -18,20 +18,22 @@
     function new(string name = "axi_slave_seq_item");
       super.new(name);
     endfunction: new
-     
-    bit[3:0]                        wstrobe [];
+
+        bit[3:0]                        wstrobe [];
     bit[`WR_DATA_WIDTH-1:0]         wdata[];
     // write address FLAG
     bit [`WR_ADDR_WIDTH-1:0]        AWADDR;                     
     bit [`WR_ADDR_LEN-1:0]          AWLEN;
     bit [`WR_ADDR_SIZE-1:0]         AWSIZE;
     bit [1:0]                       AWBURST;
+    aw_burst_kind                    AWBURST_E;
     bit [`WR_ID_WIDTH-1:0]          AWID;   
     bit                             AWVALID;
     //write data channel Flag
     bit [`WR_ID_WIDTH-1:0]          WID;
     bit                             WLAST;
     bit                             WVALID;
+    bit [`WR_STROBE-1:0]            WSTRB;
    //read address channel Flag
     bit [`WR_ADDR_WIDTH-1:0]        ARADDR ;                      
     bit [`WR_ADDR_LEN-1:0]          ARLEN;  

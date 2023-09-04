@@ -15,6 +15,11 @@ class axi_slave_agent_uvc extends uvm_agent;
         slv_agnt = axi_slave_agent::type_id::create("slv_agnt", this);
     endfunction
 
+  
+  function void connect_phase(uvm_phase phase);
+  super.connect_phase(phase); 
+  `uvm_info("", " Connect Phase...", UVM_HIGH)
+  endfunction
    	
 	         
 endclass 

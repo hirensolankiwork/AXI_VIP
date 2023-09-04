@@ -1,4 +1,3 @@
-
  ////////////////////////////////////////////////////////////////////////
  //devloper name : siddharth
  //date   :  24/07/23
@@ -153,7 +152,7 @@ endtask
    axi_inf.slv_drv_cb.AWREADY <= 1'b1;
    axi_inf.slv_drv_cb.WREADY <= 1'b1;
    axi_inf.slv_drv_cb.ARREADY <= 1'b1;
-  `uvm_info(get_full_name()," EXIT DRIVER Ready_drive TASK ",UVM_DEBUG)
+    `uvm_info(get_full_name()," EXIT DRIVER Ready_drive TASK ",UVM_DEBUG)
 endtask
 
 ////////////////////////////////////////////////////////////////////////

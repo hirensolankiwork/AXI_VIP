@@ -1,0 +1,20 @@
+QuestaSim-64 vlog 10.4e Compiler 2016.04 Apr  9 2016
+Start time: 00:02:03 on Aug 23,2023
+vlog -reportprogress 300 ../ENV/MAS_AXI_ENV/axi_mas_env_pkg.sv ../TEST/axi_test_pkg.sv ../TOP/axi_tb_top.sv -l axi_comp_log.log "+incdir+../ENV/MAS_AXI_ENV" "+incdir+../ENV/SLV_AXI_ENV" "+incdir+../TEST" 
+-- Compiling interface axi_inf
+-- Compiling interface axi_interface
+-- Compiling package axi_mas_env_pkg
+-- Importing package mtiUvm.uvm_pkg (uvm-1.1d Built-in)
+** Note: (vlog-2286) Using implicit +incdir+C:/questasim64_10.4e/uvm-1.1d/../verilog_src/uvm-1.1d/src from import uvm_pkg
+** Warning: ../ENV/SLV_AXI_ENV/axi_slave_base_seq.sv(64): (vlog-2240) Treating stand-alone use of function 'randomize' as an implicit VOID cast.
+** Warning: ../ENV/SLV_AXI_ENV/axi_slave_base_seq.sv(70): (vlog-2240) Treating stand-alone use of function 'randomize' as an implicit VOID cast.
+** Warning: ../ENV/SLV_AXI_ENV/axi_slave_base_seq.sv(71): (vlog-2240) Treating stand-alone use of function 'randomize' as an implicit VOID cast.
+-- Compiling package axi_test_pkg
+-- Importing package axi_mas_env_pkg
+-- Compiling module axi_tb_top
+-- Importing package axi_test_pkg
+
+Top level modules:
+	axi_tb_top
+End time: 00:02:04 on Aug 23,2023, Elapsed time: 0:00:01
+Errors: 0, Warnings: 3
