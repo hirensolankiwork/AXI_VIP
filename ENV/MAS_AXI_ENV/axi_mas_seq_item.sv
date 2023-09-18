@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 25-08-2023 14:33:50
+// Last Modifiey  : Sun Sep 17 17:34:21 2023
 // File Name   	  : axi_mas_seq_item.sv
 // Class Name 	  : axi_mas_seq_item
 // Project Name	  : AXI_3 VIP
@@ -81,8 +81,8 @@ class axi_mas_seq_item extends uvm_sequence_item;
     soft awr_id == wr_id;
   }
   constraint WR_BRUST {
-    soft wr_brust_e == INCR;
-    soft rd_brust_e == INCR;
+    soft wr_brust_e != RESERVE;
+    soft rd_brust_e != RESERVE;
   }
 //TODO: Slove Before uses.
   constraint WR_DATA_SIZE { 
@@ -96,6 +96,33 @@ class axi_mas_seq_item extends uvm_sequence_item;
     8*(2**wr_size) <= `WR_DATA_WIDTH;
     8*(2**rd_size) <= `RD_DATA_WIDTH;
   }
+
+  constraint WR_LEN 
+  {
+    solve wr_brust_e before wr_len;
+    if(wr_brust_e== FIX )
+    {
+      wr_len inside {0,1};
+    }
+    else if(wr_brust_e== WRAP)
+    {
+      wr_len inside {1,3,7,15};
+    }
+  }
+
+  constraint RD_LEN 
+  {
+    solve rd_brust_e before wr_len;
+    if(rd_brust_e== FIX )
+    {
+      rd_len inside {0,1};
+    }
+    else if(rd_brust_e== WRAP)
+    {
+      rd_len inside {1,3,7,15};
+    }
+  }
+
 //TODO: Constraint for alingned addr.
   constraint ADDR_VAL {
     /*  solve order constraints  */
@@ -107,11 +134,25 @@ class axi_mas_seq_item extends uvm_sequence_item;
         wr_addr == int'(wr_addr/2**wr_size) * (2**wr_size);
 
   }
-  constraint WRITE_STRB   { foreach(wr_strob[i])
-                            {
-                              wr_strob[i] == '1;
-                            }
-                          }
+  constraint WRITE_STRB   
+  {   foreach(wr_strob[i])
+      {
+        if(wr_size==0)
+          wr_strob[i] inside {1,2,4,8};
+        else if(wr_size==1)
+          wr_strob[i] inside {3,6,12};
+        else if(wr_size==2)
+          wr_strob[i] inside {15};
+      }
+  }
+
+  function void post_randomize();
+    foreach(wr_data[i])begin
+      for(int j=0; j<`WR_STROBE; j++)begin
+        wr_data[i][8*j +: 8] = wr_data[i][ 8*j +: 8] * wr_strob[i][j];
+      end
+    end
+  endfunction
  int wcontainer_size;
  int rcontainer_size;
 //This will calculate the boundry for one transfer  

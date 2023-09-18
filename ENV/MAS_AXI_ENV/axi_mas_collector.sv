@@ -2,7 +2,7 @@
 // Company        : SCALEDGE 
 // Engineer       : ADITYA MISHRA 
 // Create Date    : 07-08-2023
-// Last Modifiey  : 22-08-2023 14:40:54
+// Last Modifiey  : Mon Sep 11 15:19:20 2023
 // File Name   	  : axi_mas_collector.sv
 // Class Name 	  : axi_mas_collector
 // Project Name	  : AXI_3 VIP
@@ -100,26 +100,18 @@ class axi_mas_collector extends uvm_subscriber #(axi_mas_seq_item);
         illegal_bins rd_brust_illegal = {3};
       }
 
-//    WSTROBE_CB  : coverpoint m_tx_h.wr_strob
-//      {
-//        bins wr_strob_cb[3] = {[0:$]};
-//      }
+    WSTROBE_CB  : coverpoint m_tx_h.wr_strob[m_tx_h.wr_len]
+      {
+        bins wr_strob_cb[3] = {[0:$]};
+      }
   endgroup  : axi_mas_cg
 
-/*  covergroup axi_mas_data_cvg with function void semple(bit val);
-    BIT_TOGGLE_CP : coverpoint val
-      {
-        bins txn_cb_01 = (0=>1);
-        bins txn_cb_10 = (1=>0);
-      }
-  endgroup
-*/
 
 //new counstructore declaration.
   function new(string name="axi_mas_collector",uvm_component parent=null);
     super.new(name,parent);
     axi_mas_cg = new("axi_mas_cg");
-      wr_data_cg = new[`WR_DATA_WIDTH];
+    wr_data_cg = new[`WR_DATA_WIDTH];
     rd_data_cg = new[`RD_DATA_WIDTH];
     foreach(wr_data_cg[i])
       wr_data_cg[i] = new();

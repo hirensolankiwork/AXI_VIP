@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 28-08-2023 13:51:30
+// Last Modifiey  : 05-09-2023 11:54:50
 // File Name   	  : axi_mas_base_seqs.sv
 // Class Name 	  : axi_mas_base_seqs 
 // Project Name	  : AXI_3 VIP
@@ -50,10 +50,9 @@ class axi_mas_base_seqs extends uvm_sequence #(axi_mas_seq_item);
   virtual task body();
     `uvm_info(get_name(),"Start of body task .",UVM_HIGH);
     req = axi_mas_seq_item::type_id::create("req"); //Create the sequence item.
-    req.WR_BRUST.constraint_mode(0);
     repeat(count) begin
       start_item(req);      //wait the request grant from the sequencer.
-      assert(req.randomize());      //Randomize the sequence item.
+      assert(req.randomize() );      //Randomize the sequence item.
       finish_item(req);     //Send the randomize sequence item and wait for
     end                     // item_done call.
     `uvm_info(get_name(),"End of body task .",UVM_HIGH);

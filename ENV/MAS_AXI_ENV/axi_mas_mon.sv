@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : 28-08-2023 17:09:57
+// Last Modifiey  : Sun Sep 17 17:37:01 2023
 // File Name   	  : axi_mas_mon.sv
 // Class Name 	  : axi_mas_mon 
 // Project Name	  : AXI_3 VIP
@@ -15,7 +15,7 @@
 //--------------------------------------------------------------------------
 // class  : axi_mas_mon 
 //--------------------------------------------------------------------------
-class axi_mas_mon extends uvm_sequencer;
+class axi_mas_mon extends uvm_monitor;
 
 //UVM Fectory registretion.
 //uvm_sequencer is Component that's why we are using `uvm_component_utils macro.
@@ -91,13 +91,12 @@ class axi_mas_mon extends uvm_sequencer;
         @(posedge m_vif.aclk);
         if(`MON.wvalid && `MON.wready)begin
           `uvm_info(get_name(),"Wrire Data Channel Handshak",UVM_DEBUG)
-          trans_h.wr_id      = `MON.wid;
           trans_h.wr_data    = new[trans_h.wr_len +1];
           trans_h.wr_strob   = new[trans_h.wr_len +1];
-
           foreach(trans_h.wr_data[i])begin
-            trans_h.wr_data[i]= `MON.wdata;
-            trans_h.wr_strob[i]  = `MON.wstrob;
+            trans_h.wr_id      = `MON.wid;
+            trans_h.wr_data[i] = `MON.wdata;
+            trans_h.wr_strob[i]= `MON.wstrob;
             @(posedge m_vif.aclk);
             if(i != trans_h.wr_len)
               wait(`MON.wvalid && `MON.wready);
@@ -114,9 +113,7 @@ class axi_mas_mon extends uvm_sequencer;
           `uvm_info(get_name(),"Wrire response Channel Handshake",UVM_DEBUG)
           trans_h.b_valid    = `MON.bvalid;
           temp_q = mem_awid.find_first_index() with (item == `MON.bid);
-          $display(mem_awid);
           if(temp_q.size() != 0)begin
-            $display(temp_q);
             `uvm_info("BID_CHECKER","The Checker for BID got PASS.",UVM_HIGH)
             foreach(temp_q[i])
               mem_awid.delete(temp_q[i]-i);
@@ -135,7 +132,6 @@ class axi_mas_mon extends uvm_sequencer;
           `uvm_info(get_name(),"Read Addr Channel Handshake",UVM_DEBUG)
           trans_h.ard_id     = `MON.arid;
           mem_arid.push_back(`MON.arid);
-              $display(mem_arid);
           trans_h.rd_addr    = `MON.araddr;
           trans_h.rd_size    = `MON.arsize;
           trans_h.rd_len     = `MON.arlen;
@@ -159,9 +155,7 @@ class axi_mas_mon extends uvm_sequencer;
             else begin
               wait(`MON.rlast);
                 temp_q1 = mem_arid.find_first_index() with (item == `MON.rid);
-                $display(mem_arid);
                 if(temp_q1.size() != 0)begin
-                  $display(temp_q1);
                   `uvm_info("RID_CHECKER","The Checker for RID got PASS.",UVM_HIGH)
                   foreach(temp_q1[i])
                     mem_arid.delete(temp_q1[i]-i);
@@ -173,7 +167,8 @@ class axi_mas_mon extends uvm_sequencer;
            // trans_h.print();
           end
           trans_h.r_resp_e   = resp_kind_e'(`MON.rresp);
-                    m_mon_ap.write(trans_h);
+          m_mon_ap.write(trans_h);
+          trans_h.rd_data.delete();
         end
         `uvm_info(get_name(),"After Read data & Response Write call",UVM_DEBUG)
       end

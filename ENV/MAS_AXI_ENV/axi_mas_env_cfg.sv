@@ -2,7 +2,7 @@
 // Company        : SCALEDGE 
 // Engineer       : ADITYA MISHRA 
 // Create Date    : 04-08-2023
-// Last Modifiey  : 17-08-2023 14:26:37
+// Last Modifiey  : 01-09-2023 14:22:21
 // File Name   	  : axi_mas_env_cfg.sv
 // Class Name 	  : axi_mas_env_cfg
 // Project Name	  : AXI_3 VIP 

@@ -64,14 +64,14 @@ task body();
           
 
           
-           tr_h.randomize with { BRESP == 0;};
+          void'(tr_h.randomize with { BRESP == 0;});
           `uvm_send(tr_h);
         end  
         if( tr_h.ARVALID)
         begin
            tr_h.RDATA = new[tr_h.ARLEN + 1];
-           tr_h.randomize with { unique {RDATA}; };
-           tr_h.randomize with { RRESP == 0; };
+           void'(tr_h.randomize with { unique {RDATA}; });
+           void'(tr_h.randomize with { RRESP == 0; });
            `uvm_info(get_full_name,$sformatf("rvalid assert in base seqs and randomize value  arvalid is %0d",tr_h.ARVALID),UVM_DEBUG)
            `uvm_send(tr_h);
         end

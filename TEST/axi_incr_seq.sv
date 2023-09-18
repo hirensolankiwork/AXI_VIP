@@ -2,7 +2,7 @@
 // Company        : SCALEDGE 
 // Engineer       : ADITYA MISHRA 
 // Create Date    : 16-08-2023
-// Last Modifiey  : 31-08-2023 10:31:58
+// Last Modifiey  : 05-09-2023 11:58:02
 // File Name   	  : axi_incr_seq.sv
 // Class Name 	  : axi_incr_seq
 // Project Name	  : AXI_3 VIP
@@ -38,18 +38,11 @@ class axi_incr_seq extends axi_mas_base_seqs;
   task body();
     `uvm_info(get_name(),"Start of body task .",UVM_HIGH);
     req = axi_mas_seq_item::type_id::create("req"); //Create the sequence item.
-    fork
-    /*begin //Reset Process 
-        m_vif.reset(3);
-      end*/
-      begin //Simple Sequence item randomize process.
-        repeat(count) begin
-          start_item(req);              //wait the request grant from the sequencer.
-          assert(req.randomize());      //Randomize the sequence item.
-          finish_item(req);             //Send the randomize sequence item and wait for
-        end                             // item_done call.
-     end
-    join
+    repeat(count) begin
+      start_item(req);              //wait the request grant from the sequencer.
+      assert(req.randomize() with {wr_brust_e== INCR; rd_brust_e==INCR;});      //Randomize the sequence item.
+      finish_item(req);             //Send the randomize sequence item and wait for
+    end                             // item_done call.
     `uvm_info(get_name(),"End of body task .",UVM_HIGH);
   endtask : body
 
