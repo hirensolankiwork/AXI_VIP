@@ -2,7 +2,7 @@
 // Company		    : SCALEDGE 
 // Engineer		    : ADITYA MISHRA 
 // Create Date    : 24-07-2023
-// Last Modifiey  : Mon Sep 18 13:02:29 2023
+// Last Modifiey  : Wed Sep 20 10:38:36 2023
 // File Name   	  : axi_mas_drv.sv
 // Class Name 	  : axi_mas_drv 
 // Project Name	  : AXI_3 VIP
@@ -226,6 +226,7 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
   endtask : write_addr_trns
 
   task write_data_trns();
+    int j=0;
     `uvm_info(get_full_name(), "Inside write_data_trns()", UVM_DEBUG)
   //Write data chennal transfer.
   forever begin
@@ -251,11 +252,15 @@ class axi_mas_drv extends uvm_driver #(axi_mas_seq_item);
         if(write_data_req.wr_len>write_data_req_q[0].wr_len) begin
         @(posedge m_vif.aclk);
         `DRV.wid    <= write_data_req_q[0].wr_id;
-        `DRV.wdata  <= write_data_req_q[0].wr_data[i];
-        `DRV.wstrob <= write_data_req_q[0].wr_strob[i];
-        `DRV.wlast <= (i == write_data_req_q[0].wr_len) ? 1'b1 : 1'b0;
-        if(i == write_data_req_q[0].wr_len)
+        `DRV.wdata  <= write_data_req_q[0].wr_data[j];
+        `DRV.wstrob <= write_data_req_q[0].wr_strob[j];
+        `DRV.wlast <= (j == write_data_req_q[0].wr_len) ? 1'b1 : 1'b0;
+        if(j == write_data_req_q[0].wr_len)begin
           write_data_req_q.delete(0);
+          j=0;
+        end
+        else
+          j++;
         repeat(m_agnt_cfg.delay_cycle)@(posedge m_vif.aclk);
         `DRV.wvalid <= 1'b1;
         @(posedge m_vif.aclk);
